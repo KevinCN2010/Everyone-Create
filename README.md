@@ -9,26 +9,9 @@ No third-party IP, no legal risk, fully open and independent.
 
 ## 📦 下载 / Download
 - GitHub: Code → Download ZIP
-- 国内蓝奏云（高速）：https://wwauy.lanzouv.com/b00uzuqcoj 密码:auzf
 
 ## 主要功能 | Main Features
-- 用户系统：注册、登录、找回密码、资料编辑、账号数据持久化
-- 社区论坛：发帖、回帖、编辑、删除、置顶、分类管理
-- 消息系统：站内信、通知提醒、订阅信息更新与邮箱提醒
-- 权限系统：管理员、版主、普通用户、游客分级
-- 内容系统：反馈大厅、公告发布、审核机制
-- 安全系统：防注入、防越权、日志审计、访问记录
-- 数据系统：文件式存储、备份与恢复
-- 简洁的前后端结构，模块化设计，易于扩展
 
-- User System: register, login, password recovery, profile editing, account data persistence
-- Community Forum: posts, replies, edit, delete, sticky, category management
-- Message System: internal messages, notifications, subscription updates & email alerts
-- Permission System: admin, moderator, regular user, guest roles
-- Content System: feedback center, announcements, review mechanism
-- Security System: anti-injection, permission control, log audit, access records
-- Data System: file-based storage, backup & restore
-- Clean frontend & backend structure, modular design, easy to expand
 
 ## 技术栈 | Tech Stack
 - Frontend: HTML, CSS, JavaScript
@@ -45,6 +28,23 @@ but you must retain the original author attribution.
 ## 贡献 | Contribution
 Welcome issues, suggestions and pull requests.
 This project is beginner-friendly.
+### 贡献者
 
-欢迎提交建议、问题反馈与代码贡献。
-本项目对新手友好。
+## 核心开发者 / Core Developers
+
+| 头像 | GitHub | 贡献说明 |
+| --- | --- | --- |
+|![头像01](https://avatars.githubusercontent.com/KevinCN2010?s=64)|[ID02](https://github.com/KevinCN2010)| 项目创始人、架构设计、核心开发 |
+|![头像02](https://avatars.githubusercontent.com/朋友ID?s=64)|[ID02](https://github.com/zhuguang296)| 社区资金支持、文档构建 |
+
+
+### EOC 共创社区 · 参与方式
+本项目目前开源的内容以 **FAQ 类文档** 为主。
+
+你可以：
+- 直接提问
+- 帮忙解答问题
+- 完善 FAQ 内容
+
+不想提 **PR** 也完全可以：
+直接发 **Issue**，以 **question** 的形式告诉我们即可。
