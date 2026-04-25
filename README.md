@@ -1,17 +1,14 @@
-# EOC Community Open Architecture
-# EOC 共创社区开放架构
-
-A secure, modular, open-source community architecture for everyone.
-No third-party IP, no legal risk, fully open and independent.
+# Everyone Create 共创社区开放架构
 
 一个安全、模块化、面向所有人的开源社区架构。
-无第三方IP，无法律风险，完全独立开放。
 
 ## 📦 下载 / Download
 - GitHub: Code → Download ZIP
 
 ## 主要功能 | Main Features
-
+- 为[主站点](https://EOC.wuaze.com)提供文档Git流工作形式
+- 提供部分代码开源并可直接复用
+- 提供将部分文档区域**共创审记/修改**
 
 ## 技术栈 | Tech Stack
 - Frontend: HTML, CSS, JavaScript
