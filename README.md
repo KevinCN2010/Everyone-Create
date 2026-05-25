@@ -1,20 +1,22 @@
 # Everyone Create 共创社区开放架构
 
-一个安全、模块化、面向所有人的开源社区架构。
+一个安全、模块化、面向所有人的开源社区文本编辑区。
 
 ## 📦 下载 / Download
-- GitHub: Code → Download ZIP
+- GitHub:  自2026年1月1日起，Gthub将不会作为资源release发布点
+- Mindustry：可前往[MDT资源镜像处](https://mdt.download.66131466.xyz)查看
 
 ## 主要功能 | Main Features
-- 为[主站点](https://EOC.wuaze.com)提供文档Git流工作形式
-- 提供部分代码开源并可直接复用
+- 为[主站点](https://66131466.xyz)提供文档Git流工作
 - 提供将部分文档区域**共创审记/修改**
 
-## 技术栈 | Tech Stack
-- Frontend: HTML, CSS, JavaScript
-- Backend: PHP
-- Data: File-based storage
-- Security: Authorization, Log, Protection
+## 技术栈 | Tech Stac 
+
+- 系统：Apache / Nginx (关键功能或部分详细分权内容会选择使用Apache，静态内容选择Nginx)
+- 前端：HTML、CSS、JavaScript
+- 后端：PHP
+- 数据存储：文件式本地存储
+- 安全体系：权限校验、日志记录、全域防护
 
 ## 许可证 | License
 MIT License. You may use, modify and distribute this project,
@@ -36,7 +38,7 @@ This project is beginner-friendly.
 
 
 ### EOC 共创社区 · 参与方式
-本项目目前开源的内容以 **FAQ 类文档** 为主。
+本项目目前开源的内容以 **MD 类文档** 为主。
 
 你可以：
 - 直接提问
