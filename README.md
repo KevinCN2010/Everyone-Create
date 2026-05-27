@@ -1,16 +1,18 @@
 # Everyone Create 共创社区开放架构
 
-一个安全、模块化、面向所有人的开源社区文本编辑区。
+一个自由、模块化、面向所有人的开源社区文本编辑区。
 
-## 📦 下载 / Download
+## 资源
 - GitHub:  自2026年1月1日起，Gthub将不会作为资源release发布点
 - Mindustry：可前往[MDT资源镜像处](https://mdt.download.66131466.xyz)查看
 
-## 主要功能 | Main Features
-- 为[主站点](https://66131466.xyz)提供文档Git流工作
+## 主要功能
+
+- 部分原创资源的分发
+- [主站点](https://66131466.xyz)提供文档Git流工作
 - 提供将部分文档区域**共创审记/修改**
 
-## 技术栈 | Tech Stac 
+## 技术栈
 
 - 系统：Apache / Nginx (关键功能或部分详细分权内容会选择使用Apache，静态内容选择Nginx)
 - 前端：HTML、CSS、JavaScript
@@ -18,25 +20,37 @@
 - 数据存储：文件式本地存储
 - 安全体系：权限校验、日志记录、全域防护
 
-## 许可证 | License
-MIT License. You may use, modify and distribute this project,
-but you must retain the original author attribution.
+## 许可证
 
 本项目采用 MIT 开源协议。可自由使用、修改、分发，但必须标注原作者及来源。
 
-## 贡献 | Contribution
-Welcome issues, suggestions and pull requests.
-This project is beginner-friendly.
+## 贡献
+- 功能性建议
+
+<details markdown='1'><summary>展开/收起</summary>
+
+您可以前往网站中[反馈](https://smtp.66131466.xyz)提交您的方案或bug
+
+</details>
+
+- Bug上报
+
+<details markdown='1'><summary>展开/收起</summary>
+
+您可以在此仓库中上传您的issue/bug或前往任意聊天频道@管理员反馈
+
+</details>
+
+- 文案意见/错误
+<details markdown='1'><summary>展开/收起</summary>
+
+可在子仓库中Fork复制全仓库内容并修改对应的开源文案，然后提交你的文档(PR)，后相关管理员会尽快审核通过您的请求(现不支持自动拉取)
+
+</details>
 ### 贡献者
 
-## 核心开发者 / Core Developers
-
-| 头像 | GitHub | 贡献说明 |
-| --- | --- | --- |
-|![头像01](https://avatars.githubusercontent.com/KevinCN2010?s=64)|[ID02](https://github.com/KevinCN2010)| 项目创始人、架构设计、核心开发 |
-|![头像02](https://avatars.githubusercontent.com/朋友ID?s=64)|[ID02](https://github.com/zhuguang296)| 社区资金支持、文档构建 |
-
-
+- 我们珍惜每一位开发者的汗水以及对这个项目的高度支持，所有对整个项目做出贡献者均会在[贡献名单](https://maker.66131466.xyz)永久留名
+- 然而，这一切并非是你必须撰写关键代码才可能会达成的目标，您的每一句指点/一个错别字/一个语句不通顺都将成为我们整个项目越做越好的动力，当做出的贡献足够大时，我们一定会注意到您！
 ### EOC 共创社区 · 参与方式
 本项目目前开源的内容以 **MD 类文档** 为主。
 
@@ -46,4 +60,4 @@ This project is beginner-friendly.
 - 完善 FAQ 内容
 
 不想提 **PR** 也完全可以：
-直接发 **Issue**，以 **question** 的形式告诉我们即可。
+直接发 **Issue**， **question**或**在任意聊天群/频道@对应管理员** 的形式告诉我们即可。
