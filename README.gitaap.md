@@ -35,6 +35,42 @@
 
 ---
 
+## <img src="assets/readme-svg/gear.svg" width="18" height="18" alt=""> 环境要求 / Requirements / 環境需求
+
+| 依赖 | 版本要求 | 说明 |
+|------|---------|------|
+| **Python** | ≥ 3.12 | 运行时环境 |
+| **pip** | ≥ 24.0 | Python 包管理器 |
+| **Docker** | ≥ 24.0（可选） | 容器化部署方式需要 |
+| **Docker Compose** | ≥ 2.24（可选） | 编排部署需要 |
+
+### Python 依赖清单
+
+```
+fastapi>=0.104.0      # Web 框架
+uvicorn[standard]>=0.24.0  # ASGI 服务器
+sqlalchemy>=2.0.0     # ORM 数据库
+jinja2>=3.1.0         # 模板引擎
+requests>=2.31.0      # HTTP 客户端
+httpx>=0.25.0         # 异步 HTTP 客户端
+apscheduler>=3.10.0   # 定时任务调度
+```
+
+### 开发环境额外依赖
+
+```bash
+# 安装全部开发依赖
+pip install -e ".[dev]"
+
+# 验证环境
+python --version     # 需要 ≥ 3.12
+pip --version        # 需要 ≥ 24.0
+pytest --version     # 测试框架（dev 依赖）
+ruff --version       # 代码检查（dev 依赖）
+```
+
+---
+
 ## <img src="assets/readme-svg/page.svg" width="18" height="18" alt=""> License / 许可证 / 許可證
 
 [Apache 2.0](LICENSE) © KevinCN2010
