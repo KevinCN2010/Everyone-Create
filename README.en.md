@@ -108,4 +108,4 @@ ruff format .
 
 ## 📄 License
 
-Apache 2.0 © KevinCN2010
+[Apache 2.0](LICENSE) © KevinCN2010
