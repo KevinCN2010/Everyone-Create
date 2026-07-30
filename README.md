@@ -4,6 +4,10 @@
 
 ---
 
+> 🤖 本项目由 AI 辅助开发，可能存在考虑不周或疏漏之处。欢迎各路大佬提交 [Issue](https://github.com/KevinCN2010/Everyone-Create/issues) 或 [Pull Request](https://github.com/KevinCN2010/Everyone-Create/pulls) 指点斧正，共同完善。
+>
+> 🤖 This project was developed with AI assistance. There may be oversights or rough edges. All suggestions and contributions are warmly welcome — feel free to open an [Issue](https://github.com/KevinCN2010/Everyone-Create/issues) or [Pull Request](https://github.com/KevinCN2010/Everyone-Create/pulls).
+
 ## 🌐 选择语言 / Select Language / 選擇語言
 
 | | | |

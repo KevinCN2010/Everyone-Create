@@ -4,6 +4,10 @@
 
 ---
 
+> 🤖 **AI 輔助開發聲明**：本專案由 AI 輔助生成，可能存在考慮不周或疏漏之處。如果你發現任何問題或有最佳化建議，歡迎提交 [Issue](https://github.com/KevinCN2010/Everyone-Create/issues) 或 [Pull Request](https://github.com/KevinCN2010/Everyone-Create/pulls) 指點斧正。每一份反饋都是讓這個專案變得更好的動力 🙏
+
+---
+
 ## 📖 專案簡介
 
 GitAAP 是一個開源的 API 聚合代理服務，專注於 GitHub 倉庫資料的採集與視覺化。它透過多 Token 排程、智慧快取層和插件化架構，將分散在多個頁面的倉庫資訊整合到一處統一面板。

@@ -4,6 +4,10 @@
 
 ---
 
+> 🤖 **AI-Assisted Development Notice**: This project was developed with AI assistance. There may be oversights or areas for improvement. If you spot any issues or have suggestions, please feel free to open an [Issue](https://github.com/KevinCN2010/Everyone-Create/issues) or [Pull Request](https://github.com/KevinCN2010/Everyone-Create/pulls). Every piece of feedback helps make this project better 🙏
+
+---
+
 ## 📖 Introduction
 
 GitAAP is an open-source API aggregation proxy service focused on GitHub repository data collection and visualization. It uses multi-token scheduling, a smart caching layer, and a plugin-based architecture to consolidate repository information from multiple pages into a unified dashboard.
