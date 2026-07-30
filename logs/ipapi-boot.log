@@ -1,1 +1,0 @@
-<frozen runpy>:128: RuntimeWarning: 'ipapi.app' found in sys.modules after import of package 'ipapi', but prior to execution of 'ipapi.app'; this may result in unpredictable behaviour
