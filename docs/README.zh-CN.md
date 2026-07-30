@@ -1,31 +1,31 @@
 # GitAAP
 
-> GitHub API 聚合代理 — 多 Token 调度 · 智能缓存 · 实时数据聚合
+> <img src="../assets/readme-svg/globe.svg" width="18" height="18" alt=""> GitHub API 聚合代理 — 多 Token 调度 · 智能缓存 · 实时数据聚合
 
 ---
 
-> 🤖 **AI 辅助开发声明**：本项目由 AI 辅助生成，可能存在考虑不周或疏漏之处。如果你发现任何问题或有优化建议，欢迎提交 [Issue](https://github.com/KevinCN2010/Everyone-Create/issues) 或 [Pull Request](https://github.com/KevinCN2010/Everyone-Create/pulls) 指点斧正。每一份反馈都是让这个项目变得更好的动力 🙏
+> <img src="../assets/readme-svg/robot.svg" width="18" height="18" alt=""> **AI 辅助开发声明**：本项目由 AI 辅助生成，可能存在考虑不周或疏漏之处。如果你发现任何问题或有优化建议，欢迎提交 [Issue](https://github.com/KevinCN2010/Everyone-Create/issues) 或 [Pull Request](https://github.com/KevinCN2010/Everyone-Create/pulls) 指点斧正。每一份反馈都是让这个项目变得更好的动力 <img src="../assets/readme-svg/thanks.svg" width="16" height="16" alt="">
 
 ---
 
-## 📖 项目简介
+## <img src="../assets/readme-svg/book.svg" width="18" height="18" alt=""> 项目简介
 
 GitAAP 是一个开源的 API 聚合代理服务，专注于 GitHub 仓库数据的采集与可视化。它通过多 Token 调度、智能缓存层和插件化架构，将分散在多个页面的仓库信息整合到一处统一面板。
 
-## ✨ 功能特性
+## <img src="../assets/readme-svg/sparkles.svg" width="18" height="18" alt=""> 功能特性
 
-| 功能 | 说明 |
-|------|------|
-| 📊 **仓库数据聚合** | 自动采集仓库流量、发布、Issue、PR 等数据，集中展示 |
-| 🔄 **多 Token 调度** | 同时管理多个访问令牌，按剩余配额自动轮换，用完无缝切换 |
-| 🚀 **智能缓存** | 请求结果按命名空间缓存，减少重复调用，提升响应速度 |
-| 🔌 **插件体系** | 运行时动态加载的功能模块，支持弹窗、外观、验证等扩展 |
-| 🌐 **多语言界面** | 内置简体中文、繁体中文、英文，自动适配 |
-| 🎨 **主题系统** | 12 套色彩方案（琥珀、竹、炭、霜、薰衣草、樱花等） |
-| ⚡ **全异步架构** | 基于 FastAPI + httpx，高效并发处理 |
-| 🐳 **容器化部署** | Docker Compose 编排，一条命令启动 |
+|  | 功能 | 说明 |
+|--|------|------|
+| <img src="../assets/readme-svg/chart.svg" width="18" height="18" alt=""> | **仓库数据聚合** | 自动采集仓库流量、发布、Issue、PR 等数据，集中展示 |
+| <img src="../assets/readme-svg/sync.svg" width="18" height="18" alt=""> | **多 Token 调度** | 同时管理多个访问令牌，按剩余配额自动轮换，用完无缝切换 |
+| <img src="../assets/readme-svg/rocket.svg" width="18" height="18" alt=""> | **智能缓存** | 请求结果按命名空间缓存，减少重复调用，提升响应速度 |
+| <img src="../assets/readme-svg/plugin.svg" width="18" height="18" alt=""> | **插件体系** | 运行时动态加载的功能模块，支持弹窗、外观、验证等扩展 |
+| <img src="../assets/readme-svg/globe.svg" width="18" height="18" alt=""> | **多语言界面** | 内置简体中文、繁体中文、英文，自动适配 |
+| <img src="../assets/readme-svg/palette.svg" width="18" height="18" alt=""> | **主题系统** | 12 套色彩方案（琥珀、竹、炭、霜、薰衣草、樱花等） |
+| <img src="../assets/readme-svg/lightning.svg" width="18" height="18" alt=""> | **全异步架构** | 基于 FastAPI + httpx，高效并发处理 |
+| <img src="../assets/readme-svg/whale.svg" width="18" height="18" alt=""> | **容器化部署** | Docker Compose 编排，一条命令启动 |
 
-## 🚀 部署方式
+## <img src="../assets/readme-svg/rocket.svg" width="18" height="18" alt=""> 部署方式
 
 ### 方式一：Docker Compose（推荐）
 
@@ -47,7 +47,7 @@ pip install -r requirements.txt
 uvicorn i18n.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-## ⚙️ 环境变量
+## <img src="../assets/readme-svg/gear.svg" width="18" height="18" alt=""> 环境变量
 
 | 变量 | 必需 | 默认值 | 说明 |
 |------|------|--------|------|
@@ -57,7 +57,7 @@ uvicorn i18n.main:app --host 0.0.0.0 --port 8000 --reload
 | `UPDATE_HOURS` | 否 | `6` | 更新间隔（小时） |
 | `ADMIN_PASSWORD` | 否 | 随机 | 管理后台密码 |
 
-## 📁 项目结构
+## <img src="../assets/readme-svg/folder.svg" width="18" height="18" alt=""> 项目结构
 
 ```
 gitaap/
@@ -84,7 +84,7 @@ gitaap/
 └── requirements.txt       # Python 依赖
 ```
 
-## 🔌 插件系统
+## <img src="../assets/readme-svg/plugin.svg" width="18" height="18" alt=""> 插件系统
 
 ```
 i18n/static/plugins/
@@ -101,7 +101,7 @@ i18n/static/plugins/
     └── traffic-predict/      # 流量预测
 ```
 
-## 🛠️ 开发
+## <img src="../assets/readme-svg/tools.svg" width="18" height="18" alt=""> 开发
 
 ```bash
 pip install -e ".[dev]"
@@ -110,6 +110,6 @@ ruff check .
 ruff format .
 ```
 
-## 📄 许可证
+## <img src="../assets/readme-svg/page.svg" width="18" height="18" alt=""> 许可证
 
 [Apache 2.0](LICENSE) © KevinCN2010
