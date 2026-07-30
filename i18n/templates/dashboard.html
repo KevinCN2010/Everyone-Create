@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% include '_theme_head.html' %}
+        <title data-i18n="page-title-dashboard">GitHub 仓库仪表盘</title>
+        <script src="/static/marked.min.js" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha384-F/bZzf7p3Joyp5psL90p/p89AZJsndkSoGwRpXcZhleCWhd8SnRuoYo4d0yirjJp" crossorigin="anonymous" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/properties.min.js" integrity="sha384-tlJaeulTOJz9iqadCPTY2JwJVayIS3pMaQkEOgibHjwjmI6Fve8TLKvsR8tfmKwa" crossorigin="anonymous" defer></script>
+        <script>
+        (function() {
+            function getCookie(name) {
+                var match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+                return match ? decodeURIComponent(match[2]) : null;
+            }
+            var theme = getCookie('site-theme');
+            if (theme !== 'light' && theme !== 'dark') {
+                var hour = new Date().getHours();
+                theme = (hour >= 7 && hour < 19) ? 'light' : 'dark';
+            }
+            var hljsTheme = theme === 'light' ? 'github' : 'github-dark';
+            var link = document.createElement('link');
+            link.id = 'hljs-theme-link';
+            link.rel = 'stylesheet';
+            link.href = 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/' + hljsTheme + '.min.css';
+            document.head.appendChild(link);
+        })();
+        </script>
+        <link rel="stylesheet" href="/static/style.css?v={{ static_version }}">
+        <link rel="stylesheet" href="/static/themes/variables.css?v={{ static_version }}">
+        <link rel="stylesheet" href="/static/themes/animations.css?v={{ static_version }}">
+        <link rel="stylesheet" href="/static/themes/utilities.css?v={{ static_version }}">
+        <link rel="stylesheet" href="/static/themes/theme-light.css?v={{ static_version }}">
+        <link rel="stylesheet" href="/static/themes/icons.css?v={{ static_version }}">
+    </head>
+    <body>
+    {% include '_js_fallback.html' %}
+
+        <main><div class="container">
+            <div class="card controls animate-in">
+                <a class="nav-button" href="/"><span aria-hidden="true" class="ico ico-arrow-left ico-gap"></span><span data-i18n="home">首页</span></a>
+                {% if not has_github_token %}
+                <div class="banner warning">
+                    <strong data-i18n="warning">警告：</strong><span data-i18n="no-token-warning">未设置 GITHUB_TOKEN。API 调用频率受限（60次/小时）。</span>
+                </div>
+                {% endif %}
+                <span style="font-size:1.1rem; font-weight:600;" data-i18n="repository">仓库：</span>
+                <div class="repo-select-wrap">
+                    <button class="repo-select-btn" id="repo-select-btn" onclick="toggleRepoDropdown()">
+                        <span class="repo-select-label" id="repo-select-label">{{ selected_repo }}</span>
+                        <span aria-hidden="true" class="ico ico-chevron-down repo-select-arrow" style="width:12px;height:12px;"></span>
+                    </button>
+                    <div class="repo-dropdown" id="repo-dropdown" style="display:none;">
+                        <div class="repo-dropdown-search">
+                            <span aria-hidden="true" class="ico ico-search" style="width:13px;height:13px;flex-shrink:0;"></span>
+                            <input type="text" class="repo-dropdown-input" id="repo-dropdown-input" data-i18n-placeholder="search-placeholder" placeholder="搜索仓库..." oninput="filterRepoDropdown(this.value)" autocomplete="off">
+                        </div>
+                        <div class="repo-dropdown-list" id="repo-dropdown-list">
+                            {% for r in repos %}
+                            <div class="repo-dropdown-item" data-repo="{{r}}" onclick="selectRepoDropdown(this.dataset.repo)">{{r}}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <select id="repo" style="display:none;" onchange="onRepoChange()">
+                        {% for r in repos %}
+                        <option value="{{r}}" {% if r == selected_repo %}selected{% endif %}>{{r}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button id="theme-toggle" class="btn-sm" onclick="toggleTheme()" data-i18n-title="theme-toggle" title="切换主题" style="width:36px;height:36px;padding:0;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;flex-shrink:0;">
+                    <span aria-hidden="true" class="ico ico-moon" style="width:18px;height:18px;"></span>
+                </button>
+                <button id="drawer-toggle" class="btn-sm" onclick="toggleDrawer()" data-i18n-title="drawer-more-options" title="更多选项" style="width:36px;height:36px;padding:0;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <span class="ham-icon"><span class="ham-i"></span><span class="ham-i"></span><span class="ham-i"></span></span>
+                </button>
+            </div>
+
+            <!-- 仓库概览 -->
+            <div class="card repo-overview animate-in" id="repo-overview">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                    <div>
+                        <h2 id="repo-name" style="margin:0;">{{ selected_repo }}</h2>
+                        <p id="repo-author" style="margin:2px 0 0;font-size:0.82rem;">
+                            <span data-i18n="by">作者</span>
+                            <a id="author-link" href="javascript:;" onclick="showAuthorFloat()" style="color:var(--cyan);text-decoration:none;cursor:pointer;border-bottom:1px dotted var(--cyan);font-weight:500;"></a>
+                        </p>
+                        <p id="repo-description" style="color:var(--text-dim,#8b98a6); margin:4px 0 0 0;" data-i18n="loading">加载中...</p>
+                    </div>
+                    <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                        <span class="badge-empty" id="repo-language" data-i18n="unknown-short">未知</span>
+                        <span class="badge-empty" id="repo-license" data-i18n="unknown-short">未知</span>
+                        <span class="badge" id="repo-topics"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 标签栏 -->
+            <div class="tab-bar animate-in">
+                <button class="tab-btn active" data-tab="releases" onclick="switchTab('releases')"><span data-i18n="tabs-releases"><span aria-hidden="true" class="ico ico-tag ico-cyan ico-gap"></span>发布</span></button>
+                <button class="tab-btn" data-tab="commits" onclick="switchTab('commits')"><span data-i18n="tabs-commits"><span aria-hidden="true" class="ico ico-commit ico-gap"></span>提交</span></button>
+                <button class="tab-btn" data-tab="issues" onclick="switchTab('issues')"><span data-i18n="tabs-issues"><span aria-hidden="true" class="ico ico-issue ico-green ico-gap"></span>Issues</span></button>
+                <button class="tab-btn" data-tab="prs" onclick="switchTab('prs')"><span data-i18n="tabs-prs"><span aria-hidden="true" class="ico ico-pr ico-blue ico-gap"></span>PRs</span></button>
+                <button class="tab-btn" data-tab="browser" onclick="switchTab('browser')"><span data-i18n="browser"><span aria-hidden="true" class="ico ico-folder ico-gap"></span>文件浏览</span></button>
+                <button class="tab-btn" data-tab="readme" onclick="switchTab('readme')"><span data-i18n="readme"><span aria-hidden="true" class="ico ico-note ico-gap"></span>README</span></button>
+                <!-- 模组商店标签由 mindustry-mods 插件接管，详见 available/mindustry-mods/plugin.js -->
+            </div>
+
+            <!-- Tab: Releases -->
+            <div class="tab-content" id="tab-releases" style="display:block;">
+                <div class="card">
+                    <div id="releases-list"><p style="color:var(--text-dim);" data-i18n="loading">加载中...</p></div>
+                    <div id="releases-paginator" class="paginate-footer" style="display:none; margin-top:8px;">
+                        <button class="btn-sm" id="releases-prev" onclick="goReleasePage(releasesPage - 1)" disabled data-i18n-title="prev-page-label" aria-label="上一页"><span aria-hidden="true" class="ico ico-chevron-left" style="width:14px;height:14px;"></span></button>
+                        <span id="releases-page-info" class="page-num">1</span>
+                        <button class="btn-sm" id="releases-next" onclick="goReleasePage(releasesPage + 1)" data-i18n-title="next-page-label" aria-label="下一页"><span aria-hidden="true" class="ico ico-chevron-right" style="width:14px;height:14px;"></span></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Commits -->
+            <div class="tab-content" id="tab-commits" style="display:none;">
+                <div class="card">
+                    <div id="commits-list"><p style="color:var(--text-dim);" data-i18n="loading">加载中...</p></div>
+                    <div id="commits-paginator" class="paginate-footer" style="display:none; margin-top:8px;">
+                        <button class="btn-sm" id="commits-prev" onclick="goCommitPage(commitsPage - 1)" disabled data-i18n-title="prev-page-label" aria-label="上一页"><span aria-hidden="true" class="ico ico-chevron-left" style="width:14px;height:14px;"></span></button>
+                        <span id="commits-page-info" class="page-num">1</span>
+                        <button class="btn-sm" id="commits-next" onclick="goCommitPage(commitsPage + 1)" data-i18n-title="next-page-label" aria-label="下一页"><span aria-hidden="true" class="ico ico-chevron-right" style="width:14px;height:14px;"></span></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Issues -->
+            <div class="tab-content" id="tab-issues" style="display:none;">
+                <div class="card">
+                    <div style="display:flex; gap:8px; margin-bottom:12px; align-items:center;">
+                        <button class="btn-sm issues-state-btn active" data-state="open" onclick="loadIssues(document.getElementById('repo').value, 1, 'open')" data-i18n="issues-open">正在进行中</button>
+                        <button class="btn-sm issues-state-btn" data-state="closed" onclick="loadIssues(document.getElementById('repo').value, 1, 'closed')" data-i18n="issues-closed">已经关闭</button>
+                    </div>
+                    <div class="data-table-wrapper" style="overflow-x:auto; -webkit-overflow-scrolling:touch;">
+                    <table class="data-table">
+                        <thead><tr><th>#</th><th data-i18n="title">标题</th><th data-i18n="status">状态</th><th data-i18n="labels">标签</th><th data-i18n="updated">更新时间</th></tr></thead>
+                        <tbody id="issues-body"><tr><td colspan="5" style="text-align:center; color:var(--text-dim,#8b98a6);" data-i18n="loading">加载中...</td></tr></tbody>
+                    </table>
+                    </div>
+                    <div id="issues-paginator" class="paginate-footer" style="display:none; margin-top:8px;">
+                        <button class="btn-sm" id="issues-prev" onclick="goIssuePage(issuesPage - 1)" disabled data-i18n-title="prev-page-label" aria-label="上一页"><span aria-hidden="true" class="ico ico-chevron-left" style="width:14px;height:14px;"></span></button>
+                        <span id="issues-page-info" class="page-num">1</span>
+                        <button class="btn-sm" id="issues-next" onclick="goIssuePage(issuesPage + 1)" data-i18n-title="next-page-label" aria-label="下一页"><span aria-hidden="true" class="ico ico-chevron-right" style="width:14px;height:14px;"></span></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: PRs -->
+            <div class="tab-content" id="tab-prs" style="display:none;">
+                <div class="card">
+                    <div style="display:flex; gap:8px; margin-bottom:12px; align-items:center;">
+                        <button class="btn-sm pulls-state-btn active" data-state="open" onclick="loadPulls(document.getElementById('repo').value, 1, 'open')" data-i18n="issues-open">正在进行中</button>
+                        <button class="btn-sm pulls-state-btn" data-state="closed" onclick="loadPulls(document.getElementById('repo').value, 1, 'closed')" data-i18n="issues-closed">已经关闭</button>
+                    </div>
+                    <div class="data-table-wrapper" style="overflow-x:auto; -webkit-overflow-scrolling:touch;">
+                    <table class="data-table">
+                        <thead><tr><th>#</th><th data-i18n="title">标题</th><th data-i18n="status">状态</th><th data-i18n="labels">标签</th><th data-i18n="updated">更新时间</th></tr></thead>
+                        <tbody id="pulls-body"><tr><td colspan="5" style="text-align:center; color:var(--text-dim,#8b98a6);" data-i18n="loading">加载中...</td></tr></tbody>
+                    </table>
+                    </div>
+                    <div id="pulls-paginator" class="paginate-footer" style="display:none; margin-top:8px;">
+                        <button class="btn-sm" id="pulls-prev" onclick="goPullPage(pullsPage - 1)" disabled data-i18n-title="prev-page-label" aria-label="上一页"><span aria-hidden="true" class="ico ico-chevron-left" style="width:14px;height:14px;"></span></button>
+                        <span id="pulls-page-info" class="page-num">1</span>
+                        <button class="btn-sm" id="pulls-next" onclick="goPullPage(pullsPage + 1)" data-i18n-title="next-page-label" aria-label="下一页"><span aria-hidden="true" class="ico ico-chevron-right" style="width:14px;height:14px;"></span></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: 文件浏览 -->
+            <div class="tab-content" id="tab-browser" style="display:none;">
+                <div class="card file-browser-card" style="padding:0; overflow:hidden;">
+                    <div id="file-breadcrumb" class="file-breadcrumb"></div>
+                    <div id="file-tree-list" class="file-tree-container"><p style="color:var(--text-dim,#8b98a6);padding:20px;text-align:center;" data-i18n="loading">加载中...</p></div>
+                    <!-- 内嵌文件查看器 -->
+                    <div id="file-viewer" class="file-viewer" style="display:none; border-top:1px solid var(--border);">
+                        <div class="file-viewer-header" style="display:flex; align-items:center; gap:8px; padding:8px 14px; background:rgba(0,0,0,0.15); border-bottom:1px solid var(--border); flex-wrap:wrap;">
+                            <span aria-hidden="true" class="ico ico-file-code ico-blue" style="width:16px;height:16px;"></span>
+                            <span id="fview-filename" style="font-weight:600; font-size:0.9rem; font-family:monospace; flex:1;"></span>
+                            <span id="fview-filesize" style="font-size:0.78rem; color:var(--text-dim);"></span>
+                            <!-- 渲染/源码切换（仅 Markdown） -->
+                            <button id="fview-render-toggle" class="btn-sm" onclick="toggleFileRender()" style="font-size:0.75rem; padding:2px 10px; display:none;" data-i18n="preview">预览</button>
+                            <!-- 下载按钮 -->
+                            <button id="fview-download-btn" class="btn-sm" onclick="downloadCurrentFile()" data-i18n-title="file-download-title" title="下载此文件" style="font-size:0.75rem; padding:2px 10px;">
+                                <span aria-hidden="true" class="ico ico-download ico-gap" style="width:12px;height:12px;"></span><span data-i18n="download">下载</span>
+                            </button>
+                            <!-- 关闭按钮 -->
+                            <button class="btn-sm" onclick="closeFileViewer()" data-i18n-title="close" title="关闭" style="font-size:0.75rem; padding:2px 8px; color:var(--text-dim);"><span aria-hidden="true" class="ico ico-x-circle" style="width:14px;height:14px;"></span></button>
+                        </div>
+                        <div id="fview-body" class="file-viewer-body" style="position:relative; overflow:hidden;">
+                            <pre id="fview-code" class="fview-code" style="margin:0; padding:16px; overflow-x:auto; overflow-y:auto; font-size:0.85rem; line-height:1.6; max-height:600px; display:none;"></pre>
+                            <div id="fview-rendered" class="fview-rendered markdown-body" style="padding:16px; overflow-y:auto; max-height:600px; display:none;"></div>
+                            <!-- 图片/媒体预览 -->
+                            <div id="fview-media" class="fview-media" style="display:none; padding:20px; text-align:center; max-height:600px; overflow-y:auto;">
+                                <img id="fview-image" class="fview-image" alt="文件预览" style="max-width:100%; max-height:520px; border-radius:8px; box-shadow:0 4px 20px rgba(0,0,0,0.3); display:none;" />
+                                <div id="fview-audio-player" class="audio-player" style="display:none; padding:16px;"></div>
+                                <div id="fview-video-player" class="video-player" style="display:none;">
+                                    <video id="fview-video" class="fview-video" controls style="max-width:100%; max-height:520px; border-radius:8px; background:#000;"></video>
+                                </div>
+                            </div>
+                            <div id="fview-loading" style="padding:30px; text-align:center; color:var(--text-dim);">
+                                <div class="spinner" style="width:24px;height:24px;border-width:3px;margin:0 auto;"></div>
+                                <p style="margin-top:8px; font-size:0.85rem;" data-i18n="loading-file">加载中...</p>
+                            </div>
+                            <div id="fview-error" style="display:none; padding:30px; text-align:center; color:var(--red,#f85149); font-size:0.9rem;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: README -->
+            <div class="tab-content" id="tab-readme" style="display:none;">
+                <div class="card markdown-body" id="readme-content">
+                    <p style="color:var(--text-dim,#8b98a6);" data-i18n="loading">加载中...</p>
+                </div>
+            </div>
+
+            <!-- 模组商店面板由 mindustry-mods 插件接管，详见 available/mindustry-mods/plugin.js -->
+
+            <!-- Tab: Release 详情（内联，动画跳转） -->
+            <div class="tab-content" id="tab-release-detail" style="display:none;">
+                <div class="card controls" id="release-detail-controls">
+                    <button class="nav-button" onclick="switchTab('releases')" style="cursor:pointer;border:none;"><span aria-hidden="true" class="ico ico-arrow-left ico-gap"></span><span data-i18n="back-to-dashboard">返回发布列表</span></button>
+                    <span style="font-size:1.1rem; font-weight:600;" data-i18n="release-detail">Release 详情</span>
+                    <span style="color:var(--text-dim); font-size:0.9rem;" id="release-detail-breadcrumb"></span>
+                    <a id="release-detail-github-link-top" href="#" target="_blank" rel="noopener noreferrer" class="nav-button" style="background:var(--blue,#1f6feb);margin-left:auto;" data-i18n="view-on-github"><span aria-hidden="true" class="ico ico-github ico-gap" style="width:14px;height:14px;"></span>在 GitHub 上查看</a>
+                </div>
+
+                <div id="release-loading" class="card" style="text-align:center; padding:40px;">
+                    <div class="spinner"></div>
+                    <p style="margin-top:16px; color:var(--text-dim);" data-i18n="loading">加载中...</p>
+                </div>
+
+                <div id="release-content" style="display:none;">
+                    <div class="card repo-overview" id="release-header">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px;">
+                            <div>
+                                <h2 id="release-name" style="margin:0;"></h2>
+                                <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:6px;">
+                                    <span class="badge" id="release-tag-badge"></span>
+                                    <span class="badge" id="release-status-badge"></span>
+                                    <span style="color:var(--text-dim); font-size:0.85rem;" id="release-date"></span>
+                                    <span style="color:var(--text-dim); font-size:0.85rem;" data-i18n="by">作者</span>
+                                    <span style="color:var(--cyan); font-size:0.85rem;" id="release-author"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card" id="release-notes-card">
+                        <h3 data-i18n="release-notes"><span aria-hidden="true" class="ico ico-file-text ico-gap"></span>发布说明
+                            <button id="release-translate-btn" class="btn-sm" onclick="translateReleaseBody()" style="display:none; float:right; font-size:0.75rem; padding:2px 10px;" data-i18n="translate"><span aria-hidden="true" class="ico ico-globe ico-gap" style="width:14px;height:14px;"></span>翻译</button>
+                        </h3>
+                        <div id="release-body" class="release-body markdown-body"></div>
+                    </div>
+
+                    <div class="card" id="release-source-card">
+                        <h3 data-i18n="source-code"><span aria-hidden="true" class="ico ico-package ico-cyan ico-gap"></span>源码包</h3>
+                        <div id="release-source" class="asset-list"></div>
+                    </div>
+
+                    <div class="card" id="release-assets-card">
+                        <h3 data-i18n="attachments"><span aria-hidden="true" class="ico ico-attachment ico-dim ico-gap"></span>附件资源</h3>
+                        <div id="release-assets" class="asset-list"></div>
+                    </div>
+                </div>
+
+                <div id="release-error" class="card" style="display:none; text-align:center; padding:40px; border-color:var(--red);">
+                    <p style="color:var(--red); font-size:1.1rem;" id="release-error-message"></p>
+                    <button class="nav-button" onclick="switchTab('releases')" style="margin-top:16px; display:inline-block; cursor:pointer;border:none;" data-i18n="back-to-dashboard"><span aria-hidden="true" class="ico ico-arrow-left ico-gap"></span>返回发布列表</button>
+                </div>
+            </div>
+
+        </div>
+        <!-- 右侧滑出抽屉 -->
+        <div id="side-drawer" class="drawer-overlay" style="display:none;" onclick="if(event.target===this)closeDrawer()">
+            <div class="drawer-panel">
+                <div class="drawer-header">
+                    <span class="drawer-title" data-i18n="drawer-more-options">更多选项</span>
+                    <button class="drawer-close" onclick="closeDrawer()" data-i18n-title="close" aria-label="关闭菜单"><span aria-hidden="true" class="ico ico-x-circle" style="width:16px;height:16px;"></span></button>
+                </div>
+                <div class="drawer-body">
+                    <!-- 分类导航：每个分类是一个小按键，点击切换面板 -->
+                    <div class="drawer-nav">
+                        <button class="drawer-nav-btn active" data-panel="repo" onclick="switchDrawerPanel('repo')">
+                            <span aria-hidden="true" class="ico ico-star ico-yellow" style="width:14px;height:14px;"></span>
+                            <span data-i18n="drawer-nav-repo">仓库</span>
+                        </button>
+                        <button class="drawer-nav-btn" data-panel="personalize" onclick="switchDrawerPanel('personalize')">
+                            <span aria-hidden="true" class="ico ico-palette" style="width:14px;height:14px;"></span>
+                            <span data-i18n="drawer-nav-personalize">个性</span>
+                        </button>
+                        <button class="drawer-nav-btn" data-panel="lang" onclick="switchDrawerPanel('lang')">
+                            <span aria-hidden="true" class="ico ico-globe" style="width:14px;height:14px;"></span>
+                            <span data-i18n="drawer-nav-lang">语言</span>
+                        </button>
+                        <button class="drawer-nav-btn" data-panel="tools" onclick="switchDrawerPanel('tools')">
+                            <span aria-hidden="true" class="ico ico-tools" style="width:14px;height:14px;"></span>
+                            <span data-i18n="drawer-nav-tools">工具</span>
+                        </button>
+                        <button class="drawer-nav-btn" data-panel="admin" onclick="switchDrawerPanel('admin')">
+                            <span aria-hidden="true" class="ico ico-shield" style="width:14px;height:14px;"></span>
+                            <span data-i18n="drawer-nav-admin">管理</span>
+                        </button>
+                    </div>
+
+                    <!-- 面板：仓库（默认展开） -->
+                    <div class="drawer-panel-content active" id="dpanel-repo">
+                        <div class="drawer-section">
+                            <div class="drawer-section-title" data-i18n="repo-stats">仓库统计</div>
+                            <div class="drawer-stats-grid">
+                                <div class="drawer-stat-item">
+                                    <span aria-hidden="true" class="ico ico-star ico-yellow ico-gap"></span>
+                                    <span class="drawer-stat-label" data-i18n="stars-short">星标</span>
+                                    <span class="drawer-stat-value" id="drawer-stat-stars">—</span>
+                                    <span class="info-badge" data-repo="{{ selected_repo }}" data-type="stargazers" data-i18n-title="view-stargazers" title="查看 Star 用户">i</span>
+                                </div>
+                                <div class="drawer-stat-item">
+                                    <span aria-hidden="true" class="ico ico-git-branch ico-blue ico-gap"></span>
+                                    <span class="drawer-stat-label" data-i18n="forks-short">复刻</span>
+                                    <span class="drawer-stat-value" id="drawer-stat-forks">—</span>
+                                    <span class="info-badge" data-repo="{{ selected_repo }}" data-type="forks" data-i18n-title="view-forks" title="查看 Fork 用户">i</span>
+                                </div>
+                                <div class="drawer-stat-item">
+                                    <span aria-hidden="true" class="ico ico-issue ico-green ico-gap"></span>
+                                    <span class="drawer-stat-label" data-i18n="issues-short">Issue</span>
+                                    <span class="drawer-stat-value" id="drawer-stat-issues">—</span>
+                                </div>
+                                <div class="drawer-stat-item">
+                                    <span aria-hidden="true" class="ico ico-eye ico-purple ico-gap"></span>
+                                    <span class="drawer-stat-label" data-i18n="watchers-short">关注</span>
+                                    <span class="drawer-stat-value" id="drawer-stat-watchers">—</span>
+                                </div>
+                                <div class="drawer-stat-item">
+                                    <span aria-hidden="true" class="ico ico-git-branch ico-dim ico-gap"></span>
+                                    <span class="drawer-stat-label" data-i18n="branch-short">分支</span>
+                                    <span class="drawer-stat-value" id="drawer-stat-branch">—</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="drawer-section">
+                            <div class="drawer-section-title" data-i18n="programming-lang">编程语言</div>
+                            <div id="drawer-lang-bar" class="lang-bar" style="margin-bottom:8px;">
+                                <div class="lang-bar-empty" data-i18n="loading">加载中...</div>
+                            </div>
+                            <div id="drawer-lang-list" class="lang-list"></div>
+                        </div>
+                    </div>
+
+                    <!-- 面板：个性选择（折叠） -->
+                    <div class="drawer-panel-content" id="dpanel-personalize">
+                        <div class="drawer-section">
+                            <div class="drawer-section-title" data-i18n="toolbox">工具箱</div>
+                            <div class="drawer-theme-options">
+                                <button class="drawer-theme-btn" data-theme="dark" onclick="setTheme('dark')">
+                                    <span aria-hidden="true" class="ico ico-moon ico-gap"></span><span data-i18n="dark">深色</span>
+                                </button>
+                                <button class="drawer-theme-btn" data-theme="light" onclick="setTheme('light')">
+                                    <span aria-hidden="true" class="ico ico-sun ico-gap"></span><span data-i18n="light">浅色</span>
+                                </button>
+                                <button class="drawer-theme-btn" data-theme="system" onclick="setTheme('system')">
+                                    <span aria-hidden="true" class="ico ico-gear ico-gap"></span><span data-i18n="system">跟随系统</span>
+                                </button>
+                            </div>
+                            <div style="margin-top:12px; margin-bottom:12px;">
+                                <div style="font-size:0.78rem; color:var(--text-dim); margin-bottom:6px;" data-i18n="text-align">文本对齐</div>
+                                <div class="drawer-theme-options" id="text-align-options">
+                                    <button class="drawer-theme-btn align-btn" data-align="left" onclick="setTextAlign('left')"><span data-i18n="align-left">左</span></button>
+                                    <button class="drawer-theme-btn align-btn active" data-align="center" onclick="setTextAlign('center')"><span data-i18n="align-center">中</span></button>
+                                    <button class="drawer-theme-btn align-btn" data-align="right" onclick="setTextAlign('right')"><span data-i18n="align-right">右</span></button>
+                                </div>
+                            </div>
+                            <div style="margin-bottom:12px;">
+                                <div style="font-size:0.78rem; color:var(--text-dim); margin-bottom:6px;" data-i18n="font-size">字体大小</div>
+                                <div class="drawer-theme-options" id="font-size-options">
+                                    <button class="drawer-theme-btn font-size-btn" data-size="small" onclick="setFontSize('small')"><span data-i18n="font-small">小</span></button>
+                                    <button class="drawer-theme-btn font-size-btn active" data-size="medium" onclick="setFontSize('medium')"><span data-i18n="font-medium">中</span></button>
+                                    <button class="drawer-theme-btn font-size-btn" data-size="large" onclick="setFontSize('large')"><span data-i18n="font-large">大</span></button>
+                                    <button class="drawer-theme-btn font-size-btn" data-size="xlarge" onclick="setFontSize('xlarge')"><span data-i18n="font-xlarge">特大</span></button>
+                                </div>
+                            </div>
+                            <div class="tone-market" id="tone-market">
+                                <div class="tone-market-header">
+                                    <span class="tone-market-label"><span aria-hidden="true" class="ico ico-palette ico-gap"></span><span data-i18n="tone">色调</span></span>
+                                    <button class="tone-market-toggle btn-sm" onclick="toggleToneMarket()" id="tone-market-toggle">
+                                        <span class="tone-market-arrow"><span aria-hidden="true" class="ico ico-chevron-down" style="width:12px;height:12px;"></span></span> <span data-i18n="browse-tones">浏览色调</span>
+                                    </button>
+                                </div>
+                                <div class="tone-market-grid" id="tone-market-grid" style="display:none;"></div>
+                                <div class="tone-market-placeholder" id="tone-market-placeholder"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 面板：语言 -->
+                    <div class="drawer-panel-content" id="dpanel-lang">
+                        <div class="drawer-section">
+                            <div class="drawer-section-title" data-i18n="language">语言</div>
+                            <div class="drawer-lang-options">
+                                <button class="drawer-lang-btn" data-lang="zh" onclick="setLang('zh')" data-i18n="language-zh">中文</button>
+                                <button class="drawer-lang-btn" data-lang="zh-Hant" onclick="setLang('zh-Hant')" data-i18n="language-zh-hant">繁體中文</button>
+                                <button class="drawer-lang-btn" data-lang="en" onclick="setLang('en')" data-i18n="language-en">English</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 面板：工具 -->
+                    <div class="drawer-panel-content" id="dpanel-tools">
+                        <div class="drawer-section">
+                            <div class="drawer-section-title" data-i18n="links">工具</div>
+                            <a class="drawer-link" href="/token-stats-page">
+                                <span aria-hidden="true" class="ico ico-hourglass ico-dim ico-gap"></span><span data-i18n="token-stats">Token 使用统计</span>
+                            </a>
+                            <a class="drawer-link" href="/docs">
+                                <span aria-hidden="true" class="ico ico-book ico-dim ico-gap"></span><span data-i18n="dev-docs">开发者文档</span>
+                            </a>
+                            <a class="drawer-link" href="/plugins">
+                                <span aria-hidden="true" class="ico ico-box ico-dim ico-gap"></span><span data-i18n="plugins">插件管理</span>
+                            </a>
+                            <a class="drawer-link" href="/">
+                                <span aria-hidden="true" class="ico ico-home ico-dim ico-gap"></span><span data-i18n="home">返回首页</span>
+                            </a>
+                            <label class="drawer-toggle-row" style="display:flex; align-items:center; gap:8px; margin-top:8px; padding:8px 4px; cursor:pointer; font-size:0.85rem; color:var(--text-dim);">
+                                <input type="checkbox" id="cache-hint-toggle" onchange="toggleCacheHint()" style="accent-color:var(--cyan);">
+                                <span data-i18n="cache-hint">缓存命中提示</span>
+                            </label>
+                        </div>
+                        <div class="drawer-section">
+                            <div class="drawer-section-title" data-i18n="plugins-status">插件状态</div>
+                            <div id="drawer-plugin-status" style="padding:4px 0; font-size:0.82rem; color:var(--text-dim);">
+                                <span aria-hidden="true" class="ico ico-hourglass ico-dim ico-gap"></span><span data-i18n="plugins-loading">加载中...</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 面板：管理 -->
+                    <div class="drawer-panel-content" id="dpanel-admin">
+                        <div class="drawer-section">
+                            <div class="drawer-section-title" data-i18n="admin">管理</div>
+                            <a class="drawer-link" href="/admin">
+                                <span aria-hidden="true" class="ico ico-person ico-dim ico-gap"></span><span data-i18n="admin-login">管理员登录</span>
+                            </a>
+                        </div>
+                        <div class="drawer-section" id="tac-section">
+                            <div class="drawer-section-title" data-i18n="captcha">人机验证</div>
+                            <div style="padding:4px 0; font-size:0.82rem; color:var(--text-dim);">
+                                <div id="captcha-box" style="min-height:60px;"></div>
+                                <div id="tac-status" style="margin-top:6px; font-size:0.78rem;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div></main>
+        <script src="/static/function.js?v={{ static_version }}"></script>
+        <script>
+        // 事件委托：处理 info-badge 点击（避免模板变量直接嵌入 onclick）
+        document.addEventListener('click', function(e) {
+            var badge = e.target.closest('.info-badge');
+            if (badge) {
+                var repoSelect = document.getElementById('repo');
+                var repo = repoSelect && repoSelect.value ? repoSelect.value : badge.getAttribute('data-repo');
+                var type = badge.getAttribute('data-type');
+                if (repo && type) {
+                    showRepoDetail(repo, type);
+                }
+            }
+        });
+        </script>
+    </body>
+</html>

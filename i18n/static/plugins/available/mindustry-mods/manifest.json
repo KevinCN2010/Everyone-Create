@@ -1,0 +1,59 @@
+{
+  "id": "mindustry-mods",
+  "name": "mindustry-mods",
+  "version": "1.0.0",
+  "title": "Mindustry 模组商店",
+  "description": "浏览 Anuken/MindustryMods 仓库中的模组列表，支持搜索、排序、分类筛选与分页。",
+  "author": "GitAAP Team",
+  "team": "GitAAP",
+  "created_at": "2026-07-26T00:00:00Z",
+  "updated_at": "2026-07-26T00:00:00Z",
+  "size": "12KB",
+  "enabled": true,
+  "entry": "plugin.js",
+  "style": "plugin.css",
+  "assets": {
+    "css": ["plugin.css"],
+    "svg": [],
+    "js": ["plugin.js"]
+  },
+  "dependencies": [],
+  "repositoryScopes": ["Anuken/MindustryMods"],
+  "tags": ["mindustry", "mods", "store"],
+  "config": {
+    "classifications": [
+      {
+        "id": "js",
+        "label": "JS",
+        "label_zh": "脚本",
+        "field": "hasScripts",
+        "match": true,
+        "color": "#f0db4f",
+        "icon": "ico-code"
+      },
+      {
+        "id": "java",
+        "label": "Java",
+        "field": "hasJava",
+        "match": true,
+        "color": "#ed7d31",
+        "icon": "ico-coffee"
+      },
+      {
+        "id": "icon",
+        "label": "Icon",
+        "label_zh": "有图标",
+        "field": "hasIcon",
+        "match": true,
+        "color": "#e3b341",
+        "icon": "ico-image"
+      }
+    ],
+    "lang_filter": {
+      "js": {"field": "hasScripts", "match": true},
+      "java": {"field": "hasJava", "match": true},
+      "both": {"fields": ["hasScripts", "hasJava"], "match": [true, true]},
+      "none": {"fields": ["hasScripts", "hasJava"], "match": [false, false]}
+    }
+  }
+}

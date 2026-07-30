@@ -1,0 +1,69 @@
+:root {
+  /* 基础色板 */
+  --bg: #0d1117;
+  --bg2: #161b22;
+  --bg3: rgba(22, 27, 34, 0.96);
+  --text: #c9d1d9;
+  --text-dim: #8b98a6;
+  --text-bright: #ffffff;
+  --border: #30363d;
+  --border-light: rgba(96, 106, 116, 0.24);
+  --accent: #238686;
+  --accent-hover: #1d7d7f;
+  --accent-glow: rgba(35, 134, 134, 0.15);
+
+  /* 图表颜色 */
+  --color-clones: #a041ff;
+  --color-unique-clones: #fdf327;
+  --color-views: #ff5338;
+  --color-unique-views: #a9ff38;
+
+  /* 状态颜色 */
+  --green: #3fb950;
+  --green-icon: #56d364;
+  --green-bg: #0d2818;
+  --on-green: #ffffff;
+  --red: #f85149;
+  --red-bg: #2d0f0f;
+  --orange: #ff8c42;
+  --blue: #79c0ff;
+  --blue-bg: #0d1b2a;
+  --on-blue: #0d1117;
+  --purple: #8957e5;
+  --cyan: #79ffe1;
+  --yellow: #d29922;
+
+  /* 按钮 & 交互色 */
+  --btn-border: rgba(139, 152, 166, 0.3);
+  --on-accent: #ffffff;
+
+  /* 表面色（供色调主题覆盖，避免散落的硬编码回退值） */
+  --card-bg: var(--bg2);
+  --border-hover: var(--accent);
+
+  /* 动画 */
+  --anim-fast: 0.15s ease;
+  --anim-normal: 0.25s ease;
+  --anim-slow: 0.4s ease;
+  --anim-enter: 0.5s ease;
+
+  /* 布局 */
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-xs: 6px;
+  --shadow: 0 20px 40px rgba(0,0,0,0.18);
+  --shadow-sm: 0 4px 12px rgba(0,0,0,0.2);
+
+  /* 背景色快捷值 */
+  --bg-dim: rgba(0,0,0,0.15);
+  --bg-dark: rgba(0,0,0,0.25);
+
+  /* z-index 分层 */
+  --z-base: 1;
+  --z-sticky: 100;
+  --z-controls: 500;
+  --z-dropdown: 1000;
+  --z-drawer: 9998;
+  --z-modal: 10000;
+  --z-toast: 99999;
+}

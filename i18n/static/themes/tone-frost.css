@@ -1,0 +1,63 @@
+/* 色调主题：冷霜蓝 (Frost Blue)
+   清冷冰蓝底色 + 霜白强调，偏冷色系阅读舒适。
+   dark 块与 light 块必须声明同一组变量名，避免亮色模式被 dark 值压制。 */
+
+:root[data-tone="frost"] {
+  --bg: #0d1318;
+  --bg2: #131c24;
+  --bg3: rgba(19, 28, 36, 0.96);
+  --text: #c8d6e2;
+  --text-dim: #7f95a8;
+  --text-bright: #ffffff;
+  --border: #1e3342;
+  --border-light: rgba(100, 180, 255, 0.16);
+  --card-bg: #131c24;
+  --border-hover: #64b4ff;
+  --accent: #3a9bd5;
+  --accent-hover: #2c85b8;
+  --accent-glow: rgba(58, 155, 213, 0.16);
+  --cyan: #64b4ff;
+  --blue: #4a9eff;
+  --blue-bg: #0a1a2e;
+  --purple: #7b8fcf;
+  --green: #4db886;
+  --green-bg: #0e221a;
+  --orange: #d98c4a;
+  --red: #d9695f;
+  --red-bg: #241312;
+  --yellow: #c2b040;
+  --color-clones: #64b4ff;
+  --color-unique-clones: #8fc9ff;
+  --color-views: #4a9eff;
+  --color-unique-views: #7bb8ff;
+}
+
+:root[data-theme="light"][data-tone="frost"] {
+  --bg: #ffffff;
+  --bg2: #eef4f9;
+  --bg3: rgba(255, 255, 255, 0.96);
+  --text: #1a2c3d;
+  --text-dim: #5a7285;
+  --text-bright: #0e1e2e;
+  --border: #c4d6e4;
+  --border-light: rgba(42, 120, 170, 0.16);
+  --card-bg: #eef4f9;
+  --border-hover: #2a78aa;
+  --accent: #1f7ab0;
+  --accent-hover: #186595;
+  --accent-glow: rgba(31, 122, 176, 0.1);
+  --cyan: #0e7490;
+  --blue: #0550ae;
+  --blue-bg: #ddf4ff;
+  --purple: #6b5a9e;
+  --green: #1a7f37;
+  --green-bg: #dafbe1;
+  --orange: #8a5e2a;
+  --red: #b23b34;
+  --red-bg: #fbeae9;
+  --yellow: #7d6420;
+  --color-clones: #1f7ab0;
+  --color-unique-clones: #4aa0d4;
+  --color-views: #0550ae;
+  --color-unique-views: #3a7bc8;
+}

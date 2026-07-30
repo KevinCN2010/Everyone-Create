@@ -1,0 +1,58 @@
+/* 色调主题：午夜紫 (Midnight Purple)
+   dark 块与 light 块必须声明同一组变量名，避免亮色模式被 dark 值压制。 */
+
+:root[data-tone="midnight"] {
+  --bg: #120d1a;
+  --bg2: #1b1327;
+  --bg3: rgba(27, 19, 39, 0.96);
+  --text: #d4c8e2;
+  --text-dim: #9585a8;
+  --text-bright: #ffffff;
+  --border: #33244a;
+  --border-light: rgba(165, 105, 189, 0.18);
+  --card-bg: #1b1327;
+  --border-hover: #a569bd;
+  --accent: #9b4fc4;
+  --accent-hover: #843aa8;
+  --accent-glow: rgba(155, 79, 196, 0.20);
+  --cyan: #a569bd;
+  --purple: #b07cc6;
+  --blue: #5dade2;
+  --blue-bg: #0a1a2e;
+  --green: #2ecc71;
+  --green-bg: #0f2015;
+  --orange: #e67e22;
+  --yellow: #d9b02b;
+  --color-clones: #a569bd;
+  --color-unique-clones: #c090d8;
+  --color-views: #5dade2;
+  --color-unique-views: #7bc8e8;
+}
+
+:root[data-theme="light"][data-tone="midnight"] {
+  --bg: #ffffff;
+  --bg2: #f6f1fb;
+  --bg3: rgba(255, 255, 255, 0.96);
+  --text: #2b1b3a;
+  --text-dim: #6b5a80;
+  --text-bright: #1f1229;
+  --border: #ddcfe8;
+  --border-light: rgba(108, 52, 131, 0.18);
+  --card-bg: #f6f1fb;
+  --border-hover: #6c3483;
+  --accent: #7a3d96;
+  --accent-hover: #632f7c;
+  --accent-glow: rgba(122, 61, 150, 0.1);
+  --cyan: #0e7490;
+  --purple: #8250df;
+  --blue: #0550ae;
+  --blue-bg: #ddf4ff;
+  --green: #1a7f37;
+  --green-bg: #dafbe1;
+  --orange: #bf6a00;
+  --yellow: #8a6100;
+  --color-clones: #7a3d96;
+  --color-unique-clones: #a060c0;
+  --color-views: #0550ae;
+  --color-unique-views: #3a7bc8;
+}

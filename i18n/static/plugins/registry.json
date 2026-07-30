@@ -1,0 +1,159 @@
+{
+  "version": "1.1.0",
+  "updated_at": "2026-07-27",
+  "plugins": [
+    {
+      "id": "legal-compliance",
+      "title": "Legal & Compliance",
+      "version": "1.0.0",
+      "description": "免责声明弹窗、Cookie 隐私政策同意",
+      "author": "GitAAP Team",
+      "team": "GitAAP",
+      "created_at": "2026-07-23",
+      "updated_at": "2026-07-23",
+      "size": "11.7KB",
+      "enabled": true,
+      "entry": "/static/plugins/available/legal-compliance/plugin.js",
+      "style": "/static/plugins/available/legal-compliance/plugin.css",
+      "manifest": "/static/plugins/available/legal-compliance/manifest.json",
+      "dependencies": [],
+      "tags": [
+        "legal",
+        "cookie",
+        "compliance"
+      ]
+    },
+    {
+      "id": "captcha-verify",
+      "title": "人机验证",
+      "version": "1.0.0",
+      "description": "TAC 文字语序点选验证码，保护表单和 API 请求，防止自动化攻击。",
+      "author": "GitAAP Team",
+      "team": "GitAAP",
+      "created_at": "2026-07-24",
+      "updated_at": "2026-07-24",
+      "size": "18.0KB",
+      "enabled": false,
+      "entry": "/static/plugins/available/captcha-verify/plugin.js",
+      "style": "/static/plugins/available/captcha-verify/plugin.css",
+      "manifest": "/static/plugins/available/captcha-verify/manifest.json",
+      "dependencies": [],
+      "tags": [
+        "captcha",
+        "security",
+        "tac",
+        "verification"
+      ]
+    },
+    {
+      "id": "mindustry-mods",
+      "title": "Mindustry 模组商店",
+      "version": "1.0.0",
+      "description": "浏览 Anuken/MindustryMods 仓库中的模组列表，支持搜索、排序、分类筛选与分页。",
+      "author": "GitAAP Team",
+      "team": "GitAAP",
+      "created_at": "2026-07-26",
+      "updated_at": "2026-07-26",
+      "size": "27.3KB",
+      "enabled": true,
+      "entry": "/static/plugins/available/mindustry-mods/plugin.js",
+      "style": "/static/plugins/available/mindustry-mods/plugin.css",
+      "manifest": "/static/plugins/available/mindustry-mods/manifest.json",
+      "dependencies": [],
+      "repositoryScopes": [
+        "Anuken/MindustryMods"
+      ],
+      "tags": [
+        "mindustry",
+        "mods",
+        "store"
+      ]
+    },
+    {
+      "id": "repo-mirror",
+      "title": "仓库镜像浏览",
+      "version": "1.0.0",
+      "description": "在 GitAAP 内部以仪表盘风格浏览任意 GitHub 仓库的文件目录。",
+      "author": "GitAAP Team",
+      "team": "GitAAP",
+      "created_at": "2026-07-26",
+      "updated_at": "2026-07-26",
+      "size": "3.5KB",
+      "enabled": true,
+      "entry": "/static/plugins/available/repo-mirror/plugin.js",
+      "style": "/static/plugins/available/repo-mirror/plugin.css",
+      "manifest": "/static/plugins/available/repo-mirror/manifest.json",
+      "dependencies": [],
+      "tags": [
+        "mirror",
+        "browser",
+        "file-viewer"
+      ]
+    },
+    {
+      "id": "appearance-tools",
+      "title": "外观与工具箱",
+      "version": "1.0.0",
+      "description": "提供色调切换、全局通知条与快捷工具箱。",
+      "author": "GitAAP Team",
+      "team": "GitAAP",
+      "created_at": "2026-07-27",
+      "updated_at": "2026-07-27",
+      "size": "18.9KB",
+      "enabled": true,
+      "entry": "/static/plugins/available/appearance-tools/plugin.js",
+      "style": "/static/plugins/available/appearance-tools/plugin.css",
+      "manifest": "/static/plugins/available/appearance-tools/manifest.json",
+      "dependencies": [],
+      "tags": [
+        "appearance",
+        "theme",
+        "toolbox"
+      ]
+    },
+    {
+      "id": "info-popups",
+      "title": "详情弹窗",
+      "version": "1.0.0",
+      "description": "提供许可证详情、语言详情、话题标签和资产附件弹出层。",
+      "author": "GitAAP Team",
+      "team": "GitAAP",
+      "created_at": "2026-07-27",
+      "updated_at": "2026-07-27",
+      "size": "19.4KB",
+      "enabled": true,
+      "entry": "/static/plugins/available/info-popups/plugin.js",
+      "manifest": "/static/plugins/available/info-popups/manifest.json",
+      "dependencies": [],
+      "tags": [
+        "popup",
+        "license",
+        "language",
+        "asset",
+        "topic"
+      ]
+    },
+    {
+      "id": "traffic-predict",
+      "title": "流量预测",
+      "version": "1.0.0",
+      "description": "基于纯 Python 自实现神经网络的仓库流量预测，展示历史数据与未来趋势图表。",
+      "author": "GitAAP Team",
+      "team": "GitAAP",
+      "created_at": "2026-07-26",
+      "updated_at": "2026-07-26",
+      "size": "6.5KB",
+      "enabled": true,
+      "entry": "/static/plugins/available/traffic-predict/plugin.js",
+      "style": "/static/plugins/available/traffic-predict/plugin.css",
+      "manifest": "/static/plugins/available/traffic-predict/manifest.json",
+      "dependencies": [],
+      "tags": [
+        "prediction",
+        "traffic",
+        "chart",
+        "neural-network"
+      ]
+    }
+  ]
+}

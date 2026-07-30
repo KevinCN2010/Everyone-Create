@@ -1,0 +1,63 @@
+/* 色调主题：青竹 (Bamboo Teal)
+   青瓷与竹叶交织的清冷绿松石调。
+   dark 块与 light 块必须声明同一组变量名，避免亮色模式被 dark 值压制。 */
+
+:root[data-tone="bamboo"] {
+  --bg: #0b1614;
+  --bg2: #10211e;
+  --bg3: rgba(16, 33, 30, 0.96);
+  --text: #c6dcd7;
+  --text-dim: #7f9c96;
+  --text-bright: #ffffff;
+  --border: #1e3b36;
+  --border-light: rgba(94, 200, 184, 0.18);
+  --card-bg: #10211e;
+  --border-hover: #5ec8b8;
+  --accent: #26b39e;
+  --accent-hover: #1c9582;
+  --accent-glow: rgba(38, 179, 158, 0.18);
+  --cyan: #5ec8b8;
+  --blue: #5aa9d6;
+  --blue-bg: #0a1b26;
+  --purple: #8f8ec6;
+  --green: #34b37a;
+  --green-bg: #0d2118;
+  --orange: #d99a4e;
+  --red: #d9695f;
+  --red-bg: #241312;
+  --yellow: #cfb04a;
+  --color-clones: #5ec8b8;
+  --color-unique-clones: #8fdcd0;
+  --color-views: #5aa9d6;
+  --color-unique-views: #8cc6e4;
+}
+
+:root[data-theme="light"][data-tone="bamboo"] {
+  --bg: #ffffff;
+  --bg2: #eef7f5;
+  --bg3: rgba(255, 255, 255, 0.96);
+  --text: #16302c;
+  --text-dim: #5a7a74;
+  --text-bright: #0e2320;
+  --border: #c4dedA;
+  --border-light: rgba(23, 130, 117, 0.18);
+  --card-bg: #eef7f5;
+  --border-hover: #178275;
+  --accent: #14776a;
+  --accent-hover: #0f6157;
+  --accent-glow: rgba(20, 119, 106, 0.1);
+  --cyan: #0e7490;
+  --blue: #0550ae;
+  --blue-bg: #ddf4ff;
+  --purple: #6b5f96;
+  --green: #1a7f37;
+  --green-bg: #dafbe1;
+  --orange: #8a5e2a;
+  --red: #b23b34;
+  --red-bg: #fbeae9;
+  --yellow: #7d6420;
+  --color-clones: #14776a;
+  --color-unique-clones: #43a396;
+  --color-views: #0550ae;
+  --color-unique-views: #3a7bc8;
+}

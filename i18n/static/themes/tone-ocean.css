@@ -1,0 +1,58 @@
+/* 色调主题：海洋蓝调 (Ocean Blue)
+   覆盖 CSS 变量实现色调切换，亮暗双模式兼容。
+   注意：dark 块与 light 块必须声明同一组变量名。
+   tone CSS 由 JS 追加到 head 末尾，若某变量只在 dark 块出现，
+   在亮色模式下会因源顺序靠后而压制 theme-light.css。 */
+
+:root[data-tone="ocean"] {
+  /* 表面色 */
+  --bg: #0a161c;
+  --bg2: #0f2029;
+  --bg3: rgba(15, 32, 41, 0.96);
+  --text: #c5d9e2;
+  --text-dim: #7f9aa8;
+  --text-bright: #ffffff;
+  --border: #1e3a47;
+  --border-light: rgba(91, 192, 222, 0.18);
+  --card-bg: #0f2029;
+  --border-hover: #5bc0de;
+  /* 强调色 */
+  --accent: #1a9aa8;
+  --accent-hover: #147f8a;
+  --accent-glow: rgba(26, 154, 168, 0.15);
+  --cyan: #5bc0de;
+  --blue: #4a9eff;
+  --blue-bg: #0a1a2e;
+  --purple: #7b68ee;
+  --yellow: #d9a92b;
+  /* 图表色 */
+  --color-clones: #5bc0de;
+  --color-unique-clones: #85d7f7;
+  --color-views: #4a9eff;
+  --color-unique-views: #7bb8ff;
+}
+
+:root[data-theme="light"][data-tone="ocean"] {
+  --bg: #ffffff;
+  --bg2: #eff7fa;
+  --bg3: rgba(255, 255, 255, 0.96);
+  --text: #14323d;
+  --text-dim: #5a7a88;
+  --text-bright: #0d2530;
+  --border: #c2dbe4;
+  --border-light: rgba(26, 127, 138, 0.18);
+  --card-bg: #eff7fa;
+  --border-hover: #1a7f8a;
+  --accent: #147f8a;
+  --accent-hover: #0f6b75;
+  --accent-glow: rgba(20, 127, 138, 0.1);
+  --cyan: #0e7490;
+  --blue: #0550ae;
+  --blue-bg: #ddf4ff;
+  --purple: #8250df;
+  --yellow: #8a6100;
+  --color-clones: #147f8a;
+  --color-unique-clones: #3a9fa8;
+  --color-views: #0550ae;
+  --color-unique-views: #3a7bc8;
+}

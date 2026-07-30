@@ -1,0 +1,21 @@
+# AtomCode local-scope configs (machine-specific)
+.atomcode/local/
+
+# 环境变量文件（包含 GitHub Token 等敏感信息）
+.env
+secrets/
+
+# 数据库文件（含请求日志等潜在敏感数据）
+data/
+
+# Python 字节码缓存
+__pycache__/
+*.pyc
+*.pyo
+
+# 启动错误日志
+backend/logs/
+
+# 操作系统文件
+.DS_Store
+Thumbs.db

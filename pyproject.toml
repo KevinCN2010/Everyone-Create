@@ -1,0 +1,45 @@
+[project]
+name = "gitaap"
+version = "0.1.0"
+description = "GitAAP — GitHub 仓库流量与信息看板"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.104.0",
+    "uvicorn[standard]>=0.24.0",
+    "sqlalchemy>=2.0.0",
+    "jinja2>=3.1.0",
+    "requests>=2.31.0",
+    "httpx>=0.25.0",
+    "apscheduler>=3.10.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "ruff>=0.6.0",
+]
+
+# 应用为挂载式部署（见 docker-compose.yml），不作为包安装，
+# 因此这里只声明依赖与工具配置，不配置 build-system。
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-q"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 120
+exclude = [
+    "__pycache__",
+    "data",
+    "secrets",
+    "i18n/static",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B"]
+ignore = [
+    "E501",  # 行宽由 formatter 控制，历史代码存在长字符串
+    "B008",  # FastAPI 依赖注入惯用 Query()/Depends() 作为默认值
+]

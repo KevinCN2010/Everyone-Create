@@ -1,0 +1,56 @@
+/* 色调主题：日落橙 (Sunset Orange)
+   dark 块与 light 块必须声明同一组变量名，避免亮色模式被 dark 值压制。 */
+
+:root[data-tone="sunset"] {
+  --bg: #1a1109;
+  --bg2: #24180d;
+  --bg3: rgba(36, 24, 13, 0.96);
+  --text: #e2d2c2;
+  --text-dim: #a89380;
+  --text-bright: #ffffff;
+  --border: #453020;
+  --border-light: rgba(232, 168, 124, 0.18);
+  --card-bg: #24180d;
+  --border-hover: #e8a87c;
+  --accent: #d1873f;
+  --accent-hover: #b86e2f;
+  --accent-glow: rgba(209, 135, 63, 0.15);
+  --cyan: #e8a87c;
+  --orange: #e67e22;
+  --green: #2ecc71;
+  --green-bg: #0f2015;
+  --blue: #5dade2;
+  --blue-bg: #0a1a2e;
+  --yellow: #e0b02b;
+  --color-clones: #e8a87c;
+  --color-unique-clones: #f0c0a0;
+  --color-views: #e67e22;
+  --color-unique-views: #f0a860;
+}
+
+:root[data-theme="light"][data-tone="sunset"] {
+  --bg: #ffffff;
+  --bg2: #fdf4ec;
+  --bg3: rgba(255, 255, 255, 0.96);
+  --text: #3a2413;
+  --text-dim: #7d6350;
+  --text-bright: #2b1a0d;
+  --border: #e6d0bc;
+  --border-light: rgba(201, 125, 58, 0.18);
+  --card-bg: #fdf4ec;
+  --border-hover: #c97d3a;
+  --accent: #b06a28;
+  --accent-hover: #94571e;
+  --accent-glow: rgba(176, 106, 40, 0.1);
+  --cyan: #0e7490;
+  --orange: #bf6a00;
+  --green: #1a7f37;
+  --green-bg: #dafbe1;
+  --blue: #0550ae;
+  --blue-bg: #ddf4ff;
+  --yellow: #8a6100;
+  --color-clones: #b06a28;
+  --color-unique-clones: #d99552;
+  --color-views: #bf6a00;
+  --color-unique-views: #d99a3d;
+}

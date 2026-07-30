@@ -1,0 +1,64 @@
+services:
+  gh_watcher:
+    image: jrvolt/gh_watcher@sha256:3f9d2c67ea6ca60530d67a620b9be83abd9ff950f32d07a71a1f3acc457c90e2
+    container_name: GitAAP
+    ports:
+      - "4000:8000"
+    environment:
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - GITHUB_TOKENS=${GITHUB_TOKENS:-}
+      - REPOS=${REPOS:-Anuken/Mindustry,Anuken/MindustryBuilds,Anuken/MindustryServerList,TinyLake/MindustryX,way-zer/ScriptAgent4MindustryExt}
+      - UPDATE_HOURS=${UPDATE_HOURS:-6}
+      - DISABLE_TRAFFIC=${DISABLE_TRAFFIC:-false}
+      - MICROSOFT_TRANSLATOR_KEY=${MICROSOFT_TRANSLATOR_KEY:-}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-}
+      - APP_PORT=8000
+    volumes:
+      # ── 运行时数据与密钥 ──
+      - ./data:/app/data
+      - ./.env:/app/.env
+      - ./secrets/.env:/app/secrets/.env
+      # ── 应用代码 ──
+      - ./i18n/main.py:/app/app/main.py
+      - ./backend:/app/app/backend
+      # ── 模板与静态资源（整目录挂载，新增文件无需再改本文件） ──
+      - ./i18n/templates:/app/app/templates
+      - ./i18n/static:/app/app/static
+    restart: unless-stopped
+    healthcheck:
+      # 容器内无 curl，使用 python3 urllib 检查
+      test: ["CMD-SHELL", "python3 -c \"import urllib.request; exit(urllib.request.urlopen('http://127.0.0.1:${APP_PORT:-8000}/healthz').status != 200)\" || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+
+  # ── TAC 验证码服务 ──
+  tianai-captcha:
+    image: tangyh/tianai-captcha:latest
+    container_name: GitAAP-TAC
+    restart: unless-stopped
+    ports:
+      - "9222:8000"
+    volumes:
+      - ./tac-config/application.yml:/app/config/application.yml:ro
+    environment:
+      - JAVA_OPTS=-Xms128m -Xmx256m
+      - TZ=Asia/Shanghai
+      - SPRING_CONFIG_LOCATION=/app/config/
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8000/tac/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M

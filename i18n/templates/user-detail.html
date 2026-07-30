@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% include '_theme_head.html' %}
+    <title data-i18n="page-title-user">用户详情 - GitAAP</title>
+    <link rel="stylesheet" href="/static/style.css?v={{ static_version }}">
+    <link rel="stylesheet" href="/static/themes/variables.css?v={{ static_version }}">
+    <link rel="stylesheet" href="/static/themes/animations.css?v={{ static_version }}">
+    <link rel="stylesheet" href="/static/themes/utilities.css?v={{ static_version }}">
+    <link rel="stylesheet" href="/static/themes/theme-light.css?v={{ static_version }}">
+    <link rel="stylesheet" href="/static/themes/icons.css?v={{ static_version }}">
+</head>
+<body>
+    {% include '_js_fallback.html' %}
+
+    <main><div class="container" id="user-app" data-initial-user="{{ user }}">
+        <!-- 顶部导航 -->
+        <div class="card controls animate-in">
+            <a class="nav-button" href="/"><span aria-hidden="true" class="ico ico-arrow-left ico-gap"></span><span data-i18n="home">首页</span></a>
+            <span style="font-size:1.1rem;font-weight:600;" data-i18n="user-detail">用户详情</span>
+            <div style="display:flex;gap:6px;align-items:center;">
+                <input type="text" id="user-input" class="mods-search-input" data-i18n-placeholder="user-search-placeholder" placeholder="输入 GitHub 用户名..." value="{{ user }}" style="min-width:140px;max-width:220px;padding:6px 10px;font-size:0.85rem;" onkeydown="if(event.key==='Enter'){event.preventDefault();loadUserPage();}">
+                <button class="btn-sm" onclick="loadUserPage()" style="height:34px;"><span aria-hidden="true" class="ico ico-search" style="width:14px;height:14px;"></span></button>
+            </div>
+            <button id="theme-toggle" class="btn-sm" onclick="toggleTheme()" data-i18n-title="theme-toggle" title="切换主题" style="width:36px;height:36px;padding:0;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;flex-shrink:0;" data-i18n-aria-label="theme-toggle" aria-label="切换主题">
+                <span aria-hidden="true" class="ico ico-moon" style="width:18px;height:18px;"></span>
+            </button>
+            <button id="drawer-toggle" class="btn-sm" onclick="toggleDrawer()" data-i18n-title="drawer-more-options" title="菜单" style="width:36px;height:36px;padding:0;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;" data-i18n-aria-label="drawer-more-options" aria-label="更多选项">
+                <span class="ham-icon"><span class="ham-i"></span><span class="ham-i"></span><span class="ham-i"></span></span>
+            </button>
+        </div>
+
+        <!-- 加载 / 错误占位 -->
+        <div id="user-loading" class="card animate-in" style="text-align:center;padding:60px 20px;display:none;">
+            <div class="spinner" style="width:28px;height:28px;border-width:3px;margin:0 auto 12px;"></div>
+            <p style="color:var(--text-dim);" data-i18n="loading-user">正在加载用户信息...</p>
+        </div>
+        <div id="user-error" class="card animate-in" style="text-align:center;padding:40px 20px;color:var(--red);display:none;"></div>
+
+        <!-- 用户信息卡片 -->
+        <div id="user-profile" style="display:none;">
+            <!-- 骨架横幅 -->
+            <div class="user-banner" id="user-banner">
+                <div class="user-banner-overlay"></div>
+                <div class="user-banner-content">
+                    <div class="user-avatar-wrap">
+                        <img id="user-avatar" src="" alt="" class="user-avatar-img">
+                    </div>
+                    <div class="user-banner-info">
+                        <h1 class="user-display-name" id="user-name"></h1>
+                        <p class="user-username" id="user-login"></p>
+                        <p class="user-bio-line" id="user-bio"></p>
+                        <div class="user-meta-row" id="user-meta"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 统计数据行 -->
+            <div class="user-stats-bar" id="user-stats-bar">
+                <a class="user-stat-item" id="stat-repos" href="#repo-list" onclick="document.getElementById('repo-list').scrollIntoView({behavior:'smooth'});return false;">
+                    <span class="user-stat-icon" aria-hidden="true"><span class="ico ico-repo ico-yellow" style="width:20px;height:20px;"></span></span>
+                    <span class="user-stat-num" id="user-repos-count">0</span>
+                    <span class="user-stat-label" data-i18n="repos">仓库</span>
+                </a>
+                <div class="user-stat-item" id="stat-stars" data-i18n-title="owned-stars" title="自有仓库星标" style="cursor:default;">
+                    <span class="user-stat-icon user-star-icon" aria-hidden="true"><span class="ico ico-star ico-yellow" style="width:20px;height:20px;"></span></span>
+                    <span class="user-stat-num" id="user-stars-total">0</span>
+                    <span class="user-stat-label" data-i18n="stars">收藏</span>
+                </div>
+                <div class="user-stat-item" id="stat-followers" style="cursor:default;">
+                    <span class="user-stat-icon" aria-hidden="true"><span class="ico ico-users" style="width:18px;height:18px;"></span></span>
+                    <span class="user-stat-num" id="user-followers">0</span>
+                    <span class="user-stat-label" data-i18n="followers">关注者</span>
+                </div>
+                <div class="user-stat-item" id="stat-following" style="cursor:default;">
+                    <span class="user-stat-icon" aria-hidden="true"><span class="ico ico-person" style="width:18px;height:18px;"></span></span>
+                    <span class="user-stat-num" id="user-following">0</span>
+                    <span class="user-stat-label" data-i18n="following">正在关注</span>
+                </div>
+                <div class="user-stat-item" id="stat-gists" style="cursor:default;">
+                    <span class="user-stat-icon" aria-hidden="true"><span class="ico ico-file-code" style="width:18px;height:18px;"></span></span>
+                    <span class="user-stat-num" id="user-gists">0</span>
+                    <span class="user-stat-label" data-i18n="gists">Gists</span>
+                </div>
+                <div class="user-stat-item" id="stat-forks-total">
+                    <span class="user-stat-icon" aria-hidden="true"><span class="ico ico-git-branch" style="width:18px;height:18px;"></span></span>
+                    <span class="user-stat-num" id="user-forks-total">0</span>
+                    <span class="user-stat-label" data-i18n="forks">Forks</span>
+                </div>
+            </div>
+
+            <!-- 加入时间 -->
+            <div class="card" id="user-joined-card" style="text-align:center;padding:8px 16px;font-size:0.82rem;color:var(--text-dim);display:none;">
+                <span aria-hidden="true" class="ico ico-calendar ico-dim ico-gap"></span>
+                <span data-i18n="joined-github">加入于</span>
+                <span id="user-created-at"></span>
+            </div>
+        </div>
+
+        <!-- 仓库列表 -->
+        <div id="user-repos-section" style="display:none;margin-top:20px;">
+            <div class="section-header" id="repo-list">
+                <h3 class="section-title" data-i18n="user-repos">公开仓库</h3>
+                <span class="section-count" id="repo-count-badge"></span>
+            </div>
+            <div id="user-repos-list" class="user-repos-grid"></div>
+
+            <!-- 底部翻页：按页增量请求，避免一次拉取全部仓库 -->
+            <nav id="repo-pager" class="repo-pager" style="display:none;" aria-label="仓库分页" data-i18n-aria-label="repos-pagination">
+                <button type="button" id="repo-prev" class="repo-pager-btn" disabled>
+                    <span aria-hidden="true" class="ico ico-arrow-left ico-gap"></span><span data-i18n="pager-prev">上一页</span>
+                </button>
+                <span class="repo-pager-info">
+                    <span id="repo-pager-current">1</span>
+                    <span class="repo-pager-sep">/</span>
+                    <span id="repo-pager-total">1</span>
+                </span>
+                <button type="button" id="repo-next" class="repo-pager-btn" disabled>
+                    <span data-i18n="pager-next">下一页</span><span aria-hidden="true" class="ico ico-arrow-right repo-pager-ico-right"></span>
+                </button>
+                <span id="repo-pager-loading" class="repo-pager-loading" hidden>
+                    <span class="spinner repo-pager-spinner"></span>
+                </span>
+            </nav>
+        </div>
+    </div></main>
+
+    <!-- 侧边抽屉 -->
+    <div id="side-drawer" class="drawer-overlay" style="display:none;" onclick="if(event.target===this)closeDrawer()">
+        <div class="drawer-panel">
+            <div class="drawer-header">
+                <span class="drawer-title" data-i18n="menu">菜单</span>
+                <button class="drawer-close" onclick="closeDrawer()" data-i18n-title="close" aria-label="关闭菜单"><span aria-hidden="true" class="ico ico-x-circle" style="width:16px;height:16px;"></span></button>
+            </div>
+            <div class="drawer-body">
+                <div class="drawer-section">
+                    <div class="drawer-section-title" data-i18n="appearance">外观</div>
+                    <div class="drawer-theme-options">
+                        <button class="drawer-theme-btn" data-theme="dark" onclick="setTheme('dark')"><span aria-hidden="true" class="ico ico-moon ico-gap"></span><span data-i18n="dark">深色</span></button>
+                        <button class="drawer-theme-btn" data-theme="light" onclick="setTheme('light')"><span aria-hidden="true" class="ico ico-sun ico-gap"></span><span data-i18n="light">浅色</span></button>
+                        <button class="drawer-theme-btn" data-theme="system" onclick="setTheme('system')"><span aria-hidden="true" class="ico ico-gear ico-gap"></span><span data-i18n="system">跟随系统</span></button>
+                    </div>
+                </div>
+                <div class="drawer-section">
+                    <div class="drawer-section-title" onclick="toggleCollapse(this)" style="cursor:pointer;user-select:none;">
+                        <span aria-hidden="true" class="ico ico-tools ico-dim ico-gap"></span><span data-i18n="toolbox">工具箱</span>
+                        <span class="collapse-arrow" style="margin-left:auto;transition:transform 0.2s;"><span aria-hidden="true" class="ico ico-chevron-right" style="width:12px;height:12px;"></span></span>
+                    </div>
+                    <div class="collapse-content" style="display:none;">
+                        <div style="margin-bottom:12px;">
+                            <div style="font-size:0.78rem;color:var(--text-dim);margin-bottom:6px;" data-i18n="text-align">文本对齐</div>
+                            <div class="drawer-theme-options" id="text-align-options">
+                                <button class="drawer-theme-btn align-btn" data-align="left" onclick="setTextAlign('left')"><span data-i18n="align-left">左</span></button>
+                                <button class="drawer-theme-btn align-btn active" data-align="center" onclick="setTextAlign('center')"><span data-i18n="align-center">中</span></button>
+                                <button class="drawer-theme-btn align-btn" data-align="right" onclick="setTextAlign('right')"><span data-i18n="align-right">右</span></button>
+                            </div>
+                        </div>
+                        <div style="margin-bottom:12px;">
+                            <div style="font-size:0.78rem;color:var(--text-dim);margin-bottom:6px;" data-i18n="font-size">字体大小</div>
+                            <div class="drawer-theme-options" id="font-size-options">
+                                <button class="drawer-theme-btn font-size-btn" data-size="small" onclick="setFontSize('small')"><span data-i18n="font-small">小</span></button>
+                                <button class="drawer-theme-btn font-size-btn active" data-size="medium" onclick="setFontSize('medium')"><span data-i18n="font-medium">中</span></button>
+                                <button class="drawer-theme-btn font-size-btn" data-size="large" onclick="setFontSize('large')"><span data-i18n="font-large">大</span></button>
+                                <button class="drawer-theme-btn font-size-btn" data-size="xlarge" onclick="setFontSize('xlarge')"><span data-i18n="font-xlarge">特大</span></button>
+                            </div>
+                        </div>
+                        <div class="tone-market" id="tone-market">
+                            <div class="tone-market-header">
+                                <span class="tone-market-label"><span aria-hidden="true" class="ico ico-palette ico-gap"></span><span data-i18n="tone">色调</span></span>
+                                <button class="tone-market-toggle btn-sm" onclick="toggleToneMarket()" id="tone-market-toggle">
+                                    <span class="tone-market-arrow"><span aria-hidden="true" class="ico ico-chevron-down" style="width:12px;height:12px;"></span></span> <span data-i18n="browse-tones">浏览色调</span>
+                                </button>
+                            </div>
+                            <div class="tone-market-grid" id="tone-market-grid" style="display:none;"></div>
+                            <div class="tone-market-placeholder" id="tone-market-placeholder">
+                                <div id="current-tone-label" style="font-size:0.78rem;color:var(--text-dim);"></div>
+                            </div>
+                        </div>
+                        <button class="tone-market-toggle btn-sm" onclick="openToolbox()" style="margin-top:8px;width:100%;">
+                            <span aria-hidden="true" class="ico ico-zap ico-gap"></span> <span data-i18n="toolbox-open">打开工具箱</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="drawer-section">
+                    <div class="drawer-section-title" data-i18n="language">语言</div>
+                    <div class="drawer-lang-options">
+                        <button class="drawer-lang-btn" data-lang="zh" onclick="setLang('zh')" data-i18n="language-zh">中文</button>
+                        <button class="drawer-lang-btn" data-lang="zh-Hant" onclick="setLang('zh-Hant')" data-i18n="language-zh-hant"><span aria-hidden="true" class="ico ico-globe ico-gap"></span>繁體中文</button>
+                        <button class="drawer-lang-btn" data-lang="en" onclick="setLang('en')" data-i18n="language-en">English</button>
+                    </div>
+                </div>
+                {% include '_side_drawer_links.html' %}
+            </div>
+        </div>
+    </div>
+
+    <style>
+    /* ===== 用户详情页专用样式 ===== */
+
+    /* 用户横幅 */
+    .user-banner {
+        position: relative;
+        border-radius: 12px;
+        overflow: hidden;
+        background: linear-gradient(135deg, var(--bg2) 0%, var(--bg) 50%, var(--bg2) 100%);
+        border: 1px solid var(--border, #2a2a4a);
+        margin-bottom: 12px;
+    }
+    .user-banner-overlay {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(ellipse at 30% 20%, var(--accent-glow) 0%, transparent 60%),
+                    radial-gradient(ellipse at 70% 80%, color-mix(in srgb, var(--cyan) 8%, transparent) 0%, transparent 60%);
+        pointer-events: none;
+    }
+    .user-banner-content {
+        position: relative;
+        display: flex;
+        gap: 20px;
+        align-items: flex-start;
+        padding: 24px 24px 20px;
+        flex-wrap: wrap;
+    }
+    .user-avatar-wrap {
+        flex-shrink: 0;
+        position: relative;
+    }
+    .user-avatar-img {
+        width: 96px;
+        height: 96px;
+        border-radius: 50%;
+        border: 3px solid var(--border, #2a2a4a);
+        object-fit: cover;
+        display: block;
+        box-shadow: 0 0 24px var(--accent-glow);
+    }
+    .user-avatar-fallback {
+        width: 96px;
+        height: 96px;
+        border-radius: 50%;
+        background: var(--bg2) url('/static/icons/person.svg') center / 42% no-repeat;
+        border: 3px solid var(--border, #2a2a4a);
+    }
+    .user-avatar-fallback .user-avatar-img { display: none; }
+    .user-banner-info {
+        flex: 1;
+        min-width: 200px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 4px;
+    }
+    .user-display-name {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 700;
+        line-height: 1.2;
+        color: var(--text, #e0e0e0);
+        word-break: break-word;
+    }
+    .user-username {
+        margin: 0;
+        font-size: 0.95rem;
+        color: var(--text-dim, #888);
+        font-family: 'SF Mono', 'Fira Code', monospace;
+    }
+    .user-bio-line {
+        margin: 6px 0 0;
+        font-size: 0.9rem;
+        color: var(--text-dim, #999);
+        line-height: 1.55;
+        word-break: break-word;
+    }
+    .user-meta-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px 14px;
+        margin-top: 8px;
+        font-size: 0.85rem;
+        color: var(--text-dim, #888);
+    }
+    .user-meta-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        max-width: 100%;
+        overflow: hidden;
+    }
+    .user-meta-item a {
+        color: var(--cyan, #79ffe1);
+        text-decoration: none;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 200px;
+    }
+    .user-meta-item a:hover { text-decoration: underline; }
+
+    /* 统计数据条 */
+    .user-stats-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1px;
+        margin-bottom: 12px;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid var(--border, #2a2a4a);
+    }
+    .user-stat-item {
+        flex: 1;
+        min-width: 80px;
+        text-align: center;
+        padding: 14px 8px;
+        background: var(--bg2, #1a1a2e);
+        text-decoration: none;
+        color: var(--text, #e0e0e0);
+        transition: background 0.15s;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+        cursor: default;
+    }
+    a.user-stat-item:hover { background: var(--accent-glow); }
+    .user-stat-item:hover { background: var(--accent-glow); }
+    .user-stat-icon {
+        font-size: 1.15rem;
+        line-height: 1;
+    }
+    .user-star-icon .ico {
+        color: var(--yellow);
+    }
+    .user-stat-num {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--cyan, #79ffe1);
+    }
+    #stat-stars .user-stat-num {
+        color: var(--yellow);
+        text-shadow: 0 0 6px color-mix(in srgb, var(--yellow) 25%, transparent);
+    }
+    .user-stat-label {
+        font-size: 0.72rem;
+        color: var(--text-dim, #888);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    /* 分区标题 */
+    .section-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 14px;
+        /* 顶部统计条有「仓库」锚点跳转到此，留出偏移避免标题贴边被遮挡 */
+        scroll-margin-top: 16px;
+        /* 长列表滚动时保持标题与计数可见，便于确认当前位置 */
+        position: sticky;
+        top: 0;
+        z-index: var(--z-base);
+        padding: 8px 0;
+        background: var(--bg);
+    }
+    .section-title {
+        margin: 0;
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: var(--text, #e0e0e0);
+    }
+    .section-count {
+        font-size: 0.78rem;
+        color: var(--text-dim, #888);
+        background: var(--bg2, #1a1a2e);
+        padding: 2px 10px;
+        border-radius: 20px;
+        border: 1px solid var(--border, #2a2a4a);
+    }
+
+    /* 仓库卡片网格 */
+    .user-repos-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 12px;
+    }
+    .repo-card {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 16px;
+        text-decoration: none;
+        color: var(--text, #e0e0e0);
+        background: var(--bg2, #1a1a2e);
+        border: 1px solid var(--border, #2a2a4a);
+        border-radius: 10px;
+        transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+    }
+    .repo-card:hover {
+        border-color: var(--cyan, #79ffe1);
+        box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+        transform: translateY(-1px);
+    }
+    .repo-card-header {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        min-width: 0;
+    }
+    .repo-card-icon {
+        flex-shrink: 0;
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        background: color-mix(in srgb, var(--cyan, #79ffe1) 10%, var(--bg2, #f6f8fa));
+        color: var(--cyan, #0969da);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .repo-card-icon .ico { color: inherit; }
+    .repo-card-name-wrap {
+        flex: 1;
+        min-width: 0;
+    }
+    .repo-card-name {
+        font-weight: 600;
+        font-size: 0.92rem;
+        color: var(--cyan, #79ffe1);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .repo-card-fork-badge,
+    .repo-card-state-badge {
+        display: inline-block;
+        font-size: 0.7rem;
+        color: var(--text-dim, #888);
+        background: var(--bg-dim);
+        padding: 1px 6px;
+        border-radius: 4px;
+        margin-top: 2px;
+        margin-right: 4px;
+    }
+    .repo-card-state-badge {
+        color: var(--yellow, #e3b341);
+    }
+    .repo-card-topics {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        min-height: 0;
+    }
+    .repo-topic {
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        padding: 2px 7px;
+        border: 1px solid var(--border, #2a2a4a);
+        border-radius: 999px;
+        color: var(--text-dim, #888);
+        font-size: 0.7rem;
+        line-height: 1.25;
+    }
+    .repo-card:focus-visible {
+        outline: none;
+        border-color: var(--cyan, #79ffe1);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--cyan, #79ffe1) 25%, transparent);
+    }
+    .repo-card-desc {
+        font-size: 0.82rem;
+        color: var(--text-dim, #999);
+        line-height: 1.5;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        word-break: break-word;
+    }
+    .repo-card-footer {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px 14px;
+        font-size: 0.76rem;
+        color: var(--text-dim, #888);
+    }
+    .repo-card-footer-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+    }
+    .repo-lang-dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+    .repo-star-icon-sm {
+        color: var(--yellow);
+        font-size: 0.8rem;
+    }
+
+    .user-repos-empty {
+        grid-column: 1 / -1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 110px;
+        color: var(--text-dim, #888);
+        font-size: 0.9rem;
+    }
+
+    /* ===== 移动端适配 ===== */
+    @media (max-width: 640px) {
+        .user-banner-content {
+            padding: 16px 16px 14px;
+            gap: 14px;
+            align-items: center;
+        }
+        .user-avatar-img,
+        .user-avatar-fallback {
+            width: 64px;
+            height: 64px;
+            border-width: 2px;
+        }
+        .user-avatar-fallback {
+            background-size: 42%;
+        }
+        .user-display-name {
+            font-size: 1.2rem;
+        }
+        .user-username {
+            font-size: 0.82rem;
+        }
+        .user-bio-line {
+            font-size: 0.82rem;
+        }
+        .user-meta-row {
+            font-size: 0.78rem;
+            gap: 4px 10px;
+        }
+        .user-meta-item a {
+            max-width: 140px;
+        }
+        .user-stats-bar {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            border-radius: 8px;
+        }
+        .user-stat-item {
+            min-width: 0;
+            padding: 10px 4px;
+        }
+        .user-stat-num {
+            font-size: 1.1rem;
+        }
+        .user-stat-label {
+            font-size: 0.65rem;
+        }
+        .user-repos-grid {
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+        .repo-card {
+            padding: 12px;
+        }
+        .repo-card-footer {
+            gap: 4px 10px;
+            font-size: 0.72rem;
+        }
+    }
+
+    /* 平板端 */
+    @media (min-width: 641px) and (max-width: 1024px) {
+        .user-repos-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    </style>
+
+    <script src="/static/function.js?v={{ static_version }}"></script>
+    <script>
+    function escapeHtml(s) {
+        if (!s) return '';
+        return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function loadUserPage() {
+        var input = document.getElementById('user-input');
+        var user = input.value.trim();
+        if (!user) return;
+        window.location.search = '?user=' + encodeURIComponent(user);
+    }
+
+    function formatDate(isoStr) {
+        if (!isoStr) return '';
+        try {
+            var d = new Date(isoStr);
+            if (isNaN(d.getTime())) return '';
+            var locale = currentLang === 'zh-Hant' ? 'zh-TW' : (currentLang === 'zh' ? 'zh-CN' : 'en-US');
+            return d.toLocaleDateString(locale, {
+                year: 'numeric', month: 'long', day: 'numeric'
+            });
+        } catch(e) { return ''; }
+    }
+
+    function timeAgo(isoStr) {
+        if (!isoStr) return '';
+        try {
+            var d = new Date(isoStr);
+            if (isNaN(d.getTime())) return '';
+            var seconds = Math.round((d.getTime() - Date.now()) / 1000);
+            var units = [
+                ['year', 31536000], ['month', 2592000], ['day', 86400],
+                ['hour', 3600], ['minute', 60], ['second', 1]
+            ];
+            var unit = units[units.length - 1];
+            for (var i = 0; i < units.length; i++) {
+                if (Math.abs(seconds) >= units[i][1]) {
+                    unit = units[i];
+                    break;
+                }
+            }
+            var locale = currentLang === 'zh-Hant' ? 'zh-TW' : (currentLang === 'zh' ? 'zh-CN' : 'en-US');
+            return new Intl.RelativeTimeFormat(locale, { numeric: 'auto' })
+                .format(Math.round(seconds / unit[1]), unit[0]);
+        } catch(e) { return ''; }
+    }
+
+    // 语言颜色映射
+    function langColor(lang) {
+        var colors = {
+            'JavaScript': '#f1e05a', 'TypeScript': '#3178c6', 'Python': '#3572A5',
+            'Java': '#b07219', 'Go': '#00ADD8', 'Rust': '#dea584', 'C++': '#f34b7d',
+            'C': '#555555', 'C#': '#178600', 'Ruby': '#701516', 'PHP': '#4F5D95',
+            'Swift': '#F05138', 'Kotlin': '#A97BFF', 'Dart': '#00B4AB',
+            'Shell': '#89e051', 'HTML': '#e34c26', 'CSS': '#563d7c',
+            'SCSS': '#c6538c', 'Vue': '#41b883', 'Lua': '#000080',
+            'Haxe': '#df7900', 'GLSL': '#cccccc', 'ShaderLab': '#cccccc',
+        };
+        return colors[lang] || 'var(--accent, #79ffe1)';
+    }
+
+    // 页面加载时自动请求
+    (async function() {
+        if (!Object.keys(langData).length) {
+            await loadLang(currentLang);
+            applyI18n();
+        }
+        var params = new URLSearchParams(window.location.search);
+        var initialUser = document.getElementById('user-app').dataset.initialUser || '';
+        var user = params.get('user') || initialUser;
+        if (!user) return;
+
+        var profileEl = document.getElementById('user-profile');
+        var reposEl = document.getElementById('user-repos-section');
+        var loadingEl = document.getElementById('user-loading');
+        var errorEl = document.getElementById('user-error');
+        var joinedEl = document.getElementById('user-joined-card');
+
+        loadingEl.style.display = 'block';
+        profileEl.style.display = 'none';
+        if (reposEl) reposEl.style.display = 'none';
+        errorEl.style.display = 'none';
+
+        fetch('/user-info?user=' + encodeURIComponent(user))
+        .then(function(r) {
+            if (!r.ok) {
+                return r.json().catch(function() { return {}; }).then(function(body) {
+                    throw new Error(body.detail || ('HTTP ' + r.status));
+                });
+            }
+            return r.json();
+        })
+        .then(function(data) {
+            loadingEl.style.display = 'none';
+            if (data.error) {
+                errorEl.textContent = data.error;
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            // --- 用户头像 & 基本信息 ---
+            document.getElementById('user-avatar').src = data.avatar_url || '';
+            document.getElementById('user-avatar').alt = data.login || '';
+            document.getElementById('user-name').textContent = data.name || data.login;
+            document.getElementById('user-login').textContent = '@' + (data.login || '');
+            var bioEl = document.getElementById('user-bio');
+            bioEl.textContent = data.bio || '';
+            bioEl.style.display = data.bio ? '' : 'none';
+
+            // Meta 行：公司、位置、博客
+            var metaHtml = '';
+            if (data.company) metaHtml += '<span class="user-meta-item"><span aria-hidden="true" class="ico ico-users" style="width:14px;height:14px;"></span>' + escapeHtml(data.company) + '</span>';
+            if (data.location) metaHtml += '<span class="user-meta-item"><span aria-hidden="true" class="ico ico-map-pin" style="width:14px;height:14px;"></span>' + escapeHtml(data.location) + '</span>';
+            if (data.blog) {
+                var blogUrl = data.blog.startsWith('http') ? data.blog : 'https://' + data.blog;
+                metaHtml += '<span class="user-meta-item"><span aria-hidden="true" class="ico ico-link" style="width:14px;height:14px;"></span><a href="' + escapeHtml(blogUrl) + '" title="' + escapeHtml(data.blog) + '" target="_blank" rel="noopener">' + escapeHtml(data.blog) + '</a></span>';
+            }
+            if (data.twitter_username) {
+                metaHtml += '<span class="user-meta-item"><span aria-hidden="true" class="ico ico-twitter" style="width:14px;height:14px;"></span><a href="https://x.com/' + encodeURIComponent(data.twitter_username) + '" target="_blank" rel="noopener">@' + escapeHtml(data.twitter_username) + '</a></span>';
+            }
+            if (data.html_url) {
+                metaHtml += '<span class="user-meta-item"><a href="' + escapeHtml(data.html_url) + '" target="_blank" rel="noopener" style="color:var(--cyan);"><span aria-hidden="true" class="ico ico-github" style="width:14px;height:14px;"></span> ' + escapeHtml(t('view-github')) + '</a></span>';
+            }
+            document.getElementById('user-meta').innerHTML = metaHtml || '';
+
+            // --- 统计数据 ---
+            document.getElementById('user-repos-count').textContent = data.public_repos || 0;
+            document.getElementById('user-followers').textContent = data.followers || 0;
+            document.getElementById('user-following').textContent = data.following || 0;
+            document.getElementById('user-gists').textContent = data.public_gists || 0;
+
+            // 统计口径：星标与 Fork 总数只包含自有仓库，避免将 Fork 项目的影响力计入个人产出。
+            var repos = data.repos || [];
+            // 后端只统计「已加载的那一页」，仓库多时并非账号总量。
+            // stats_partial 为真时加 "+" 并在 title 说明口径，避免把分页小计误读成总数。
+            var starsEl = document.getElementById('user-stars-total');
+            var forksEl = document.getElementById('user-forks-total');
+            var partial = !!data.stats_partial;
+            var starsNum = data.owned_stars_total || 0;
+            var forksNum = data.owned_forks_total || 0;
+            starsEl.textContent = partial ? starsNum + '+' : starsNum;
+            forksEl.textContent = partial ? forksNum + '+' : forksNum;
+            if (partial) {
+                var partialHint = t('stats-partial-hint');
+                var starsCard = document.getElementById('stat-stars');
+                var forksCard = document.getElementById('stat-forks-total');
+                if (starsCard) starsCard.title = partialHint;
+                if (forksCard) forksCard.title = partialHint;
+            }
+
+            // 加入时间
+            if (data.created_at) {
+                document.getElementById('user-created-at').textContent = formatDate(data.created_at);
+                if (joinedEl) joinedEl.style.display = 'block';
+            } else if (joinedEl) {
+                joinedEl.style.display = 'none';
+            }
+
+            profileEl.style.display = 'block';
+            document.getElementById('user-avatar').onerror = function() {
+                this.style.visibility = 'hidden';
+                this.parentElement.classList.add('user-avatar-fallback');
+            };
+
+            // --- 渲染仓库列表（分页增量）---
+            var listEl = document.getElementById('user-repos-list');
+            if (!listEl) return;
+
+            var pagerEl = document.getElementById('repo-pager');
+            var prevBtn = document.getElementById('repo-prev');
+            var nextBtn = document.getElementById('repo-next');
+            var curEl = document.getElementById('repo-pager-current');
+            var totEl = document.getElementById('repo-pager-total');
+            var pagerLoading = document.getElementById('repo-pager-loading');
+            var badgeEl = document.getElementById('repo-count-badge');
+
+            var perPage = data.per_page || 24;
+            var totalRepos = data.total_repos || data.public_repos || 0;
+            // 已加载页缓存：翻回已看过的页时直接复用，不再发请求
+            var pageCache = {};
+            var state = { page: data.page || 1, hasNext: !!data.has_next, busy: false };
+
+            function buildCard(r) {
+                var pushedDate = r.pushed_at ? timeAgo(r.pushed_at) : '';
+                var langDotColor = r.language ? langColor(r.language) : 'transparent';
+                var repoTitle = escapeHtml(r.name || '');
+                var repoDescription = r.description ? escapeHtml(r.description) : '';
+                var stateBadges = (r.fork ? '<span class="repo-card-fork-badge">' + escapeHtml(t('fork')) + '</span>' : '')
+                    + (r.archived ? '<span class="repo-card-state-badge">' + escapeHtml(t('archived')) + '</span>' : '')
+                    + (r.disabled ? '<span class="repo-card-state-badge">' + escapeHtml(t('disabled')) + '</span>' : '');
+                var topics = Array.isArray(r.topics) ? r.topics.slice(0, 3) : [];
+                var topicsHtml = topics.length ? '<div class="repo-card-topics">' + topics.map(function(topic) {
+                    return '<span class="repo-topic">' + escapeHtml(topic) + '</span>';
+                }).join('') + '</div>' : '';
+
+                return '<a class="card repo-card animate-in" href="' + escapeHtml(r.html_url || '#') + '" target="_blank" rel="noopener" aria-label="' + repoTitle + '">'
+                    + '<div class="repo-card-header">'
+                    +   '<div class="repo-card-icon"><span class="ico ' + (r.fork ? 'ico-git-branch' : 'ico-repo') + '" style="width:20px;height:20px;"></span></div>'
+                    +   '<div class="repo-card-name-wrap">'
+                    +     '<div class="repo-card-name" title="' + repoTitle + '">' + repoTitle + '</div>'
+                    +     stateBadges
+                    +   '</div>'
+                    + '</div>'
+                    + (repoDescription ? '<div class="repo-card-desc" title="' + repoDescription + '">' + repoDescription + '</div>' : '')
+                    + topicsHtml
+                    + '<div class="repo-card-footer">'
+                    +   (r.language ? '<span class="repo-card-footer-item"><span class="repo-lang-dot" style="background:' + langDotColor + ';"></span>' + escapeHtml(r.language) + '</span>' : '')
+                    +   '<span class="repo-card-footer-item"><span class="ico ico-star ico-yellow ico-sm" aria-hidden="true" style="width:14px;height:14px;"></span> ' + (r.stars || 0) + '</span>'
+                    +   '<span class="repo-card-footer-item"><span class="ico ico-git-branch ico-sm" aria-hidden="true" style="width:14px;height:14px;"></span> ' + (r.forks || 0) + '</span>'
+                    +   (pushedDate ? '<span class="repo-card-footer-item" title="' + escapeHtml(t('last-pushed')) + '"><span class="ico ico-clock ico-sm" aria-hidden="true" style="width:13px;height:13px;"></span> ' + escapeHtml(pushedDate) + '</span>' : '')
+                    + '</div>'
+                    + '</a>';
+            }
+
+            function syncPager() {
+                if (!pagerEl) return;
+                // 总页数以 public_repos 估算；末页由 hasNext 修正，避免口径差异造成空页
+                var totalPages = Math.max(1, Math.ceil(totalRepos / perPage));
+                if (!state.hasNext && state.page >= totalPages) totalPages = state.page;
+                if (curEl) curEl.textContent = state.page;
+                if (totEl) totEl.textContent = totalPages;
+                if (prevBtn) prevBtn.disabled = state.busy || state.page <= 1;
+                if (nextBtn) nextBtn.disabled = state.busy || !state.hasNext;
+                if (pagerLoading) pagerLoading.hidden = !state.busy;
+                // 只有一页时无需翻页控件
+                pagerEl.style.display = (totalPages > 1 || state.page > 1) ? '' : 'none';
+            }
+
+            function renderPage(repos) {
+                if (!repos.length) {
+                    listEl.innerHTML = '<div class="card user-repos-empty"><span aria-hidden="true" class="ico ico-repo ico-dim"></span><span>'
+                        + escapeHtml(t('user-repos-empty')) + '</span></div>';
+                } else {
+                    listEl.innerHTML = repos.map(buildCard).join('');
+                }
+                if (badgeEl) {
+                    var from = repos.length ? ((state.page - 1) * perPage + 1) : 0;
+                    var to = (state.page - 1) * perPage + repos.length;
+                    badgeEl.textContent = repos.length
+                        ? (from + '-' + to + ' / ' + totalRepos)
+                        : ('0 / ' + totalRepos);
+                }
+                reposEl.style.display = 'block';
+                syncPager();
+            }
+
+            function goToPage(target) {
+                if (state.busy || target < 1) return;
+                if (pageCache[target]) {
+                    state.page = target;
+                    state.hasNext = pageCache[target].has_next;
+                    renderPage(pageCache[target].repos);
+                    listEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    return;
+                }
+                state.busy = true;
+                syncPager();
+                // 增量请求：只取目标页，不重复下发用户资料
+                fetch('/user-repos?user=' + encodeURIComponent(user)
+                      + '&page=' + target + '&per_page=' + perPage)
+                .then(function(r) {
+                    if (!r.ok) {
+                        return r.json().catch(function() { return {}; }).then(function(body) {
+                            throw new Error(body.detail || ('HTTP ' + r.status));
+                        });
+                    }
+                    return r.json();
+                })
+                .then(function(pageData) {
+                    var repos = pageData.repos || [];
+                    pageCache[target] = { repos: repos, has_next: !!pageData.has_next };
+                    state.page = target;
+                    state.hasNext = !!pageData.has_next;
+                    state.busy = false;
+                    renderPage(repos);
+                    listEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                })
+                .catch(function(err) {
+                    state.busy = false;
+                    syncPager();
+                    if (typeof showNotification === 'function') {
+                        showNotification(t('load-failed-generic') + (err.message || ''), 'error');
+                    }
+                });
+            }
+
+            if (prevBtn) prevBtn.addEventListener('click', function() { goToPage(state.page - 1); });
+            if (nextBtn) nextBtn.addEventListener('click', function() { goToPage(state.page + 1); });
+
+            pageCache[state.page] = { repos: repos, has_next: state.hasNext };
+            renderPage(repos);
+        })
+        .catch(function(err) {
+            loadingEl.style.display = 'none';
+            errorEl.textContent = t('load-failed-generic') + (err.message || '');
+            errorEl.style.display = 'block';
+        });
+    })();
+    </script>
+</body>
+</html>

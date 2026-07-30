@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="docs-token" content="{{ docs_token }}">
+    <meta name="docs-file" content="{{ docs_file }}">
+    {% include '_theme_head.html' %}
+    <title data-i18n="docs-page-title">开发者文档 - GitAAP</title>
+    <link rel="stylesheet" href="/static/style.css?v={{ static_version }}">
+    <link rel="stylesheet" href="/static/themes/variables.css?v={{ static_version }}">
+    <link rel="stylesheet" href="/static/themes/animations.css?v={{ static_version }}">
+    <link rel="stylesheet" href="/static/themes/utilities.css?v={{ static_version }}">
+    <link rel="stylesheet" href="/static/themes/theme-light.css?v={{ static_version }}">
+    <link rel="stylesheet" href="/static/themes/icons.css?v={{ static_version }}">
+    <link rel="stylesheet" href="/static/docs/docs.css?v={{ static_version }}">
+</head>
+<body>
+{% include '_js_fallback.html' %}
+
+<script src="/static/function.js?v={{ static_version }}"></script>
+<script src="/static/marked.min.js?v={{ static_version }}"></script>
+
+<!-- ═══ 加载遮罩 ═══ -->
+<div id="docs-loader" class="docs-loader">
+    <div class="docs-loader-card">
+        <div class="docs-loader-spinner"></div>
+        <div class="docs-loader-bar-track"><div class="docs-loader-bar" id="docs-loader-bar"></div></div>
+        <div class="docs-loader-text" id="docs-loader-text" data-i18n="docs-loading">加载文档中...</div>
+    </div>
+</div>
+
+<!-- ═══ TOC 侧边栏（桌面端） ═══ -->
+<nav class="docs-toc" id="docs-toc">
+    <div class="docs-toc-header">
+        <span aria-hidden="true" class="ico ico-list-ordered"></span> <span data-i18n="docs-title">目录</span>
+    </div>
+    <div class="docs-toc-body" id="docs-toc-body"></div>
+</nav>
+
+<!-- ═══ TOC 移动端悬浮按钮 + 侧拉面板 ═══ -->
+<button class="docs-toc-mobile-toggle" id="docs-toc-mobile-toggle" data-i18n-title="docs-title" data-i18n-aria-label="docs-title" aria-label="目录" title="目录" style="display:none;">
+    <span aria-hidden="true" class="ico ico-list-ordered"></span>
+</button>
+<div class="docs-toc-mobile-overlay" id="docs-toc-mobile-overlay"></div>
+<nav class="docs-toc-mobile-panel" id="docs-toc-mobile-panel">
+    <button class="docs-toc-close" id="docs-toc-mobile-close" data-i18n-title="close" data-i18n-aria-label="close" aria-label="关闭">
+        <span aria-hidden="true" class="ico ico-x"></span>
+    </button>
+    <div class="docs-toc-header">
+        <span aria-hidden="true" class="ico ico-list-ordered"></span> <span data-i18n="docs-title">目录</span>
+    </div>
+    <div class="docs-toc-body" id="docs-toc-mobile-body"></div>
+</nav>
+
+<!-- ═══ 搜索浮层 ═══ -->
+<div id="docs-search-overlay" class="docs-search-overlay">
+    <div class="docs-search-panel">
+        <div class="docs-search-header">
+            <span aria-hidden="true" class="ico ico-search" style="width:18px;height:18px;"></span>
+            <input type="text" id="docs-search-input" data-i18n-placeholder="docs-search-hint" placeholder="搜索关键词..." autocomplete="off">
+            <button class="docs-search-close" id="docs-search-close" data-i18n-title="close" title="关闭 (Esc)" data-i18n-aria-label="close" aria-label="关闭">
+                <span aria-hidden="true" class="ico ico-x"></span>
+            </button>
+        </div>
+        <div class="docs-search-opts">
+            <label><input type="checkbox" id="docs-search-case"> <span data-i18n="docs-case-sensitive">区分大小写</span></label>
+            <label><input type="checkbox" id="docs-search-title" checked> <span data-i18n="docs-title-only">仅标题</span></label>
+        </div>
+        <div class="docs-search-results" id="docs-search-results">
+            <div class="docs-search-hint" data-i18n="docs-search-hint">输入关键词后按 Enter 或点击搜索按钮</div>
+        </div>
+        <div class="docs-search-nav" id="docs-search-nav">
+            <span id="docs-search-count"></span>
+            <button id="docs-search-prev" data-i18n-title="docs-prev" title="上一条" data-i18n-aria-label="docs-prev" aria-label="上一条">
+                <span aria-hidden="true" class="ico ico-chevron-up ico-gap"></span><span data-i18n="docs-prev">上一条</span>
+            </button>
+            <button id="docs-search-next" data-i18n-title="docs-next" title="下一条" data-i18n-aria-label="docs-next" aria-label="下一条">
+                <span aria-hidden="true" class="ico ico-chevron-down ico-gap"></span><span data-i18n="docs-next">下一条</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ 页面主体 ═══ -->
+<main><div class="container">
+    <div class="card controls docs-header animate-in">
+        <a class="nav-button" href="/">
+            <span aria-hidden="true" class="ico ico-arrow-left ico-gap"></span><span data-i18n="home">首页</span>
+        </a>
+        <div class="docs-header-tools">
+            <span style="font-size:1.1rem;font-weight:600;" data-i18n="docs-title">开发者文档</span>
+            <span class="docs-header-actions">
+                <button class="docs-tool-btn" id="docs-font-dec" data-i18n-title="docs-font-dec" title="缩小字体">A<sup>−</sup></button>
+                <button class="docs-tool-btn" id="docs-font-reset" data-i18n-title="docs-font-reset" title="重置字体大小">A</button>
+                <button class="docs-tool-btn" id="docs-font-inc" data-i18n-title="docs-font-inc" title="放大字体">A<sup>+</sup></button>
+                <span class="docs-tool-divider"></span>
+                <button class="docs-tool-btn" id="docs-search-btn" data-i18n-title="docs-search-btn" title="搜索文档 (Ctrl+F)" data-i18n-aria-label="docs-search-btn" aria-label="搜索文档">
+                    <span aria-hidden="true" class="ico ico-search"></span>
+                </button>
+            </span>
+        </div>
+        <button id="theme-toggle" class="btn-sm" onclick="toggleTheme()" data-i18n-title="theme-toggle" title="切换主题" style="width:36px;height:36px;padding:0;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;flex-shrink:0;" data-i18n-aria-label="theme-toggle" aria-label="切换主题">
+            <span aria-hidden="true" class="ico ico-moon" style="width:18px;height:18px;"></span>
+        </button>
+        <button id="drawer-toggle" class="btn-sm" onclick="toggleDrawer()" data-i18n-title="drawer-more-options" title="菜单" style="width:36px;height:36px;padding:0;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;" data-i18n-aria-label="drawer-more-options" aria-label="更多选项">
+            <span class="ham-icon"><span class="ham-i"></span><span class="ham-i"></span><span class="ham-i"></span></span>
+        </button>
+    </div>
+    <div class="card animate-in" id="doc-content" style="padding:30px;">
+        <!-- JS 渲染后填入 -->
+    </div>
+</div></main>
+
+<!-- ═══ 回到顶部悬浮按钮 ═══ -->
+<button class="docs-top-btn" id="docs-top-btn" data-i18n-title="docs-top-btn" title="回到顶部" data-i18n-aria-label="docs-top-btn" aria-label="回到顶部">
+    <span aria-hidden="true" class="ico ico-chevron-up"></span>
+</button>
+
+<script>
+(function() {
+    'use strict';
+    /* ================================================================
+       加载文档 + 还原 token 身份
+       ================================================================ */
+    var loader      = document.getElementById('docs-loader');
+    var loaderBar   = document.getElementById('docs-loader-bar');
+    var loaderText  = document.getElementById('docs-loader-text');
+    var container   = document.getElementById('doc-content');
+    var tocBody     = document.getElementById('docs-toc-body');
+    var docToken    = document.querySelector('meta[name="docs-token"]');
+    var docFile     = document.querySelector('meta[name="docs-file"]');
+
+    function setLoader(pct, txt) {
+        if (loaderBar) loaderBar.style.width = pct + '%';
+        if (txt && loaderText) loaderText.textContent = txt;
+    }
+    function hideLoader() {
+        setLoader(100, t('docs-loading-done'));
+        setTimeout(function() { if (loader) loader.style.display = 'none'; }, 350);
+    }
+
+    if (!docToken || !docFile) {
+        container.innerHTML = '<h2>' + t('docs-config-error') + '</h2><p>' + t('docs-token-missing') + '</p>';
+        if (loader) loader.style.display = 'none';
+        return;
+    }
+    var token = docToken.getAttribute('content');
+    var file  = docFile.getAttribute('content');
+
+    setLoader(15, t('docs-loading-connecting'));
+    container.innerHTML = '<p style="color:var(--text-dim);">' + t('docs-loading-file') + '</p>';
+
+    fetch('/docs/md?file=' + encodeURIComponent(file), {
+        headers: { 'X-Docs-Token': token }
+    })
+    .then(function(res) {
+        if (!res.ok) {
+            if (res.status === 403) throw new Error(t('docs-auth-failed'));
+            if (res.status === 404) throw new Error(t('docs-file-not-found'));
+            throw new Error(t('docs-load-failed') + ' (' + res.status + ')');
+        }
+        return res.text();
+    })
+    .then(function(md) {
+        setLoader(50, t('docs-loading-parsing'));
+        if (typeof marked === 'undefined') {
+            container.innerHTML = '<h2>' + t('docs-render-error') + '</h2><p>' + t('docs-render-error-desc') + '</p>';
+            hideLoader();
+            return;
+        }
+        setLoader(70, t('docs-loading-rendering'));
+        container.innerHTML = '<div class=\"docs-scroll-wrap\">' + marked.parse(md) + '</div>';
+        setLoader(85, t('docs-loading-toc'));
+
+        /* ── 为所有标题生成锚点 ID ── */
+        var headingSel = 'h1, h2, h3, h4';
+        container.querySelectorAll(headingSel).forEach(function(el, i) {
+            if (!el.id) el.id = 'docs-h-' + i;
+        });
+
+        /* ── 渲染后挂载所有功能 ── */
+        renderToc();
+        renderAnchorLinks();
+        renderCopyButtons();
+        /* 给表格加溢出滚动容器 */
+        container.querySelectorAll('table').forEach(function(el) {
+            if (el.parentElement && el.parentElement.classList.contains('docs-table-wrap')) return;
+            var wrap = document.createElement('div');
+            wrap.className = 'docs-table-wrap';
+            el.parentNode.insertBefore(wrap, el);
+            wrap.appendChild(el);
+        });
+        hideLoader();
+
+        /* ── 恢复之前保存的字体大小 ── */
+        var savedSize = localStorage.getItem('docs-font-size');
+        if (savedSize) applyFontSize(parseInt(savedSize, 10));
+    })
+    .catch(function(err) {
+        container.innerHTML = '<h2>' + t('docs-load-failed') + '</h2><p style="color:var(--orange);">' +
+            (err.message || t('unknown-error')) + '</p>' +
+            '<p style="font-size:0.85rem;color:var(--text-dim);">' + t('docs-refresh-hint') + ' <a href="/docs" style="color:var(--cyan);">' + t('docs-refresh') + '</a></p>';
+        hideLoader();
+    });
+
+    /* ================================================================
+       TOC 侧边栏导航
+       ================================================================ */
+    var _tocItems = [];
+    function renderToc() {
+        if (!tocBody) return;
+        var headings = container.querySelectorAll('h2, h3');
+        if (!headings.length) { tocBody.innerHTML = '<div class="docs-toc-empty">' + t('docs-toc-empty') + '</div>'; return; }
+
+        var html = '';
+        _tocItems = [];
+        headings.forEach(function(el) {
+            var tag = el.tagName.toLowerCase();
+            var cls = tag === 'h2' ? 'toc-l2' : 'toc-l3';
+            var text = (el.textContent || '').trim();
+            if (!text) return;
+            html += '<div class="docs-toc-item ' + cls + '" data-target="' + el.id + '">' +
+                    '<span class="toc-text">' + escHtml(text) + '</span></div>';
+            _tocItems.push({ id: el.id, el: el });
+        });
+        tocBody.innerHTML = html;
+
+        /* 点击跳转 */
+        tocBody.querySelectorAll('.docs-toc-item').forEach(function(item) {
+            item.addEventListener('click', function() {
+                var target = document.getElementById(this.dataset.target);
+                if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        });
+    }
+
+    /* TOC 滚动高亮 */
+    var _tocScrollTicking = false;
+    function updateTocHighlight() {
+        if (!_tocItems.length) return;
+        var scrollTop = window.scrollY;
+        var containerTop = container.getBoundingClientRect().top + scrollTop;
+        var activeIdx = -1;
+        for (var i = 0; i < _tocItems.length; i++) {
+            var headingEl = document.getElementById(_tocItems[i].id);
+            if (!headingEl) continue;
+            var headingTop = headingEl.getBoundingClientRect().top + scrollTop;
+            if (headingTop - containerTop <= 120) activeIdx = i;
+            else break;
+        }
+        var items = tocBody.querySelectorAll('.docs-toc-item');
+        items.forEach(function(el, idx) {
+            el.classList.toggle('active', idx === activeIdx);
+        });
+    }
+
+    window.addEventListener('scroll', function() {
+        if (!_tocScrollTicking) {
+            requestAnimationFrame(function() { updateTocHighlight(); _tocScrollTicking = false; });
+            _tocScrollTicking = true;
+        }
+    }, { passive: true });
+
+    /* ── 回到顶部按钮 ── */
+    var topBtn = document.getElementById('docs-top-btn');
+    window.addEventListener('scroll', function() {
+        if (window.scrollY > 400) topBtn.classList.add('show');
+        else topBtn.classList.remove('show');
+    }, { passive: true });
+    topBtn.addEventListener('click', function() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    /* ================================================================
+       标题锚点链接 (hover 显示 ¶)
+       ================================================================ */
+    function renderAnchorLinks() {
+        container.querySelectorAll('h1, h2, h3, h4').forEach(function(el) {
+            if (el.querySelector('.docs-anchor')) return;
+            var a = document.createElement('a');
+            a.className = 'docs-anchor';
+            a.href = '#' + el.id;
+            a.textContent = '\u00B6';
+            a.setAttribute('aria-label', '复制链接到此章节');
+            a.addEventListener('click', function(e) {
+                e.preventDefault();
+                var url = window.location.href.split('#')[0] + '#' + el.id;
+                navigator.clipboard.writeText(url).catch(function(){});
+                window.location.hash = el.id;
+            });
+            el.appendChild(a);
+        });
+    }
+
+    /* ================================================================
+       代码块复制按钮
+       ================================================================ */
+    function renderCopyButtons() {
+        container.querySelectorAll('pre').forEach(function(pre) {
+            if (pre.querySelector('.docs-copy-btn')) return;
+            var btn = document.createElement('button');
+            btn.className = 'docs-copy-btn';
+            btn.textContent = '复制';
+            btn.addEventListener('click', function() {
+                var code = pre.querySelector('code');
+                var text = code ? code.textContent : pre.textContent;
+                navigator.clipboard.writeText(text).then(function() {
+                    btn.textContent = '已复制';
+                    setTimeout(function() { btn.textContent = '复制'; }, 2000);
+                }).catch(function() {
+                    btn.textContent = '复制失败';
+                    setTimeout(function() { btn.textContent = '复制'; }, 2000);
+                });
+            });
+            pre.appendChild(btn);
+        });
+    }
+
+    /* ================================================================
+       字体大小调节
+       ================================================================ */
+    var fontSizeLevel = 0; // -1, 0, +1
+    var FONT_SIZES = [14, 16, 19];
+
+    function applyFontSize(level) {
+        if (level < 0) level = 0;
+        if (level >= FONT_SIZES.length) level = FONT_SIZES.length - 1;
+        fontSizeLevel = level;
+        container.style.fontSize = FONT_SIZES[level] + 'px';
+        localStorage.setItem('docs-font-size', String(level));
+    }
+
+    document.getElementById('docs-font-dec').addEventListener('click', function() {
+        applyFontSize(fontSizeLevel - 1);
+    });
+    document.getElementById('docs-font-inc').addEventListener('click', function() {
+        applyFontSize(fontSizeLevel + 1);
+    });
+    document.getElementById('docs-font-reset').addEventListener('click', function() {
+        applyFontSize(1); // 默认 16px
+    });
+
+    /* ================================================================
+       搜索功能
+       ================================================================ */
+    var searchOverlay = document.getElementById('docs-search-overlay');
+    var searchInput   = document.getElementById('docs-search-input');
+    var searchResults = document.getElementById('docs-search-results');
+    var searchCount   = document.getElementById('docs-search-count');
+    var searchNav     = document.getElementById('docs-search-nav');
+    var searchCase    = document.getElementById('docs-search-case');
+    var searchTitle   = document.getElementById('docs-search-title');
+    var searchBtn     = document.getElementById('docs-search-btn');
+    var originalHTML  = '';
+
+    function openSearch() {
+        searchOverlay.classList.add('show');
+        var isMobile = 'ontouchstart' in window && /Mobi|Android/i.test(navigator.userAgent);
+        if (!isMobile) setTimeout(function() { searchInput.focus(); }, 200);
+    }
+    function closeSearch() { searchOverlay.classList.remove('show'); }
+
+    searchBtn.addEventListener('click', openSearch);
+    document.getElementById('docs-search-close').addEventListener('click', closeSearch);
+    searchOverlay.addEventListener('click', function(e) {
+        if (e.target === searchOverlay) closeSearch();
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'f') { e.preventDefault(); openSearch(); }
+        if (e.key === 'Escape' && searchOverlay.classList.contains('show')) closeSearch();
+    });
+
+    var searchMatches = [];
+    var searchCurrent = -1;
+
+    function doSearch() {
+        var query = searchInput.value.trim();
+        if (!query) {
+            searchResults.innerHTML = '<div class="docs-search-hint">' + t('docs-search-hint') + '</div>';
+            searchCount.textContent = '';
+            searchNav.classList.remove('show');
+            if (originalHTML) container.innerHTML = originalHTML;
+            renderToc(); renderAnchorLinks(); renderCopyButtons();
+            return;
+        }
+
+        if (!originalHTML) originalHTML = container.innerHTML;
+
+        var caseSens = searchCase.checked;
+        var onlyTitle = searchTitle.checked;
+        var flags = 'g' + (caseSens ? '' : 'i');
+
+        /* 搜索范围 */
+        var searchTargetHTML = originalHTML;
+        if (onlyTitle) {
+            var tmp = document.createElement('div');
+            tmp.innerHTML = originalHTML;
+            var headings = tmp.querySelectorAll('h1,h2,h3,h4');
+            searchTargetHTML = '';
+            headings.forEach(function(h) { searchTargetHTML += h.outerHTML; });
+        }
+
+        /* 查找匹配位置 (在纯文本上) */
+        var textOnly = searchTargetHTML.replace(/<[^>]*>/g, ' ');
+        var re = new RegExp(escRegex(query), flags);
+        var match;
+        searchMatches = [];
+        while ((match = re.exec(textOnly)) !== null) {
+            searchMatches.push({ index: match.index, length: match[0].length });
+        }
+
+        if (searchMatches.length === 0) {
+            container.innerHTML = originalHTML;
+            renderToc(); renderAnchorLinks(); renderCopyButtons();
+            searchResults.innerHTML = '<div class="docs-search-none">' + t('docs-no-results') + '</div>';
+            searchCount.textContent = '';
+            searchNav.classList.remove('show');
+            return;
+        }
+
+        /* 高亮匹配 */
+        var parts = originalHTML.split(/(<[^>]*>)/);
+        var kwLower = query.toLowerCase();
+        for (var pi = 0; pi < parts.length; pi++) {
+            if (parts[pi].charAt(0) === '<' || parts[pi] === '') continue;
+            var text = caseSens ? parts[pi] : parts[pi].toLowerCase();
+            var searchRe = caseSens ? new RegExp(escRegex(query), 'g') : new RegExp(escRegex(kwLower), 'g');
+            var result = '';
+            var lastIdx = 0;
+            var m;
+            while ((m = searchRe.exec(text)) !== null) {
+                var matched = parts[pi].substring(m.index, m.index + m[0].length);
+                result += parts[pi].substring(lastIdx, m.index) +
+                    '<mark class="docs-hl">' + matched + '</mark>';
+                lastIdx = m.index + m[0].length;
+            }
+            if (lastIdx > 0) {
+                result += parts[pi].substring(lastIdx);
+                parts[pi] = result;
+            }
+        }
+        container.innerHTML = parts.join('');
+        renderToc(); renderAnchorLinks(); renderCopyButtons();
+
+        /* 更新结果信息 */
+        searchCount.textContent = '找到 ' + searchMatches.length + ' 处';
+        searchNav.classList.add('show');
+        searchCurrent = 0;
+        scrollToSearchMatch(0);
+    }
+
+    function scrollToSearchMatch(idx) {
+        var marks = container.querySelectorAll('mark.docs-hl');
+        if (idx < 0 || idx >= marks.length) return;
+        marks.forEach(function(m) { m.classList.remove('current'); });
+        marks[idx].classList.add('current');
+        marks[idx].scrollIntoView({ behavior: 'smooth', block: 'center' });
+        searchCurrent = idx;
+        searchCount.textContent = '找到 ' + searchMatches.length + ' 处，当前第 ' + (idx + 1) + ' 处';
+    }
+
+    /* 搜索事件绑定 */
+    var searchTimer;
+    searchInput.addEventListener('input', function() {
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(doSearch, 300);
+    });
+    searchInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') { e.preventDefault(); doSearch(); }
+    });
+    searchCase.addEventListener('change', doSearch);
+    searchTitle.addEventListener('change', doSearch);
+
+    document.getElementById('docs-search-prev').addEventListener('click', function() {
+        if (searchMatches.length === 0) return;
+        searchCurrent = (searchCurrent - 1 + searchMatches.length) % searchMatches.length;
+        scrollToSearchMatch(searchCurrent);
+    });
+    document.getElementById('docs-search-next').addEventListener('click', function() {
+        if (searchMatches.length === 0) return;
+        searchCurrent = (searchCurrent + 1) % searchMatches.length;
+        scrollToSearchMatch(searchCurrent);
+    });
+
+    /* F3 上下条快捷键 */
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'F3') {
+            e.preventDefault();
+            if (searchMatches.length === 0) return;
+            if (e.shiftKey) {
+                searchCurrent = (searchCurrent - 1 + searchMatches.length) % searchMatches.length;
+            } else {
+                searchCurrent = (searchCurrent + 1) % searchMatches.length;
+            }
+            scrollToSearchMatch(searchCurrent);
+        }
+    });
+
+    /* ================================================================
+       工具函数
+       ================================================================ */
+    function escHtml(s) {
+        return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+    function escRegex(s) {
+        return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    /* ================================================================
+       移动端 TOC 侧拉面板
+       ================================================================ */
+    var mtToggle = document.getElementById('docs-toc-mobile-toggle');
+    var mtPanel  = document.getElementById('docs-toc-mobile-panel');
+    var mtOverlay = document.getElementById('docs-toc-mobile-overlay');
+    var mtClose  = document.getElementById('docs-toc-mobile-close');
+    var mtBody   = document.getElementById('docs-toc-mobile-body');
+
+    function openMobileToc() {
+        if (mtPanel) mtPanel.classList.add('open');
+        if (mtOverlay) mtOverlay.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+    function closeMobileToc() {
+        if (mtPanel) mtPanel.classList.remove('open');
+        if (mtOverlay) mtOverlay.classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    if (mtToggle) mtToggle.addEventListener('click', openMobileToc);
+    if (mtClose) mtClose.addEventListener('click', closeMobileToc);
+    if (mtOverlay) mtOverlay.addEventListener('click', closeMobileToc);
+
+    // 复写 renderToc 以同时填充移动端 TOC
+    var _origRenderToc = renderToc;
+    renderToc = function() {
+        _origRenderToc();
+        if (!mtBody || !tocBody) return;
+        // 克隆桌面端 TOC 内容到移动端
+        mtBody.innerHTML = tocBody.innerHTML;
+        // 绑定移动端 TOC 点击事件
+        mtBody.querySelectorAll('.docs-toc-item').forEach(function(item) {
+            item.addEventListener('click', function() {
+                var target = document.getElementById(this.dataset.target);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    closeMobileToc();
+                }
+            });
+        });
+    };
+
+    // Esc 键关闭移动端 TOC
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && mtPanel && mtPanel.classList.contains('open')) {
+            closeMobileToc();
+        }
+    });
+
+    // 平板 (769-1023px) 也显示移动端 TOC 按钮
+    function checkTabletToc() {
+        var w = window.innerWidth;
+        var desktopToc = document.getElementById('docs-toc');
+        if (w >= 769 && w < 1024) {
+            // 平板：隐藏桌面端 TOC，显示移动端按钮
+            if (desktopToc) desktopToc.style.display = 'none';
+            if (mtToggle) mtToggle.style.display = 'flex';
+        } else if (w < 480) {
+            // 手机端：移动端 CSS 控制
+        } else {
+            if (desktopToc) desktopToc.style.display = '';
+            if (mtToggle && w >= 1024) mtToggle.style.display = 'none';
+        }
+    }
+    checkTabletToc();
+    window.addEventListener('resize', checkTabletToc);
+})();
+</script>
+
+<!-- 侧边抽屉 -->
+<div id="side-drawer" class="drawer-overlay" style="display:none;" onclick="if(event.target===this)closeDrawer()">
+    <div class="drawer-panel">
+        <div class="drawer-header">
+            <span class="drawer-title" data-i18n="menu">菜单</span>
+            <button class="drawer-close" onclick="closeDrawer()" data-i18n-title="close" aria-label="关闭菜单"><span aria-hidden="true" class="ico ico-x-circle" style="width:16px;height:16px;"></span></button>
+        </div>
+        <div class="drawer-body">
+            <div class="drawer-section">
+                <div class="drawer-section-title" data-i18n="appearance">外观</div>
+                <div class="drawer-theme-options">
+                    <button class="drawer-theme-btn" data-theme="dark" onclick="setTheme('dark')"><span aria-hidden="true" class="ico ico-moon ico-gap"></span><span data-i18n="dark">深色</span></button>
+                    <button class="drawer-theme-btn" data-theme="light" onclick="setTheme('light')"><span aria-hidden="true" class="ico ico-sun ico-gap"></span><span data-i18n="light">浅色</span></button>
+                    <button class="drawer-theme-btn" data-theme="system" onclick="setTheme('system')"><span aria-hidden="true" class="ico ico-gear ico-gap"></span><span data-i18n="system">跟随系统</span></button>
+                </div>
+            </div>
+            <div class="drawer-section">
+                <div class="drawer-section-title" onclick="toggleCollapse(this)" style="cursor:pointer;user-select:none;">
+                    <span aria-hidden="true" class="ico ico-tools ico-dim ico-gap"></span><span data-i18n="toolbox">工具箱</span>
+                    <span class="collapse-arrow" style="margin-left:auto;transition:transform 0.2s;"><span aria-hidden="true" class="ico ico-chevron-right" style="width:12px;height:12px;"></span></span>
+                </div>
+                <div class="collapse-content" style="display:none;">
+                    <div style="margin-bottom:12px;">
+                        <div style="font-size:0.78rem;color:var(--text-dim);margin-bottom:6px;" data-i18n="text-align">文本对齐</div>
+                        <div class="drawer-theme-options" id="text-align-options">
+                            <button class="drawer-theme-btn align-btn" data-align="left" onclick="setTextAlign('left')"><span data-i18n="align-left">左</span></button>
+                            <button class="drawer-theme-btn align-btn active" data-align="center" onclick="setTextAlign('center')"><span data-i18n="align-center">中</span></button>
+                            <button class="drawer-theme-btn align-btn" data-align="right" onclick="setTextAlign('right')"><span data-i18n="align-right">右</span></button>
+                        </div>
+                    </div>
+                    <div style="margin-bottom:12px;">
+                        <div style="font-size:0.78rem;color:var(--text-dim);margin-bottom:6px;" data-i18n="font-size">字体大小</div>
+                        <div class="drawer-theme-options" id="font-size-options">
+                            <button class="drawer-theme-btn font-size-btn" data-size="small" onclick="setFontSize('small')"><span data-i18n="font-small">小</span></button>
+                            <button class="drawer-theme-btn font-size-btn active" data-size="medium" onclick="setFontSize('medium')"><span data-i18n="font-medium">中</span></button>
+                            <button class="drawer-theme-btn font-size-btn" data-size="large" onclick="setFontSize('large')"><span data-i18n="font-large">大</span></button>
+                            <button class="drawer-theme-btn font-size-btn" data-size="xlarge" onclick="setFontSize('xlarge')"><span data-i18n="font-xlarge">特大</span></button>
+                        </div>
+                    </div>
+                    <div class="tone-market" id="tone-market">
+                        <div class="tone-market-header">
+                            <span class="tone-market-label"><span aria-hidden="true" class="ico ico-palette ico-gap"></span><span data-i18n="tone">色调</span></span>
+                            <button class="tone-market-toggle btn-sm" onclick="toggleToneMarket()" id="tone-market-toggle">
+                                <span class="tone-market-arrow"><span aria-hidden="true" class="ico ico-chevron-down" style="width:12px;height:12px;"></span></span> <span data-i18n="browse-tones">浏览色调</span>
+                            </button>
+                        </div>
+                        <div class="tone-market-grid" id="tone-market-grid" style="display:none;"></div>
+                        <div class="tone-market-placeholder" id="tone-market-placeholder">
+                            <div id="current-tone-label" style="font-size:0.78rem;color:var(--text-dim);"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="drawer-section">
+                <div class="drawer-section-title" data-i18n="language">语言</div>
+                <div class="drawer-lang-options">
+                    <button class="drawer-lang-btn" data-lang="zh" onclick="setLang('zh')" data-i18n="language-zh">中文</button>
+                    <button class="drawer-lang-btn" data-lang="zh-Hant" onclick="setLang('zh-Hant')" data-i18n="language-zh-hant"><span aria-hidden="true" class="ico ico-globe ico-gap"></span>繁體中文</button>
+                    <button class="drawer-lang-btn" data-lang="en" onclick="setLang('en')" data-i18n="language-en">English</button>
+                </div>
+            </div>
+            <div class="drawer-section">
+                <div class="drawer-section-title" data-i18n="api-status">API 状态</div>
+                <div id="drawer-token-status" style="padding:8px 4px;font-size:0.85rem;color:var(--text-dim);">
+                    <span aria-hidden="true" class="ico ico-hourglass ico-dim ico-gap"></span><span data-i18n="loading">加载中...</span>
+                </div>
+                <a class="drawer-link" href="/token-stats-page" style="margin-top:4px;">
+                    <span aria-hidden="true" class="ico ico-graph ico-dim ico-gap"></span><span data-i18n="detail-stats">详细统计</span>
+                </a>
+                <label class="drawer-toggle-row" style="display:flex;align-items:center;gap:8px;margin-top:8px;padding:8px 4px;cursor:pointer;font-size:0.85rem;color:var(--text-dim);">
+                    <input type="checkbox" id="cache-hint-toggle" onchange="toggleCacheHint()" style="accent-color:var(--cyan);">
+                    <span data-i18n="cache-hint">缓存命中提示</span>
+                </label>
+            </div>
+            {% include '_side_drawer_links.html' %}
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

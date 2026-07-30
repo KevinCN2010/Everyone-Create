@@ -1,0 +1,59 @@
+/* ═══════════════════════════════════════════════════
+   captcha-verify/plugin.css — 人机验证插件样式
+   作用域加 .plugin-captcha- 前缀避免与主站冲突
+   ═══════════════════════════════════════════════════ */
+
+/* ── 验证码容器 ── */
+.plugin-captcha-box {
+  min-height: 60px;
+  width: 100%;
+}
+.plugin-captcha-box .tac-loading {
+  color: var(--text-dim);
+  font-size: 0.82rem;
+  text-align: center;
+  padding: 8px 0;
+}
+
+/* ── 验证状态 ── */
+.plugin-captcha-status {
+  margin-top: 6px;
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+.plugin-captcha-status .pass {
+  color: var(--green, #3fb950);
+  font-weight: 500;
+}
+.plugin-captcha-status .fail {
+  color: var(--orange, #ff8c42);
+}
+.plugin-captcha-status .error {
+  color: var(--red, #f85149);
+}
+.plugin-captcha-status .loading {
+  color: var(--text-dim);
+}
+
+/* ── 验证码节标题 ── */
+.plugin-captcha-section-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+}
+
+/* ── 侧边抽屉中的验证码区域 ── */
+#tac-section .plugin-captcha-box {
+  min-height: 50px;
+}
+
+/* ── 紧凑模式下适配小屏 ── */
+@media (max-width: 480px) {
+  .plugin-captcha-box {
+    min-height: 40px;
+  }
+}

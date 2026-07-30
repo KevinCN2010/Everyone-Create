@@ -1,0 +1,178 @@
+/* ═══════════════════════════════════════════════════
+   动画关键帧
+   ═══════════════════════════════════════════════════ */
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; max-height: 0; }
+  to   { opacity: 1; max-height: 600px; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.05); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200px 0; }
+  100% { background-position: 200px 0; }
+}
+
+/* ── 应用动画 ── */
+.animate-in {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity var(--anim-enter), transform var(--anim-enter);
+  will-change: transform, opacity;
+  contain: layout style;
+}
+.animate-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── 悬停动画（仅过渡需要的属性，避免 transition: all） ── */
+.card, .stat-card, .nav-button, .asset-item, .file-tree-item, .commit-item, .data-table tbody tr {
+  transition: transform var(--anim-normal), box-shadow var(--anim-normal), background var(--anim-normal), border-color var(--anim-normal);
+}
+button, .repo-link {
+  transition: transform var(--anim-normal), background var(--anim-normal), box-shadow var(--anim-normal);
+}
+
+/* ── 按键弹性动画 ── */
+@keyframes btnElastic {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(0.92); }
+  60%  { transform: scale(1.04); }
+  80%  { transform: scale(0.98); }
+  100% { transform: scale(1); }
+}
+button:active:not(:disabled),
+.nav-button:active:not(:disabled),
+.repo-link:active:not(:disabled),
+.btn-sm:active:not(:disabled),
+.tab-btn:active:not(:disabled) {
+  animation: btnElastic 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+/* 小按键（如翻页、图标按钮）缩短弹性动画时长，手感更紧致 */
+.btn-sm:active:not(:disabled),
+.paginate-footer .btn-sm:active:not(:disabled) {
+  animation: btnElastic 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow);
+}
+
+.repo-link:hover, .nav-button:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.data-table tbody tr:hover {
+  background: var(--accent-glow);
+}
+
+.file-tree-item:hover, .commit-item:hover, .asset-item:hover {
+  background: var(--accent-glow);
+}
+
+.asset-item:hover {
+  transform: translateX(4px);
+  border-color: var(--accent);
+}
+
+.release-title::after {
+  content: ' ↗';
+  font-size: 0.7rem;
+  opacity: 0;
+  transition: opacity var(--anim-fast);
+}
+.release-title:hover::after {
+  opacity: 1;
+}
+
+/* ── 延迟内容入场 ── */
+.lazy-content-enter {
+  /* 回退值与 --anim-enter 保持一致（0.5s ease），
+     原先写 0.28s 会在变量缺失时突然变快，观感与其他入场不一致 */
+  animation: fadeInUp var(--anim-enter, 0.5s ease) both;
+}
+
+/* ── 骨架屏 ── */
+.skeleton-line {
+  background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%);
+  background-size: 200px 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 6px;
+  will-change: background-position;
+  contain: layout style;
+}
+
+/* ── 加载动画 ── */
+.spinner {
+  width: 40px; height: 40px;
+  border: 4px solid var(--border);
+  border-top-color: var(--orange);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  will-change: transform;
+}
+
+/* ═══════════════════════════════════════════════════
+   可访问性：尊重用户减少动效偏好
+   ═══════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  .animate-in,
+  .animate-in.visible,
+  .lazy-content-enter,
+  .drawer-panel-content.active,
+  .card, .stat-card, .nav-button, .asset-item,
+  .file-tree-item, .commit-item, .data-table tbody tr,
+  button, .repo-link,
+  .release-title::after {
+    transition: none !important;
+    animation: none !important;
+  }
+  .skeleton-line {
+    animation: none !important;
+    background: var(--bg-dark);
+  }
+  .lazy-content-enter {
+    animation: none !important;
+  }
+  .spinner {
+    animation: none !important;
+    border-top-color: var(--border);
+  }
+  #cache-hint-bar {
+    animation: none !important;
+  }
+  button:active:not(:disabled),
+  .nav-button:active:not(:disabled),
+  .repo-link:active:not(:disabled),
+  .btn-sm:active:not(:disabled),
+  .tab-btn:active:not(:disabled) {
+    animation: none !important;
+  }
+  .stat-card:hover {
+    transform: none;
+  }
+  .asset-item:hover {
+    transform: none;
+  }
+}

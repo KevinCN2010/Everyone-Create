@@ -1,0 +1,18 @@
+{
+  "id": "info-popups",
+  "name": "info-popups",
+  "version": "1.0.0",
+  "title": "Detail Popups",
+  "description": "License, language, topic and asset detail popups.",
+  "author": "GitAAP Team",
+  "team": "GitAAP",
+  "enabled": true,
+  "entry": "plugin.js",
+  "assets": {
+    "css": [],
+    "svg": [],
+    "js": ["plugin.js"]
+  },
+  "dependencies": [],
+  "tags": ["popup", "license", "language", "asset", "topic"]
+}

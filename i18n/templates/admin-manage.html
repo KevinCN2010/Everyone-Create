@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% include '_theme_head.html' %}
+    <title data-i18n="admin-manage-title">管理员面板 - GitAAP</title>
+    <link rel="stylesheet" href="/static/style.css?v={{ static_version }}">
+    <link rel="stylesheet" href="/static/themes/variables.css?v={{ static_version }}">
+    <link rel="stylesheet" href="/static/themes/animations.css?v={{ static_version }}">
+    <link rel="stylesheet" href="/static/themes/utilities.css?v={{ static_version }}">
+    <link rel="stylesheet" href="/static/themes/theme-light.css?v={{ static_version }}">
+    <link rel="stylesheet" href="/static/themes/icons.css?v={{ static_version }}">
+    <link rel="stylesheet" href="/static/plugins/core/manager.css?v={{ static_version }}">
+</head>
+<body>
+{% include '_js_fallback.html' %}
+
+<main><div class="container">
+    <div class="card controls animate-in">
+        <a class="nav-button" href="/">
+            <span aria-hidden="true" class="ico ico-arrow-left ico-gap"></span><span data-i18n="home">首页</span>
+        </a>
+        <span style="font-size:1.1rem;font-weight:600;">
+            <span aria-hidden="true" class="ico ico-shield ico-gap" style="width:18px;height:18px;"></span><span data-i18n="admin-manage-heading">管理员面板</span>
+        </span>
+        <button id="theme-toggle" class="btn-sm" onclick="toggleTheme()" style="width:36px;height:36px;padding:0;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;flex-shrink:0;" data-i18n-title="theme-toggle" title="切换主题" data-i18n-aria-label="theme-toggle" aria-label="切换主题">
+            <span aria-hidden="true" class="ico ico-moon" style="width:18px;height:18px;"></span>
+        </button>
+        <button id="drawer-toggle" class="btn-sm" onclick="toggleDrawer()" data-i18n-title="drawer-more-options" title="更多选项" style="width:36px;height:36px;padding:0;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;" data-i18n-aria-label="drawer-more-options" aria-label="更多选项">
+            <span class="ham-icon"><span class="ham-i"></span><span class="ham-i"></span><span class="ham-i"></span></span>
+        </button>
+        <button class="btn-sm" onclick="doLogout()" style="margin-left:auto;color:var(--red);border-color:rgba(248,81,73,0.3);">
+            <span aria-hidden="true" class="ico ico-x-circle ico-gap"></span><span data-i18n="admin-logout">登出</span>
+        </button>
+    </div>
+
+    <div class="card animate-in">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
+            <span aria-hidden="true" class="ico ico-box ico-dim" style="width:18px;height:18px;"></span>
+            <h3 style="margin:0;font-size:1rem;font-weight:600;" data-i18n="admin-plugin-manager">插件管理</h3>
+            <span style="font-size:0.78rem;color:var(--text-dim);" id="plugins-count" data-i18n="admin-plugins-loading">加载中...</span>
+        </div>
+        <div id="plugins-container" class="plugins-grid" style="min-height:120px;">
+            <div style="text-align:center;padding:40px;color:var(--text-dim);">
+                <div class="spinner" style="width:24px;height:24px;border-width:3px;margin:0 auto;"></div>
+                <p style="margin-top:8px;" data-i18n="admin-plugins-loading-list">加载插件列表...</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card animate-in">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+            <span aria-hidden="true" class="ico ico-server ico-dim" style="width:18px;height:18px;"></span>
+            <h3 style="margin:0;font-size:1rem;font-weight:600;" data-i18n="admin-ops-heading">运行状态与运维</h3>
+            <button class="btn-sm" onclick="loadAdminStatus()" style="margin-left:auto;" data-i18n-title="refresh" title="刷新">
+                <span aria-hidden="true" class="ico ico-refresh ico-gap"></span><span data-i18n="refresh">刷新</span>
+            </button>
+        </div>
+
+        <div id="admin-status-grid" class="admin-stat-grid">
+            <div class="admin-stat-loading">
+                <div class="spinner" style="width:20px;height:20px;border-width:2px;margin:0 auto;"></div>
+            </div>
+        </div>
+
+        <div id="admin-security-notes" class="admin-sec-notes"></div>
+
+        <div class="admin-ops-actions">
+            <button class="btn-sm admin-op-btn" onclick="adminClearCache(this)">
+                <span aria-hidden="true" class="ico ico-trash ico-gap"></span><span data-i18n="admin-op-clear-cache">清空缓存</span>
+            </button>
+            <button class="btn-sm admin-op-btn" onclick="adminUnbanLogins(this)">
+                <span aria-hidden="true" class="ico ico-unlock ico-gap"></span><span data-i18n="admin-op-unban">解除登录封禁</span>
+            </button>
+            <button class="btn-sm admin-op-btn admin-op-danger" onclick="adminRevokeOthers(this)">
+                <span aria-hidden="true" class="ico ico-shield ico-gap"></span><span data-i18n="admin-op-revoke">吊销其他会话</span>
+            </button>
+        </div>
+        <p class="admin-ops-hint" data-i18n="admin-ops-hint">吊销其他会话会使除当前浏览器外的所有管理员登录立即失效，适用于密码疑似泄露时的应急处理。</p>
+    </div>
+
+    <div class="card animate-in" style="font-size:0.85rem;">
+        <h4 style="margin:0 0 8px;color:var(--text-bright);">
+            <span aria-hidden="true" class="ico ico-info ico-gap" style="width:16px;height:16px;"></span><span data-i18n="admin-tips">提示</span>
+        </h4>
+        <p style="margin:4px 0;color:var(--text-dim);" data-i18n="admin-tip-plugin-toggle">关闭插件后，该插件的 CSS 和 JS 将在页面加载时不再注入。</p>
+        <p style="margin:4px 0;color:var(--text-dim);">
+            <span data-i18n="admin-tip-password">管理员密码通过环境变量</span> <code>ADMIN_PASSWORD</code> <span data-i18n="admin-tip-session">配置。会话有效期 2 小时，登出后需重新登录。</span>
+        </p>
+    </div>
+</div></main>
+
+<!-- ═══ 侧边抽屉 ═══ -->
+<div id="side-drawer" class="drawer-overlay" style="display:none;" onclick="if(event.target===this)closeDrawer()">
+    <div class="drawer-panel">
+        <div class="drawer-header">
+            <span class="drawer-title" data-i18n="menu">菜单</span>
+            <button class="drawer-close" onclick="closeDrawer()" data-i18n-title="close" aria-label="关闭菜单"><span aria-hidden="true" class="ico ico-x-circle" style="width:16px;height:16px;"></span></button>
+        </div>
+        <div class="drawer-body">
+            <!-- 外观 -->
+            <div class="drawer-section">
+                <div class="drawer-section-title" data-i18n="appearance">外观</div>
+                <div class="drawer-theme-options">
+                    <button class="drawer-theme-btn" data-theme="dark" onclick="setTheme('dark')">
+                        <span aria-hidden="true" class="ico ico-moon ico-gap"></span><span data-i18n="dark">深色</span>
+                    </button>
+                    <button class="drawer-theme-btn" data-theme="light" onclick="setTheme('light')">
+                        <span aria-hidden="true" class="ico ico-sun ico-gap"></span><span data-i18n="light">浅色</span>
+                    </button>
+                    <button class="drawer-theme-btn" data-theme="system" onclick="setTheme('system')">
+                        <span aria-hidden="true" class="ico ico-gear ico-gap"></span><span data-i18n="system">跟随系统</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 个性选择 -->
+            <div class="drawer-section">
+                <div class="drawer-section-title" onclick="toggleCollapse(this)" style="cursor:pointer;user-select:none;">
+                    <span aria-hidden="true" class="ico ico-tools ico-dim ico-gap"></span><span data-i18n="toolbox">工具箱</span>
+                    <span class="collapse-arrow" style="margin-left:auto;transition:transform 0.2s;"><span aria-hidden="true" class="ico ico-chevron-right" style="width:12px;height:12px;"></span></span>
+                </div>
+                <div class="collapse-content" style="display:none;">
+                    <div style="margin-bottom:12px;">
+                        <div style="font-size:0.78rem;color:var(--text-dim);margin-bottom:6px;" data-i18n="text-align">文本对齐</div>
+                        <div class="drawer-theme-options" id="text-align-options">
+                            <button class="drawer-theme-btn align-btn" data-align="left" onclick="setTextAlign('left')"><span data-i18n="align-left">左</span></button>
+                            <button class="drawer-theme-btn align-btn active" data-align="center" onclick="setTextAlign('center')"><span data-i18n="align-center">中</span></button>
+                            <button class="drawer-theme-btn align-btn" data-align="right" onclick="setTextAlign('right')"><span data-i18n="align-right">右</span></button>
+                        </div>
+                    </div>
+                    <div style="margin-bottom:12px;">
+                        <div style="font-size:0.78rem;color:var(--text-dim);margin-bottom:6px;" data-i18n="font-size">字体大小</div>
+                        <div class="drawer-theme-options" id="font-size-options">
+                            <button class="drawer-theme-btn font-size-btn" data-size="small" onclick="setFontSize('small')"><span data-i18n="font-small">小</span></button>
+                            <button class="drawer-theme-btn font-size-btn active" data-size="medium" onclick="setFontSize('medium')"><span data-i18n="font-medium">中</span></button>
+                            <button class="drawer-theme-btn font-size-btn" data-size="large" onclick="setFontSize('large')"><span data-i18n="font-large">大</span></button>
+                            <button class="drawer-theme-btn font-size-btn" data-size="xlarge" onclick="setFontSize('xlarge')"><span data-i18n="font-xlarge">特大</span></button>
+                        </div>
+                    </div>
+                    <div class="tone-market" id="tone-market">
+                        <div class="tone-market-header">
+                            <span class="tone-market-label"><span aria-hidden="true" class="ico ico-palette ico-gap"></span><span data-i18n="tone">色调</span></span>
+                            <button class="tone-market-toggle btn-sm" onclick="toggleToneMarket()" id="tone-market-toggle">
+                                <span class="tone-market-arrow"><span aria-hidden="true" class="ico ico-chevron-down" style="width:12px;height:12px;"></span></span> <span data-i18n="browse-tones">浏览色调</span>
+                            </button>
+                        </div>
+                        <div class="tone-market-grid" id="tone-market-grid" style="display:none;"></div>
+                        <div class="tone-market-placeholder" id="tone-market-placeholder">
+                            <div id="current-tone-label" style="font-size:0.78rem;color:var(--text-dim);"></div>
+                        </div>
+                    </div>
+                </div>
+                        <button class="tone-market-toggle btn-sm" onclick="openToolbox()" style="margin-top:8px;width:100%;">
+                            <span aria-hidden="true" class="ico ico-zap ico-gap"></span> <span data-i18n="toolbox-open">打开工具箱</span>
+                        </button>
+            </div>
+
+            <!-- 语言 -->
+            <div class="drawer-section">
+                <div class="drawer-section-title" data-i18n="language">语言</div>
+                <div class="drawer-lang-options">
+                    <button class="drawer-lang-btn" data-lang="zh" onclick="setLang('zh')" data-i18n="language-zh">中文</button>
+                    <button class="drawer-lang-btn" data-lang="zh-Hant" onclick="setLang('zh-Hant')" data-i18n="language-zh-hant"><span aria-hidden="true" class="ico ico-globe ico-gap"></span>繁體中文</button>
+                    <button class="drawer-lang-btn" data-lang="en" onclick="setLang('en')" data-i18n="language-en">English</button>
+                </div>
+            </div>
+
+            <!-- API 状态 -->
+            <div class="drawer-section">
+                <div class="drawer-section-title" data-i18n="api-status">API 状态</div>
+                <div id="drawer-token-status" style="padding:8px 4px;font-size:0.85rem;color:var(--text-dim);">
+                    <span aria-hidden="true" class="ico ico-hourglass ico-dim ico-gap"></span><span data-i18n="loading">加载中...</span>
+                </div>
+                <a class="drawer-link" href="/token-stats-page" style="margin-top:4px;">
+                    <span aria-hidden="true" class="ico ico-graph ico-dim ico-gap"></span><span data-i18n="detail-stats">详细统计</span>
+                </a>
+                <label class="drawer-toggle-row" style="display:flex;align-items:center;gap:8px;margin-top:8px;padding:8px 4px;cursor:pointer;font-size:0.85rem;color:var(--text-dim);">
+                    <input type="checkbox" id="cache-hint-toggle" onchange="toggleCacheHint()" style="accent-color:var(--cyan);">
+                    <span data-i18n="cache-hint">缓存命中提示</span>
+                </label>
+            </div>
+
+            {% include '_side_drawer_links.html' %}
+        </div>
+    </div>
+</div>
+
+<script src="/static/function.js?v={{ static_version }}"></script>
+<script>
+// ── 登出 ──
+function doLogout() {
+    fetch('/admin/logout', {method:'POST'}).then(function(){
+        window.location.href = '/admin';
+    }).catch(function(){
+        window.location.href = '/admin';
+    });
+}
+
+// ── 运行状态与运维操作 ──
+function _adminHeaders() {
+    var base = {'Content-Type': 'application/json'};
+    if (typeof csrfTokensReady === 'function' && !csrfTokensReady()) return base;
+    return (typeof csrfHeaders === 'function') ? csrfHeaders(base) : base;
+}
+
+function _adminTr(key, fallback) {
+    return (typeof t === 'function' ? t(key) : null) || fallback;
+}
+
+function _statCard(label, value, tone) {
+    var cls = 'admin-stat' + (tone ? ' admin-stat-' + tone : '');
+    var d = document.createElement('div');
+    d.className = cls;
+    var v = document.createElement('div');
+    v.className = 'admin-stat-value';
+    v.textContent = String(value);
+    var l = document.createElement('div');
+    l.className = 'admin-stat-label';
+    l.textContent = label;
+    d.appendChild(v);
+    d.appendChild(l);
+    return d;
+}
+
+function loadAdminStatus() {
+    var grid = document.getElementById('admin-status-grid');
+    var notes = document.getElementById('admin-security-notes');
+    if (!grid) return;
+    fetch('/admin/status?_=' + Date.now())
+    .then(function(r){
+        if (r.status === 403) { window.location.href = '/admin'; return null; }
+        if (!r.ok) throw new Error('status failed');
+        return r.json();
+    })
+    .then(function(d){
+        if (!d) return;
+        grid.innerHTML = '';
+        var cache = d.cache || {};
+        var plugins = d.plugins || {};
+        grid.appendChild(_statCard(_adminTr('admin-stat-sessions','活跃会话'), d.session_count));
+        grid.appendChild(_statCard(_adminTr('admin-stat-banned','封禁 IP'), (d.banned_ips || []).length,
+                                   (d.banned_ips || []).length ? 'warn' : ''));
+        grid.appendChild(_statCard(_adminTr('admin-stat-failing','失败记录'), d.failing_ips));
+        grid.appendChild(_statCard(_adminTr('admin-stat-cache','缓存条目'), cache.total == null ? '-' : cache.total));
+        grid.appendChild(_statCard(_adminTr('admin-stat-plugins','启用插件'),
+                                   (plugins.enabled == null ? '-' : plugins.enabled) + '/' + (plugins.total == null ? '-' : plugins.total)));
+
+        // 安全提示：仅在存在真实风险时提示，避免噪音
+        if (notes) {
+            notes.innerHTML = '';
+            var warns = [];
+            if (!d.password_from_env) warns.push(_adminTr('admin-warn-random-pw','管理员密码未通过 ADMIN_PASSWORD 环境变量设置，当前为随机生成，重启后会变化。'));
+            if (!d.cookie_secure) warns.push(_adminTr('admin-warn-cookie','会话 Cookie 未启用 Secure；使用 HTTPS 部署时请设置 COOKIE_SECURE=true。'));
+            warns.forEach(function(msg){
+                var p = document.createElement('p');
+                p.className = 'admin-sec-note';
+                var ic = document.createElement('span');
+                ic.className = 'ico ico-alert-triangle ico-gap';
+                ic.setAttribute('aria-hidden','true');
+                p.appendChild(ic);
+                var s = document.createElement('span');
+                s.textContent = msg;
+                p.appendChild(s);
+                notes.appendChild(p);
+            });
+        }
+    })
+    .catch(function(){
+        grid.innerHTML = '';
+        var p = document.createElement('div');
+        p.className = 'admin-stat-loading';
+        p.textContent = _adminTr('admin-status-failed','状态加载失败');
+        grid.appendChild(p);
+    });
+}
+
+function _adminPost(url, btn, okKey, okFallback) {
+    if (!btn || btn.disabled) return;
+    btn.disabled = true;
+    fetch(url, {method:'POST', headers:_adminHeaders()})
+    .then(function(r){
+        if (r.status === 403) { window.location.href = '/admin'; return null; }
+        if (!r.ok) throw new Error('op failed');
+        return r.json();
+    })
+    .then(function(d){
+        if (!d) return;
+        if (typeof showNotification === 'function') {
+            showNotification(_adminTr(okKey, okFallback), 'success');
+        }
+        loadAdminStatus();
+    })
+    .catch(function(){
+        if (typeof showNotification === 'function') {
+            showNotification(_adminTr('admin-op-failed','操作失败'), 'error');
+        }
+    })
+    .finally(function(){ btn.disabled = false; });
+}
+
+function adminClearCache(btn) {
+    _adminPost('/admin/cache/clear', btn, 'admin-op-cache-done', '缓存已清空');
+}
+
+function adminUnbanLogins(btn) {
+    _adminPost('/admin/logins/unban', btn, 'admin-op-unban-done', '已解除登录封禁');
+}
+
+function adminRevokeOthers(btn) {
+    if (!window.confirm(_adminTr('admin-op-revoke-confirm','确定吊销其他所有管理员会话？其他设备需重新登录。'))) return;
+    _adminPost('/admin/sessions/revoke-others', btn, 'admin-op-revoke-done', '其他会话已吊销');
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadAdminStatus);
+} else {
+    loadAdminStatus();
+}
+
+// ── 加载插件列表 ──
+(function(){
+    var container = document.getElementById('plugins-container');
+    if (!container) return;
+
+    var healthCheckTimer = null;
+
+    // 10秒超时防止卡死
+    var ac = new AbortController();
+    var tmr = setTimeout(function() { ac.abort(); }, 10000);
+
+    fetch('/admin/plugins?_=' + Date.now(), { signal: ac.signal })
+    .then(function(r){
+        clearTimeout(tmr);
+        if (r.status === 403) { window.location.href = '/admin'; return; }
+        if (!r.ok) throw new Error('加载失败');
+        return r.json();
+    })
+    .then(function(data){
+        clearTimeout(tmr);
+        if (!data) return;
+        var plugins = data.plugins || [];
+        var countEl = document.getElementById('plugins-count');
+        if (countEl) countEl.textContent = '共 ' + plugins.length + ' 个插件';
+
+        if (plugins.length === 0) {
+            container.innerHTML = '<p style="color:var(--text-dim);text-align:center;padding:40px;">' + t('admin-no-plugins') + '</p>';
+            return;
+        }
+
+        var html = '';
+        for (var i = 0; i < plugins.length; i++) {
+            var p = plugins[i];
+            var sc = p.enabled ? 'plugin-enabled' : 'plugin-disabled';
+            var st = p.enabled ? '已启用' : '已禁用';
+            html += '<div class="plugin-card ' + sc + '" data-plugin-id="' + escAttr(p.id) + '">'
+                + '<div class="plugin-card-header">'
+                +   '<div class="plugin-title-row">'
+                +     '<span class="plugin-status-dot ' + (p.enabled ? 'dot-green' : 'dot-gray') + '"></span>'
+                +     '<h3 class="plugin-name">' + escHtml(p.title || p.id) + '</h3>'
+                +     '<span class="plugin-version">v' + escHtml(p.version || '0.0.0') + '</span>'
+                +   '</div>'
+                +   '<label class="plugin-toggle">'
+                +     '<input type="checkbox" ' + (p.enabled ? 'checked' : '') + ' onchange="togglePlugin(\'' + escAttr(p.id) + '\', this.checked)">'
+                +     '<span class="toggle-slider"></span>'
+                +   '</label>'
+                + '</div>'
+                + '<p class="plugin-desc">' + escHtml(p.description || t('no-description')) + '</p>'
+                + '<div class="plugin-meta-grid">'
+                +   metaItem('作者', p.author || '—')
+                +   metaItem('版本', p.version || '—')
+                +   metaItem('大小', p.size || '—')
+                +   metaItem('状态', st)
+                + '</div>'
+                + (p.tags && p.tags.length ? '<div class="plugin-tags">' + p.tags.map(function(t){return '<span class="plugin-tag">'+escHtml(t)+'</span>';}).join('') + '</div>' : '')
+                + '</div>';
+        }
+        container.innerHTML = html;
+
+        // 延迟读取插件健康状态
+        healthCheckTimer = setTimeout(checkHealth, 1500);
+        setTimeout(checkHealth, 4000);
+    })
+    .catch(function(e){
+        container.innerHTML = '<p style="color:var(--red);text-align:center;padding:40px;">' + t('docs-load-failed') + ': ' + escHtml(e.message) + '</p>';
+    });
+
+    function checkHealth() {
+        if (!window.__pluginHealth) return;
+        var cards = container.querySelectorAll('.plugin-card');
+        cards.forEach(function(card){
+            var id = card.getAttribute('data-plugin-id');
+            var health = window.__pluginHealth[id];
+            if (!health) return;
+            var old = card.querySelector('.plugin-health');
+            if (old) old.remove();
+            var div = document.createElement('div');
+            div.className = 'plugin-health';
+            if (health.ok) {
+                div.innerHTML = '<span class="health-dot health-ok"></span> 运行正常 · ' + (health.stage || '');
+            } else {
+                var errText = (health.errors || []).join('; ') || health.stage || '未知错误';
+                div.innerHTML = '<span class="health-dot health-err"></span> 异常: ' + escHtml(errText);
+            }
+            card.appendChild(div);
+        });
+    }
+
+    window.togglePlugin = function(id, enabled) {
+        fetch('/admin/plugins/toggle', {
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({id:id, enabled:enabled})
+        }).then(function(r){
+            if (!r.ok) throw new Error('操作失败');
+            var card = document.querySelector('.plugin-card[data-plugin-id="' + id + '"]');
+            if (card) {
+                card.className = 'plugin-card ' + (enabled ? 'plugin-enabled' : 'plugin-disabled');
+                card.querySelector('.plugin-status-dot').className = 'plugin-status-dot ' + (enabled ? 'dot-green' : 'dot-gray');
+            }
+        }).catch(function(e){
+            alert('操作失败: ' + e.message);
+        });
+    };
+
+    function metaItem(label, value) {
+        return '<div class="plugin-meta-item"><span class="meta-label">' + escHtml(label) + '</span><span class="meta-value">' + escHtml(value) + '</span></div>';
+    }
+    function escHtml(s) {
+        return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    }
+    function escAttr(s) {
+        return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+})();
+</script>
+</body>
+</html>

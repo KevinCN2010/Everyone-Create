@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex">
+    {% include '_theme_head.html' %}
+    <title data-i18n="ratelimit-title">请求过于频繁 - GitAAP</title>
+    <link rel="stylesheet" href="/static/style.css?v={{ static_version }}">
+    <link rel="stylesheet" href="/static/themes/variables.css?v={{ static_version }}">
+    <link rel="stylesheet" href="/static/themes/animations.css?v={{ static_version }}">
+    <link rel="stylesheet" href="/static/themes/utilities.css?v={{ static_version }}">
+    <link rel="stylesheet" href="/static/themes/theme-light.css?v={{ static_version }}">
+    <link rel="stylesheet" href="/static/themes/icons.css?v={{ static_version }}">
+</head>
+<body>
+{% include '_js_fallback.html' %}
+
+<main><div class="container ratelimit-shell">
+    <div class="card ratelimit-card animate-in">
+        <div class="ratelimit-head">
+            <span class="ratelimit-badge"><span aria-hidden="true" class="ico ico-clock"></span></span>
+            <h1 class="ratelimit-code">429</h1>
+            <h2 class="ratelimit-title" data-i18n="ratelimit-heading">请求过于频繁</h2>
+            <p class="ratelimit-desc" data-i18n="ratelimit-desc">你在短时间内发送了太多请求。这是为了保护服务稳定而设置的保护措施，稍等一会儿即可恢复正常访问。</p>
+        </div>
+
+        <!-- 倒计时：数值由 data-retry-after 提供，JS 关闭时仍能读到静态秒数 -->
+        <div class="ratelimit-timer" id="ratelimit-timer" data-retry-after="{{ retry_after }}">
+            <div class="ratelimit-ring" id="ratelimit-ring">
+                <span class="ratelimit-seconds" id="ratelimit-seconds">{{ retry_after }}</span>
+                <span class="ratelimit-unit" data-i18n="ratelimit-unit">秒</span>
+            </div>
+            <p class="ratelimit-hint" id="ratelimit-hint" data-i18n="ratelimit-wait">冷却结束后将自动重试</p>
+        </div>
+
+        <div class="ratelimit-actions">
+            <button type="button" class="ratelimit-retry" id="ratelimit-retry" disabled>
+                <span aria-hidden="true" class="ico ico-refresh ico-gap"></span><span data-i18n="ratelimit-retry">立即重试</span>
+            </button>
+            <a class="ratelimit-home" href="/">
+                <span aria-hidden="true" class="ico ico-arrow-left ico-gap"></span><span data-i18n="back-to-home">返回首页</span>
+            </a>
+        </div>
+
+        <div class="ratelimit-foot">
+            <p class="ratelimit-note" data-i18n="ratelimit-note">若你在正常浏览时频繁看到此页面，可能是页面自动刷新过快或存在异常脚本，请反馈给站点维护者。</p>
+        </div>
+    </div>
+</div></main>
+
+<script>
+(function () {
+    var timerEl = document.getElementById('ratelimit-timer');
+    var secEl = document.getElementById('ratelimit-seconds');
+    var hintEl = document.getElementById('ratelimit-hint');
+    var retryBtn = document.getElementById('ratelimit-retry');
+    var ringEl = document.getElementById('ratelimit-ring');
+    if (!timerEl || !secEl || !retryBtn) return;
+
+    function tr(key, fallback) {
+        return (typeof t === 'function' ? t(key) : null) || fallback;
+    }
+
+    var total = parseInt(timerEl.getAttribute('data-retry-after'), 10);
+    if (!isFinite(total) || total < 1) total = 1;
+    if (total > 3600) total = 3600;   // 防御异常大的 Retry-After
+    var left = total;
+
+    function paint() {
+        secEl.textContent = String(left);
+        if (ringEl) {
+            var pct = total > 0 ? ((total - left) / total) * 100 : 100;
+            ringEl.style.setProperty('--ratelimit-progress', pct.toFixed(1) + '%');
+        }
+    }
+
+    function done() {
+        retryBtn.disabled = false;
+        if (hintEl) hintEl.textContent = tr('ratelimit-ready', '冷却已结束，可以重试了');
+        timerEl.classList.add('is-ready');
+        // 自动重试一次；失败仍会回到本页，由用户手动决定
+        window.location.reload();
+    }
+
+    paint();
+    var iv = setInterval(function () {
+        left -= 1;
+        if (left <= 0) {
+            clearInterval(iv);
+            left = 0;
+            paint();
+            done();
+            return;
+        }
+        paint();
+    }, 1000);
+
+    retryBtn.addEventListener('click', function () {
+        clearInterval(iv);
+        window.location.reload();
+    });
+})();
+</script>
+</body>
+</html>

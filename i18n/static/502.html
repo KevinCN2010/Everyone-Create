@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+    (function() {
+        function getCookie(name) {
+            var match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+            return match ? decodeURIComponent(match[2]) : null;
+        }
+        var theme = getCookie('site-theme');
+        if (theme !== 'light' && theme !== 'dark') {
+            var hour = new Date().getHours();
+            theme = (hour >= 7 && hour < 19) ? 'light' : 'dark';
+        }
+        document.documentElement.setAttribute('data-theme', theme);
+    })();
+</script>
+<title data-i18n="502-title">服务重启中 - GitAAP</title>
+<style>
+:root {
+    --bg: #0d1117;
+    --text: #c9d1d9;
+    --text-dim: #8b98a6;
+    --text-muted: #484f58;
+    --border: #30363d;
+    --orange: #ff8c42;
+}
+[data-theme="light"] {
+    --bg: #ffffff;
+    --text: #1f2328;
+    --text-dim: #656d76;
+    --text-muted: #8c959f;
+    --border: #d0d7de;
+    --orange: #d4782a;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    transition: background 0.3s, color 0.3s;
+}
+.container {
+    text-align: center;
+    max-width: 480px;
+}
+.icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 24px;
+    border: 3px solid var(--orange);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    color: var(--orange);
+    animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.08); opacity: 0.7; }
+}
+h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 8px; }
+p { font-size: 0.95rem; color: var(--text-dim); line-height: 1.6; }
+.spinner {
+    width: 36px; height: 36px;
+    margin: 24px auto;
+    border: 3px solid var(--border);
+    border-top-color: var(--orange);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.hint { font-size: 0.8rem; color: var(--text-muted); margin-top: 16px; }
+</style>
+</head>
+<body>
+<div class="container">
+    <div class="icon">⟳</div>
+    <h1 data-i18n="502-heading">服务正在重启</h1>
+    <p data-i18n="502-desc">GitAAP 正在重启以应用更新，<br>请稍候片刻后刷新页面。</p>
+    <div class="spinner"></div>
+    <div class="hint" data-i18n="502-hint">自动刷新中...</div>
+</div>
+<script>
+// 内联 i18n：加载语言文件并替换 data-i18n 元素
+(function(){
+    var lang = (function(){
+        var c = document.cookie.match(/(?:^| )gitaap_lang=([^;]+)/);
+        return c ? decodeURIComponent(c[1]) : (navigator.language && navigator.language.startsWith('zh') ? (navigator.language === 'zh-Hant' || navigator.language === 'zh-TW' ? 'zh-Hant' : 'zh') : 'en');
+    })();
+    var url = '/static/lang/' + lang + '.json';
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', url, true);
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            var data = JSON.parse(xhr.responseText);
+            var els = document.querySelectorAll('[data-i18n]');
+            for (var i = 0; i < els.length; i++) {
+                var key = els[i].getAttribute('data-i18n');
+                if (data[key]) els[i].innerHTML = data[key];
+            }
+        }
+    };
+    xhr.send();
+})();
+setTimeout(function(){ location.reload(); }, 5000);
+</script>
+</body>
+</html>

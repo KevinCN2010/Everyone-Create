@@ -1,0 +1,167 @@
+/* ═══════════════════════════════════════════════════
+   appearance-tools 插件样式
+   色调商场（tone market）与色调卡片。
+   原先内置于 static/style.css，现随插件一同装卸，
+   插件禁用后不再残留无用样式。
+   仅使用主题变量，不硬编码颜色，保证随 tone/亮暗模式联动。
+   ═══════════════════════════════════════════════════ */
+
+/* 色调商场容器 */
+.tone-market {
+    margin-top: 12px;
+    border-top: 1px solid var(--border);
+    padding-top: 10px;
+}
+.tone-market-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+.tone-market-label {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    font-weight: 500;
+}
+.tone-market-toggle {
+    font-size: 0.75rem;
+    padding: 3px 10px;
+    height: auto;
+    transition: filter var(--anim-fast), background var(--anim-fast);
+}
+.tone-market-toggle:hover {
+    filter: brightness(1.15);
+}
+.tone-market-toggle:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+.tone-market-arrow {
+    display: inline-block;
+    transition: transform 0.25s ease;
+}
+.tone-market-toggle.open .tone-market-arrow {
+    transform: rotate(180deg);
+}
+
+/* 色调网格 — 商场风格卡片 */
+.tone-market-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 8px;
+    animation: fadeIn 0.25s ease;
+}
+
+.tone-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 8px 8px;
+    background: var(--bg-dim);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: transform var(--anim-fast), border-color var(--anim-fast), box-shadow var(--anim-fast);
+    position: relative;
+    overflow: hidden;
+}
+.tone-card:hover {
+    border-color: var(--accent);
+    background: var(--accent-glow);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+}
+.tone-card:active {
+    transform: translateY(0);
+}
+.tone-card.active {
+    border-color: var(--cyan);
+    background: var(--accent-glow);
+    box-shadow: 0 0 0 1px var(--cyan);
+}
+/* 加载中的卡片：禁止重复点击并给出视觉反馈 */
+.tone-card.loading {
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+/* 色调卡片 — 色块预览 */
+.tone-swatch {
+    width: 100%;
+    height: 36px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    transition: transform 0.2s ease;
+}
+.tone-card:hover .tone-swatch {
+    transform: scale(1.05);
+}
+
+/* 预览色条 — 模拟色调的几个关键颜色 */
+.tone-swatch-strip {
+    display: flex;
+    height: 100%;
+    width: 100%;
+    border-radius: 5px;
+    overflow: hidden;
+}
+.tone-swatch-strip span {
+    flex: 1;
+}
+
+.tone-card-name {
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--text);
+    text-align: center;
+    line-height: 1.2;
+}
+
+.tone-card-status {
+    font-size: 0.6rem;
+    color: var(--text-dim);
+    min-height: 1em;
+}
+.tone-card.active .tone-card-status {
+    color: var(--cyan);
+    font-weight: 600;
+}
+
+/* 加载中 / 已下载状态 */
+.tone-card .tone-loading {
+    position: absolute;
+    inset: 0;
+    background: var(--bg-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    font-size: 0.7rem;
+    color: var(--text-bright);
+}
+
+/* 预留扩展位 */
+.tone-market-placeholder {
+    margin-top: 8px;
+    padding: 8px;
+    text-align: center;
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    opacity: 0.5;
+    transition: opacity 0.3s ease;
+}
+.tone-market-placeholder:hover {
+    opacity: 0.8;
+}
+
+/* 窄屏时单列排布，避免色调卡片挤压变形 */
+@media (max-width: 380px) {
+    .tone-market-grid {
+        grid-template-columns: 1fr;
+    }
+}
