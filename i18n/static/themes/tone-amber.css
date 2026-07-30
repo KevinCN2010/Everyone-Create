@@ -1,0 +1,63 @@
+/* 色调主题：琥珀暖调 (Amber Warm)
+   低饱和暖褐底 + 琥珀金强调，夜间阅读柔和不刺眼。
+   dark 块与 light 块必须声明同一组变量名，避免亮色模式被 dark 值压制。 */
+
+:root[data-tone="amber"] {
+  --bg: #14110c;
+  --bg2: #1e1a12;
+  --bg3: rgba(30, 26, 18, 0.96);
+  --text: #ded3c0;
+  --text-dim: #a5977f;
+  --text-bright: #fffaf0;
+  --border: #37301f;
+  --border-light: rgba(212, 168, 83, 0.18);
+  --card-bg: #1e1a12;
+  --border-hover: #d4a853;
+  --accent: #d49d34;
+  --accent-hover: #b88426;
+  --accent-glow: rgba(212, 157, 52, 0.18);
+  --cyan: #d4a853;
+  --blue: #7fa8c9;
+  --blue-bg: #111c24;
+  --purple: #a98fc0;
+  --green: #7aa860;
+  --green-bg: #16200f;
+  --orange: #e08a3c;
+  --red: #d4695e;
+  --red-bg: #241210;
+  --yellow: #e0b842;
+  --color-clones: #d4a853;
+  --color-unique-clones: #e8c880;
+  --color-views: #e08a3c;
+  --color-unique-views: #f0ad6f;
+}
+
+:root[data-theme="light"][data-tone="amber"] {
+  --bg: #ffffff;
+  --bg2: #faf5ea;
+  --bg3: rgba(255, 255, 255, 0.96);
+  --text: #33291a;
+  --text-dim: #756748;
+  --text-bright: #241c10;
+  --border: #e3d8c0;
+  --border-light: rgba(150, 110, 30, 0.18);
+  --card-bg: #faf5ea;
+  --border-hover: #a87a22;
+  --accent: #96681a;
+  --accent-hover: #7d5512;
+  --accent-glow: rgba(150, 104, 26, 0.1);
+  --cyan: #7d5512;
+  --blue: #2c5f80;
+  --blue-bg: #e6eff5;
+  --purple: #6b4f96;
+  --green: #3f7a2f;
+  --green-bg: #eaf5e3;
+  --orange: #9a5c14;
+  --red: #b23b34;
+  --red-bg: #fbeae9;
+  --yellow: #7d6420;
+  --color-clones: #96681a;
+  --color-unique-clones: #bf9440;
+  --color-views: #9a5c14;
+  --color-unique-views: #c2843a;
+}

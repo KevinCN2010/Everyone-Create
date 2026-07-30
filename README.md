@@ -1,77 +1,40 @@
-# Everyone Create 共创社区
+# GitAAP
 
-> 一个自由、模块化、面向所有人的开源协作空间。
-
----
-
-## 📖 关于本项目
-
-Everyone Create 是一个开放的共创社区，汇聚社区成员的智慧，共同维护和分享优质资源与文档。这里不是某个单一平台的附属，而是一个独立、中立的协作空间。
-
-### 核心定位
-
-- **资源分发** — 部分原创资源在此公开发布
-- **文档协作** — 通过 [主站点](https://66131466.xyz) 提供文档 Git 流工作
-- **共创审校** — 开放部分文档区域供社区成员共同审校与修改
+<p align="left">
+  <img src="assets/readme-svg/globe.svg" width="20" height="20" alt="">&nbsp;
+  <b>GitHub API Aggregation Proxy</b> — 多 Token 调度 · 智能缓存 · 实时数据聚合
+</p>
 
 ---
 
-## 🛠️ 技术栈
-
-| 层级 | 技术 |
-|------|------|
-| 反向代理 / 静态服务 | Apache / Nginx |
-| 前端 | HTML、CSS、JavaScript |
-| 后端 | PHP |
-| 数据存储 | 文件式本地存储 |
-| 安全体系 | 权限校验 · 日志记录 · 全域防护 |
+> <img src="assets/readme-svg/robot.svg" width="18" height="18" alt=""> 本项目由 AI 辅助开发，可能存在考虑不周或疏漏之处。欢迎各路大佬提交 [Issue](https://github.com/KevinCN2010/Everyone-Create/issues) 或 [Pull Request](https://github.com/KevinCN2010/Everyone-Create/pulls) 指点斧正，共同完善。
+>
+> <img src="assets/readme-svg/robot.svg" width="18" height="18" alt=""> This project was developed with AI assistance. There may be oversights or rough edges. All suggestions and contributions are warmly welcome — feel free to open an [Issue](https://github.com/KevinCN2010/Everyone-Create/issues) or [Pull Request](https://github.com/KevinCN2010/Everyone-Create/pulls).
 
 ---
 
-## 🤝 如何参与
+## <img src="assets/readme-svg/globe.svg" width="20" height="20" alt=""> 选择语言 / Select Language / 選擇語言
 
-### 提交建议
-
-欢迎通过 [反馈平台](https://smtp.66131466.xyz) 提交你的方案或报告 Bug。
-
-### 报告问题
-
-可直接在此仓库提交 Issue，或在任意聊天频道 @管理员 反馈。
-
-### 文案修订
-
-1. Fork 本仓库
-2. 修改对应的开源文案
-3. 提交 Pull Request
-4. 管理员审核后合并
-
-> 当前暂不支持自动拉取，审核通过后我们会尽快合并。
-
-### 贡献者
-
-我们珍惜每一位开发者的付出。所有对整个项目做出贡献的朋友均会在 [贡献名单](https://maker.66131466.xyz) 永久留名。
-
-不必是核心代码贡献者——你的一句指点、一个错别字修正、一处语句通顺建议，都会成为我们越做越好的动力。当贡献足够显著时，我们一定会注意到你！
+|  |  |  |
+|--|--|--|
+| <img src="assets/readme-svg/flag-zhcn.svg" width="18" height="18" alt=""> | [**简体中文**](docs/README.zh-CN.md) | 项目介绍、部署指南、开发文档 |
+| <img src="assets/readme-svg/flag-zhtw.svg" width="18" height="18" alt=""> | [**繁體中文**](docs/README.zh-TW.md) | 專案介紹、部署指南、開發文檔 |
+| <img src="assets/readme-svg/flag-en.svg" width="18" height="18" alt=""> | [**English**](docs/README.en.md) | Introduction, Deployment, Development |
 
 ---
 
-## 📄 参与方式
+### <img src="assets/readme-svg/book.svg" width="18" height="18" alt=""> 快速导航 / Quick Links
 
-本项目目前开源的内容以 **Markdown 文档** 为主。
-
-你可以：
-- 直接提问
-- 帮忙解答问题
-- 完善 FAQ 内容
-
-不想提 PR 也完全可以——直接发 **Issue**（带上 `question` 标签）或在任意聊天群/频道 @对应管理员 即可。
+|  | 链接 | 说明 |
+|--|------|------|
+| <img src="assets/readme-svg/book.svg" width="16" height="16" alt=""> | [项目文档（简体中文）](docs/README.zh-CN.md) | 完整功能特性、部署方式、环境变量 |
+| <img src="assets/readme-svg/book.svg" width="16" height="16" alt=""> | [Project Docs (English)](docs/README.en.md) | Full features, deployment options, env vars |
+| <img src="assets/readme-svg/book.svg" width="16" height="16" alt=""> | [專案文件（繁體中文）](docs/README.zh-TW.md) | 完整功能特色、部署方式、環境變數 |
+| <img src="assets/readme-svg/whale.svg" width="16" height="16" alt=""> | [docker-compose.yml](docker-compose.yml) | Docker Compose 编排文件 |
+| <img src="assets/readme-svg/package.svg" width="16" height="16" alt=""> | [pyproject.toml](pyproject.toml) | 项目元数据与依赖 |
 
 ---
 
-## 📜 许可证
+## <img src="assets/readme-svg/page.svg" width="18" height="18" alt=""> License / 许可证 / 許可證
 
-MIT © Everyone Create
-
-```
-可自由使用、修改、分发，但必须标注原作者及来源。
-```
+[Apache 2.0](LICENSE) © KevinCN2010

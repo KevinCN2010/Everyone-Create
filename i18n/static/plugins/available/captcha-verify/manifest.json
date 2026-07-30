@@ -1,0 +1,22 @@
+{
+  "id": "captcha-verify",
+  "name": "captcha-verify",
+  "version": "1.0.0",
+  "title": "人机验证",
+  "description": "集成 TAC (Tianai-Captcha) 文字语序点选验证码，保护表单操作和 API 请求，防止自动化攻击。",
+  "author": "GitAAP Team",
+  "team": "GitAAP",
+  "created_at": "2026-07-24T00:00:00Z",
+  "updated_at": "2026-07-24T00:00:00Z",
+  "size": "4.2KB",
+  "enabled": true,
+  "entry": "plugin.js",
+  "style": "plugin.css",
+  "assets": {
+    "css": ["plugin.css"],
+    "svg": [],
+    "js": ["plugin.js"]
+  },
+  "dependencies": [],
+  "tags": ["captcha", "security", "tac", "verification"]
+}

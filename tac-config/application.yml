@@ -1,0 +1,52 @@
+# ============================================================
+# Tianai-Captcha (TAC) 自托管 — Spring Boot 应用配置
+# 挂载路径: /app/config/application.yml
+# 缓存模式: memory（本地内存，无需 Redis）
+# 默认验证码: WORD_IMAGE_CLICK（文字语序点选）
+# ============================================================
+server:
+  port: 8000
+
+spring:
+  application:
+    name: tianai-captcha
+
+# ── TAC 核心配置 ──
+captcha:
+  # 默认验证码类型：WORD_IMAGE_CLICK（文字语序点选，对标极验 GT4）
+  default-type: WORD_IMAGE_CLICK
+
+  # 启用的验证码类型（只开启文字点选，按需可追加 SLIDER/ROTATE/CONCAT）
+  enabled-types:
+    - WORD_IMAGE_CLICK
+
+  # ── 过期时间（毫秒） ──
+  expire:
+    # 全局默认过期：2 分钟
+    default: 120000
+    # 文字点选因交互较慢，设为 3 分钟
+    WORD_IMAGE_CLICK: 180000
+
+  # ── 缓存前缀（仅在 Redis 模式下生效，memory 模式可忽略） ──
+  prefix: captcha
+
+  # ── 使用系统自带的默认资源（背景图、字体、模板） ──
+  # 设为 true 让 TAC 自动加载内置资源，无需手动配图
+  init-default-resource: true
+
+  # ── 本地内存缓存（预生成验证码，提升并发性能） ──
+  local-cache-enabled: true
+  local-cache-size: 30
+  local-cache-wait-time: 5000
+  local-cache-period: 2000
+
+  # ── 字体配置（文字点选必选） ──
+  font-path:
+    - classpath:font/SimHei.ttf
+    - classpath:font/simsun.ttf
+
+  # ── 二次验证（服务端签发一次性 Token） ──
+  secondary:
+    enabled: false            # 二次验证由业务后端自行实现
+    expire: 120000
+    keyPrefix: "captcha:secondary"

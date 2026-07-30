@@ -1,0 +1,26 @@
+{
+  "id": "repo-mirror",
+  "name": "repo-mirror",
+  "version": "1.0.0",
+  "title": "仓库镜像浏览",
+  "description": "在 GitAAP 内部以仪表盘风格浏览任意 GitHub 仓库的文件目录，支持文件预览、代码高亮、图片/音频/视频播放。",
+  "author": "GitAAP Team",
+  "team": "GitAAP",
+  "created_at": "2026-07-26T00:00:00Z",
+  "updated_at": "2026-07-26T00:00:00Z",
+  "size": "3.5KB",
+  "enabled": true,
+  "entry": "plugin.js",
+  "style": "plugin.css",
+  "assets": {
+    "css": ["plugin.css"],
+    "svg": [],
+    "js": ["plugin.js"]
+  },
+  "dependencies": [],
+  "tags": ["mirror", "browser", "file-viewer"],
+  "config": {
+    "use_dashboard_ui": true,
+    "default_branch": "master"
+  }
+}

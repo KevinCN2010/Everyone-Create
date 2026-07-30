@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% include '_theme_head.html' %}
+    <title data-i18n="page-title-issue" data-i18n-args='{"number": {{ number|tojson }}, "repo": {{ repo|tojson }}}'>Issue #{{ number }} - {{ repo }}</title>
+    <link rel="stylesheet" href="/static/style.css?v={{ static_version }}">
+        <link rel="stylesheet" href="/static/themes/variables.css?v={{ static_version }}">
+        <link rel="stylesheet" href="/static/themes/animations.css?v={{ static_version }}">
+        <link rel="stylesheet" href="/static/themes/utilities.css?v={{ static_version }}">
+        <link rel="stylesheet" href="/static/themes/theme-light.css?v={{ static_version }}">
+        <link rel="stylesheet" href="/static/themes/icons.css?v={{ static_version }}">
+        <script src="/static/marked.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha384-F/bZzf7p3Joyp5psL90p/p89AZJsndkSoGwRpXcZhleCWhd8SnRuoYo4d0yirjJp" crossorigin="anonymous" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/properties.min.js" integrity="sha384-tlJaeulTOJz9iqadCPTY2JwJVayIS3pMaQkEOgibHjwjmI6Fve8TLKvsR8tfmKwa" crossorigin="anonymous" defer></script>
+    <script>
+    (function() {
+        function getCookie(name) {
+            var match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+            return match ? decodeURIComponent(match[2]) : null;
+        }
+        var theme = getCookie('site-theme');
+        if (theme !== 'light' && theme !== 'dark') {
+            var hour = new Date().getHours();
+            theme = (hour >= 7 && hour < 19) ? 'light' : 'dark';
+        }
+        var hljsTheme = theme === 'light' ? 'github' : 'github-dark';
+        var link = document.createElement('link');
+        link.id = 'hljs-theme-link';
+        link.rel = 'stylesheet';
+        link.href = 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/' + hljsTheme + '.min.css';
+        document.head.appendChild(link);
+    })();
+    </script>
+</head>
+<body>
+    {% include '_js_fallback.html' %}
+
+    <main><div class="container">
+        <div class="card controls animate-in">
+            <a class="nav-button" href="/repo?repo={{ repo }}"><span aria-hidden="true" class="ico ico-arrow-left ico-gap"></span><span data-i18n="back-to-dashboard">返回仪表盘</span></a>
+            <span style="font-size:1.1rem; font-weight:600;" data-i18n="issue-detail">Issue 详情</span>
+            <span style="color:var(--text-dim,#8b98a6); font-size:0.9rem;">{{ repo }} / #<span id="issue-number">{{ number }}</span></span>
+            <button id="theme-toggle" class="btn-sm" onclick="toggleTheme()" data-i18n-title="theme-toggle" title="切换主题" style="width:36px;height:36px;padding:0;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;flex-shrink:0;" data-i18n-aria-label="theme-toggle" aria-label="切换主题"><span aria-hidden="true" class="ico ico-moon" style="width:18px;height:18px;"></span></button>
+        <button id="drawer-toggle" class="btn-sm" onclick="toggleDrawer()" data-i18n-title="drawer-more-options" title="菜单" style="width:36px;height:36px;padding:0;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;" data-i18n-aria-label="drawer-more-options" aria-label="更多选项">
+                <span class="ham-icon"><span class="ham-i"></span><span class="ham-i"></span><span class="ham-i"></span></span>
+            </button>
+</div>
+
+        <!-- 骨架屏加载占位 -->
+        <div id="issue-skeleton" class="animate-in">
+            <div class="card"><div class="skeleton-line" style="width:60%;height:28px;"></div><div class="skeleton-line" style="width:40%;height:16px;margin-top:8px;"></div></div>
+            <div class="summary-grid" style="grid-template-columns:repeat(auto-fit, minmax(120px,1fr));">
+                <div class="card stat-card"><div class="skeleton-line" style="width:50%;height:20px;margin:0 auto;"></div><div class="skeleton-line" style="width:30%;height:28px;margin:8px auto 0;"></div></div>
+                <div class="card stat-card"><div class="skeleton-line" style="width:50%;height:20px;margin:0 auto;"></div><div class="skeleton-line" style="width:30%;height:28px;margin:8px auto 0;"></div></div>
+                <div class="card stat-card"><div class="skeleton-line" style="width:50%;height:20px;margin:0 auto;"></div><div class="skeleton-line" style="width:30%;height:28px;margin:8px auto 0;"></div></div>
+            </div>
+            <div class="card"><div class="skeleton-line" style="width:30%;height:18px;"></div><div class="skeleton-line" style="width:100%;height:80px;margin-top:10px;"></div></div>
+        </div>
+
+        <!-- 真实内容 -->
+        <div id="issue-content" style="display:none;">
+            <!-- 标题 + 状态 -->
+            <div class="card repo-overview animate-in" id="issue-header">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px;">
+                    <div>
+                        <h2 id="issue-title" style="margin:0;"></h2>
+                        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:6px;">
+                            <span class="badge" id="issue-state-badge"></span>
+                            <span id="issue-labels" style="display:flex;gap:4px;flex-wrap:wrap;"></span>
+                        </div>
+                        <div style="margin-top:6px; color:var(--text-dim,#8b98a6); font-size:0.9rem;">
+                            <span data-i18n="by">作者</span> <span id="issue-author" style="color:var(--cyan,#79ffe1);"></span>
+                            <span id="issue-meta-dates" style="margin-left:12px;"></span>
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:8px; align-items:center;">
+                        <a id="issue-github-link" href="#" target="_blank" rel="noopener noreferrer" class="nav-button" style="background:var(--blue,#1f6feb);" data-i18n="view-on-github"><span aria-hidden="true" class="ico ico-github ico-gap" style="width:14px;height:14px;"></span>在 GitHub 上查看</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 统计卡片 -->
+            <div class="summary-grid" style="grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));">
+                <div class="card stat-card animate-in"><h3 data-i18n="assignees"><span aria-hidden="true" class="ico ico-person ico-gap"></span>负责人</h3><p id="issue-assignees" style="color:var(--cyan,#79ffe1);font-size:1.2rem;">—</p></div>
+                <div class="card stat-card animate-in"><h3 data-i18n="comments"><span aria-hidden="true" class="ico ico-comment ico-gap"></span>评论数</h3><p id="issue-comments-count" style="color:var(--cyan,#79ffe1);">0</p></div>
+                <div class="card stat-card animate-in"><h3><span aria-hidden="true" class="ico ico-heart ico-red ico-gap"></span><span data-i18n="reactions">反应</span></h3><p id="issue-reactions" style="color:var(--cyan,#79ffe1);">0</p></div>
+            </div>
+
+            <!-- Issue 正文 -->
+            <div class="card animate-in" id="issue-body-card">
+                <h3 data-i18n="issue-description"><span aria-hidden="true" class="ico ico-file-text ico-gap"></span>描述</h3>
+                <div id="issue-body" class="release-body-full"></div>
+            </div>
+
+            <!-- 评论列表 -->
+            <div class="card animate-in" id="issue-comments-card">
+                <h3 data-i18n="issue-comments"><span aria-hidden="true" class="ico ico-comment-discussion ico-gap"></span>评论 <span id="issue-comments-badge" class="badge" style="font-size:0.7rem;padding:2px 8px;vertical-align:middle;"></span></h3>
+                <div id="issue-comments-list" class="asset-list"></div>
+            </div>
+        </div>
+
+        <!-- 错误提示 -->
+        <div id="issue-error" class="card animate-in" style="display:none; text-align:center; padding:40px; border-color:var(--red,#ff5338);">
+            <p style="color:var(--red,#ff5338); font-size:1.1rem;" id="issue-error-message"></p>
+            <button class="nav-button" onclick="loadIssueDetail()" style="margin-top:16px; display:inline-block; background:var(--orange,#ff8c42);" data-i18n="retry"><span aria-hidden="true" class="ico ico-retry ico-gap"></span>重试</button>
+            <a class="nav-button" href="/repo?repo={{ repo }}" style="margin-top:16px; display:inline-block;" data-i18n="back-to-dashboard"><span aria-hidden="true" class="ico ico-arrow-left ico-gap"></span>返回仪表盘</a>
+        </div>
+    </div></main>
+    <script src="/static/function.js?v={{ static_version }}"></script>
+
+    <!-- 侧边抽屉 -->
+    <div id="side-drawer" class="drawer-overlay" style="display:none;" onclick="if(event.target===this)closeDrawer()">
+        <div class="drawer-panel">
+            <div class="drawer-header">
+                <span class="drawer-title" data-i18n="menu">菜单</span>
+                <button class="drawer-close" onclick="closeDrawer()" data-i18n-title="close" aria-label="关闭菜单"><span aria-hidden="true" class="ico ico-x-circle" style="width:16px;height:16px;"></span></button>
+            </div>
+            <div class="drawer-body">
+                <div class="drawer-section">
+                    <div class="drawer-section-title" data-i18n="appearance">外观</div>
+                    <div class="drawer-theme-options">
+                        <button class="drawer-theme-btn" data-theme="dark" onclick="setTheme('dark')"><span aria-hidden="true" class="ico ico-moon ico-gap"></span><span data-i18n="dark">深色</span></button>
+                        <button class="drawer-theme-btn" data-theme="light" onclick="setTheme('light')"><span aria-hidden="true" class="ico ico-sun ico-gap"></span><span data-i18n="light">浅色</span></button>
+                        <button class="drawer-theme-btn" data-theme="system" onclick="setTheme('system')"><span aria-hidden="true" class="ico ico-gear ico-gap"></span><span data-i18n="system">跟随系统</span></button>
+                    </div>
+                </div>
+                <div class="drawer-section">
+                    <div class="drawer-section-title" onclick="toggleCollapse(this)" style="cursor:pointer;user-select:none;">
+                        <span aria-hidden="true" class="ico ico-tools ico-dim ico-gap"></span><span data-i18n="toolbox">工具箱</span>
+                        <span class="collapse-arrow" style="margin-left:auto;transition:transform 0.2s;"><span aria-hidden="true" class="ico ico-chevron-right" style="width:12px;height:12px;"></span></span>
+                    </div>
+                    <div class="collapse-content" style="display:none;">
+                        <div style="margin-bottom:12px;">
+                            <div style="font-size:0.78rem;color:var(--text-dim);margin-bottom:6px;" data-i18n="text-align">文本对齐</div>
+                            <div class="drawer-theme-options" id="text-align-options">
+                                <button class="drawer-theme-btn align-btn" data-align="left" onclick="setTextAlign('left')"><span data-i18n="align-left">左</span></button>
+                                <button class="drawer-theme-btn align-btn active" data-align="center" onclick="setTextAlign('center')"><span data-i18n="align-center">中</span></button>
+                                <button class="drawer-theme-btn align-btn" data-align="right" onclick="setTextAlign('right')"><span data-i18n="align-right">右</span></button>
+                            </div>
+                        </div>
+                        <div style="margin-bottom:12px;">
+                            <div style="font-size:0.78rem;color:var(--text-dim);margin-bottom:6px;" data-i18n="font-size">字体大小</div>
+                            <div class="drawer-theme-options" id="font-size-options">
+                                <button class="drawer-theme-btn font-size-btn" data-size="small" onclick="setFontSize('small')"><span data-i18n="font-small">小</span></button>
+                                <button class="drawer-theme-btn font-size-btn active" data-size="medium" onclick="setFontSize('medium')"><span data-i18n="font-medium">中</span></button>
+                                <button class="drawer-theme-btn font-size-btn" data-size="large" onclick="setFontSize('large')"><span data-i18n="font-large">大</span></button>
+                                <button class="drawer-theme-btn font-size-btn" data-size="xlarge" onclick="setFontSize('xlarge')"><span data-i18n="font-xlarge">特大</span></button>
+                            </div>
+                        </div>
+                        <div class="tone-market" id="tone-market">
+                            <div class="tone-market-header">
+                                <span class="tone-market-label"><span aria-hidden="true" class="ico ico-palette ico-gap"></span><span data-i18n="tone">色调</span></span>
+                                <button class="tone-market-toggle btn-sm" onclick="toggleToneMarket()" id="tone-market-toggle">
+                                    <span class="tone-market-arrow"><span aria-hidden="true" class="ico ico-chevron-down" style="width:12px;height:12px;"></span></span> <span data-i18n="browse-tones">浏览色调</span>
+                                </button>
+                            </div>
+                            <div class="tone-market-grid" id="tone-market-grid" style="display:none;"></div>
+                            <div class="tone-market-placeholder" id="tone-market-placeholder">
+                                <div id="current-tone-label" style="font-size:0.78rem;color:var(--text-dim);"></div>
+                            </div>
+                        </div>
+                        <button class="tone-market-toggle btn-sm" onclick="openToolbox()" style="margin-top:8px;width:100%;">
+                            <span aria-hidden="true" class="ico ico-zap ico-gap"></span> <span data-i18n="toolbox-open">打开工具箱</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="drawer-section">
+                    <div class="drawer-section-title" data-i18n="language">语言</div>
+                    <div class="drawer-lang-options">
+                        <button class="drawer-lang-btn" data-lang="zh" onclick="setLang('zh')" data-i18n="language-zh">中文</button>
+                        <button class="drawer-lang-btn" data-lang="zh-Hant" onclick="setLang('zh-Hant')" data-i18n="language-zh-hant"><span aria-hidden="true" class="ico ico-globe ico-gap"></span>繁體中文</button>
+                        <button class="drawer-lang-btn" data-lang="en" onclick="setLang('en')" data-i18n="language-en">English</button>
+                    </div>
+                </div>
+                <div class="drawer-section">
+                    <div class="drawer-section-title" data-i18n="api-status">API 状态</div>
+                    <div id="drawer-token-status" style="padding:8px 4px;font-size:0.85rem;color:var(--text-dim);">
+                        <span aria-hidden="true" class="ico ico-hourglass ico-dim ico-gap"></span><span data-i18n="loading">加载中...</span>
+                    </div>
+                    <a class="drawer-link" href="/token-stats-page" style="margin-top:4px;">
+                        <span aria-hidden="true" class="ico ico-graph ico-dim ico-gap"></span><span data-i18n="detail-stats">详细统计</span>
+                    </a>
+                    <label class="drawer-toggle-row" style="display:flex;align-items:center;gap:8px;margin-top:8px;padding:8px 4px;cursor:pointer;font-size:0.85rem;color:var(--text-dim);">
+                        <input type="checkbox" id="cache-hint-toggle" onchange="toggleCacheHint()" style="accent-color:var(--cyan);">
+                        <span data-i18n="cache-hint">缓存命中提示</span>
+                    </label>
+                </div>
+                {% include '_side_drawer_links.html' %}
+            </div>
+        </div>
+    </div>
+
+
+<script>
+function toggleDrawer() {
+    var d = document.getElementById('side-drawer');
+    if (d) d.style.display = d.style.display === 'none' ? 'flex' : 'none';
+}
+function closeDrawer() {
+    var d = document.getElementById('side-drawer');
+    if (d) d.style.display = 'none';
+}
+</script>
+
+</body>
+</html>

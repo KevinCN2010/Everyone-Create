@@ -1,0 +1,63 @@
+/* 色调主题：烬红 (Ember Red)
+   炭灰底色 + 余烬橙红强调，暖色系舒适阅读。
+   dark 块与 light 块必须声明同一组变量名，避免亮色模式被 dark 值压制。 */
+
+:root[data-tone="ember"] {
+  --bg: #14100d;
+  --bg2: #1f1812;
+  --bg3: rgba(31, 24, 18, 0.96);
+  --text: #e0d4c8;
+  --text-dim: #a69280;
+  --text-bright: #fffaf5;
+  --border: #3d2d20;
+  --border-light: rgba(225, 120, 60, 0.18);
+  --card-bg: #1f1812;
+  --border-hover: #e1783c;
+  --accent: #cc6b33;
+  --accent-hover: #b05628;
+  --accent-glow: rgba(204, 107, 51, 0.16);
+  --cyan: #e1783c;
+  --blue: #7a9fc8;
+  --blue-bg: #111c26;
+  --purple: #b08a7a;
+  --green: #6faa6f;
+  --green-bg: #142010;
+  --orange: #d9742a;
+  --red: #d95a4a;
+  --red-bg: #241210;
+  --yellow: #d9a040;
+  --color-clones: #e1783c;
+  --color-unique-clones: #f0a06e;
+  --color-views: #cc6b33;
+  --color-unique-views: #e8915a;
+}
+
+:root[data-theme="light"][data-tone="ember"] {
+  --bg: #ffffff;
+  --bg2: #faf2ec;
+  --bg3: rgba(255, 255, 255, 0.96);
+  --text: #3a281c;
+  --text-dim: #7a634f;
+  --text-bright: #2b1a0f;
+  --border: #e6d4c4;
+  --border-light: rgba(170, 85, 30, 0.16);
+  --card-bg: #faf2ec;
+  --border-hover: #aa551e;
+  --accent: #9e4a1a;
+  --accent-hover: #853b12;
+  --accent-glow: rgba(158, 74, 26, 0.1);
+  --cyan: #0e7490;
+  --blue: #0550ae;
+  --blue-bg: #ddf4ff;
+  --purple: #6b4a5e;
+  --green: #1a7f37;
+  --green-bg: #dafbe1;
+  --orange: #8a5e2a;
+  --red: #b23b34;
+  --red-bg: #fbeae9;
+  --yellow: #7d6420;
+  --color-clones: #9e4a1a;
+  --color-unique-clones: #c97a42;
+  --color-views: #aa551e;
+  --color-unique-views: #d4884a;
+}

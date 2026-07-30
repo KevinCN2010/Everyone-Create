@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% include '_theme_head.html' %}
+    <title data-i18n="repos-page-title">仓库列表 - GitAAP</title>
+    <link rel="stylesheet" href="/static/style.css?v={{ static_version }}">
+    <link rel="stylesheet" href="/static/themes/variables.css?v={{ static_version }}">
+    <link rel="stylesheet" href="/static/themes/animations.css?v={{ static_version }}">
+    <link rel="stylesheet" href="/static/themes/utilities.css?v={{ static_version }}">
+    <link rel="stylesheet" href="/static/themes/theme-light.css?v={{ static_version }}">
+    <link rel="stylesheet" href="/static/themes/icons.css?v={{ static_version }}">
+</head>
+<body>
+{% include '_js_fallback.html' %}
+
+<style>
+/* ══ repos.html 内联动画增强 ══ */
+/* 仓库卡片出场动画 — 首次加载时按索引依次淡入，避免同时出现 */
+.repolist-item {
+    animation: reposItemFadeIn 0.35s ease both;
+}
+.repolist-item:nth-child(1)  { animation-delay: 0.00s; }
+.repolist-item:nth-child(2)  { animation-delay: 0.04s; }
+.repolist-item:nth-child(3)  { animation-delay: 0.08s; }
+.repolist-item:nth-child(4)  { animation-delay: 0.12s; }
+.repolist-item:nth-child(5)  { animation-delay: 0.16s; }
+.repolist-item:nth-child(6)  { animation-delay: 0.20s; }
+.repolist-item:nth-child(n+7) { animation-delay: 0.24s; }
+
+@keyframes reposItemFadeIn {
+    from { opacity: 0; transform: translateY(10px) scale(0.98); }
+    to   { opacity: 1; transform: translateY(0)    scale(1); }
+}
+
+/* 页头 + 工具栏同样添加轻量入场 */
+.repolist-head,
+.repolist-toolbar {
+    animation: reposSectionIn 0.3s ease both;
+}
+.repolist-head    { animation-delay: 0.00s; }
+.repolist-toolbar { animation-delay: 0.06s; }
+
+@keyframes reposSectionIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* 卡片 hover 弹性微反馈（仅在非触摸设备生效，避免移动端误触发） */
+@media (hover: hover) {
+    .repolist-item {
+        transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1),
+                    box-shadow 0.2s ease,
+                    border-color 0.2s ease;
+    }
+    .repolist-item:hover {
+        transform: translateY(-3px) scale(1.01);
+        box-shadow: var(--shadow-sm);
+        border-color: var(--accent);
+    }
+    .repolist-item:active {
+        transform: translateY(0) scale(0.99);
+    }
+    /* 工具栏按钮交互反馈 */
+    .repolist-action {
+        transition: transform 0.12s ease, box-shadow 0.15s ease, background 0.15s ease;
+    }
+    .repolist-action:hover {
+        transform: translateY(-1px);
+    }
+    .repolist-action:active {
+        transform: translateY(0) scale(0.97);
+    }
+}
+
+/* GitHub 确认弹窗 */
+.gh-confirm-overlay { display:none; position:fixed; inset:0; z-index:var(--z-modal); background:rgba(0,0,0,0.55); justify-content:center; align-items:center; }
+.gh-confirm-overlay.show { display:flex; }
+.gh-confirm-card { background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); max-width:420px; width:calc(100vw - 40px); box-shadow:0 16px 48px rgba(0,0,0,0.35); overflow:hidden; }
+.gh-confirm-header { display:flex; align-items:center; gap:10px; padding:18px 20px; border-bottom:1px solid var(--border); background:var(--bg-dim); }
+.gh-confirm-header .warn-ico { width:22px; height:22px; flex-shrink:0; color:var(--yellow,#d29922); }
+.gh-confirm-title { font-weight:700; font-size:1rem; color:var(--text); }
+.gh-confirm-body { padding:18px 20px; font-size:0.88rem; line-height:1.65; color:var(--text-dim); }
+.gh-confirm-body .repo-name { color:var(--cyan); font-weight:600; word-break:break-all; }
+.gh-confirm-body .gh-url { display:block; margin-top:8px; padding:8px 12px; border-radius:6px; background:var(--bg); border:1px solid var(--border); font-family:monospace; font-size:0.8rem; color:var(--text-dim); word-break:break-all; }
+.gh-confirm-body .gh-warn { margin-top:14px; padding:12px 14px; border-radius:8px; background:rgba(210,153,34,0.1); border:1px solid rgba(210,153,34,0.25); color:var(--yellow,#9a6700); font-size:0.82rem; line-height:1.55; }
+.gh-confirm-body .gh-warn strong { display:block; margin-bottom:4px; font-size:0.85rem; }
+.gh-confirm-actions { display:flex; gap:10px; padding:16px 20px; border-top:1px solid var(--border); justify-content:flex-end; }
+.gh-confirm-actions button { padding:8px 18px; border-radius:8px; font-size:0.88rem; cursor:pointer; border:1px solid var(--btn-border); transition:background var(--anim-fast),color var(--anim-fast); }
+.gh-confirm-cancel { background:transparent; color:var(--text-dim); }
+.gh-confirm-cancel:hover { color:var(--text); background:var(--bg-dim); }
+.gh-confirm-go { background:var(--accent); color:var(--on-accent); border-color:var(--accent); font-weight:600; }
+.gh-confirm-go:hover { background:var(--accent-hover); }
+</style>
+
+<main><div class="container">
+
+    <!-- ── 顶栏 ── -->
+    <header class="landing-topbar animate-in">
+        <a class="landing-brand repolist-brand" href="/">
+            <span aria-hidden="true" class="ico ico-graph ico-cyan landing-brand-icon"></span>
+            <span class="landing-brand-name">GitAAP</span>
+        </a>
+        <span class="landing-topbar-actions">
+            <button id="theme-toggle" class="btn-sm landing-icon-btn" onclick="toggleTheme()" data-i18n-title="theme-toggle" title="切换主题" data-i18n-aria-label="theme-toggle" aria-label="切换主题">
+                <span aria-hidden="true" class="ico ico-moon"></span>
+            </button>
+            <button id="drawer-toggle" class="btn-sm landing-icon-btn" onclick="toggleDrawer()" data-i18n-title="drawer-more-options" title="更多选项" data-i18n-aria-label="drawer-more-options" aria-label="更多选项">
+                <span aria-hidden="true" class="ico ico-menu"></span>
+            </button>
+        </span>
+    </header>
+
+    <!-- ── 页头：标题与概览 ── -->
+    <section class="card repolist-head animate-in">
+        <h1 class="repolist-title" data-i18n="repos-heading">支持的仓库</h1>
+        <p class="repolist-desc" data-i18n="repos-desc">以下是当前已接入监控的全部仓库，可按名称搜索、按语言筛选，并按星标、复刻等维度排序。</p>
+        <div class="repolist-stats">
+            <div class="repolist-stat">
+                <span class="repolist-stat-value">{{ repo_stats.total }}</span>
+                <span class="repolist-stat-label" data-i18n="repos-stat-total">收录仓库</span>
+            </div>
+            <div class="repolist-stat">
+                <span class="repolist-stat-value">{{ repo_stats.stars }}</span>
+                <span class="repolist-stat-label" data-i18n="landing-stat-stars">累计星标</span>
+            </div>
+            <div class="repolist-stat">
+                <span class="repolist-stat-value">{{ repo_stats.forks }}</span>
+                <span class="repolist-stat-label" data-i18n="landing-stat-forks">累计复刻</span>
+            </div>
+            <div class="repolist-stat">
+                <span class="repolist-stat-value">{{ repo_stats.languages }}</span>
+                <span class="repolist-stat-label" data-i18n="repos-stat-languages">涉及语言</span>
+            </div>
+        </div>
+        {% if repo_stats.failed %}
+        <p class="repolist-warn">
+            <span aria-hidden="true" class="ico ico-alert-triangle ico-orange ico-gap"></span>
+            <span data-i18n="repos-partial-fail">部分仓库数据获取失败，可能是 GitHub 速率限制或网络问题。</span>
+            <span class="repolist-warn-count">({{ repo_stats.failed }})</span>
+        </p>
+        {% endif %}
+    </section>
+
+    {% if repo_items %}
+    <!-- ── 工具条：搜索 / 语言筛选 / 排序 ── -->
+    <section class="card repolist-toolbar animate-in">
+        <div class="repolist-search-wrap">
+            <span aria-hidden="true" class="ico ico-search repolist-search-ico"></span>
+            <input type="search" id="repo-search" class="repolist-search"
+                   data-i18n-placeholder="repos-search-placeholder"
+                   placeholder="搜索仓库名、作者或描述…"
+                   autocomplete="off" spellcheck="false">
+            <button type="button" id="repo-search-clear" class="repolist-search-clear" hidden
+                    data-i18n-aria-label="clear" aria-label="清空">
+                <span aria-hidden="true" class="ico ico-x-circle"></span>
+            </button>
+        </div>
+
+        <div class="repolist-filters">
+            <label class="repolist-field">
+                <span class="repolist-field-label" data-i18n="repos-filter-language">语言</span>
+                <select id="repo-lang" class="repolist-select">
+                    <option value="" data-i18n="repos-lang-all">全部语言</option>
+                    {% for lang in repo_languages %}
+                    <option value="{{ lang }}">{{ lang }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+
+            <label class="repolist-field">
+                <span class="repolist-field-label" data-i18n="repos-sort-label">排序</span>
+                <select id="repo-sort" class="repolist-select">
+                    <option value="stars" data-i18n="repos-sort-stars">星标最多</option>
+                    <option value="forks" data-i18n="repos-sort-forks">复刻最多</option>
+                    <option value="issues" data-i18n="repos-sort-issues">Issue 最多</option>
+                    <option value="release" data-i18n="repos-sort-release">最近发布</option>
+                    <option value="name" data-i18n="repos-sort-name">名称 A-Z</option>
+                    <option value="default" data-i18n="repos-sort-default">配置顺序</option>
+                </select>
+            </label>
+
+            <button type="button" id="repo-sort-dir" class="repolist-dir" data-dir="desc"
+                    data-i18n-title="repos-sort-toggle" title="切换升序/降序">
+                <span aria-hidden="true" class="ico ico-arrow-down repolist-dir-ico"></span>
+                <span class="repolist-dir-text" data-i18n="repos-sort-desc">降序</span>
+            </button>
+        </div>
+    </section>
+
+    <!-- ── 结果计数（文案由 JS 按当前语言与筛选结果生成）── -->
+    <p class="repolist-count" id="repo-count"
+       data-total="{{ repo_stats.total }}">共 {{ repo_stats.total }} 个仓库</p>
+
+    <!-- ── 仓库列表 ── -->
+    <section class="repolist-grid" id="repo-list">
+        {% for item in repo_items %}
+        <article class="card repolist-item{% if item.error %} is-error{% endif %}"
+                 data-repo="{{ item.repo | lower }}"
+                 data-name="{{ item.short_name | lower }}"
+                 data-owner="{{ item.owner | lower }}"
+                 data-desc="{{ (item.description or '') | lower }}"
+                 data-lang="{{ item.language or '' }}"
+                 data-stars="{{ item.stars or 0 }}"
+                 data-forks="{{ item.forks or 0 }}"
+                 data-issues="{{ item.open_issues or 0 }}"
+                 data-release="{{ item.release_ts or 0 }}"
+                 data-index="{{ loop.index0 }}">
+            <div class="repolist-item-head">
+                <a class="repolist-item-name" href="/repo?repo={{ item.repo }}">
+                    <span aria-hidden="true" class="ico ico-repo ico-blue ico-gap"></span>
+                    <span class="repolist-item-owner">{{ item.owner }}/</span><span class="repolist-item-short">{{ item.short_name }}</span>
+                </a>
+                <span class="repolist-item-badges">
+                    {% if item.archived %}
+                    <span class="badge repolist-badge-archived" data-i18n="archived-short">归档</span>
+                    {% endif %}
+                    {% if item.error %}
+                    <span class="badge repolist-badge-error" data-i18n="repos-fetch-failed">获取失败</span>
+                    {% endif %}
+                </span>
+            </div>
+
+            {% if item.error %}
+            <p class="repolist-item-desc repolist-item-desc-error" data-i18n="repos-item-unavailable">暂时无法获取该仓库的详情数据。</p>
+            {% else %}
+            <p class="repolist-item-desc">{{ item.description or '' }}</p>
+
+            <div class="repolist-item-meta">
+                {% if item.language and item.language != '—' %}
+                <span class="repolist-meta-lang" data-lang-color="{{ item.language }}">
+                    <span aria-hidden="true" class="repolist-lang-dot"></span>{{ item.language }}
+                </span>
+                {% endif %}
+                <span class="repolist-meta-stat" data-i18n-title="landing-stat-stars" title="星标">
+                    <span aria-hidden="true" class="ico ico-star ico-yellow ico-sm"></span>{{ item.stars }}
+                </span>
+                <span class="repolist-meta-stat" data-i18n-title="landing-stat-forks" title="复刻">
+                    <span aria-hidden="true" class="ico ico-git-branch ico-blue ico-sm"></span>{{ item.forks }}
+                </span>
+                <span class="repolist-meta-stat" data-i18n-title="open-issues" title="开放 Issue">
+                    <span aria-hidden="true" class="ico ico-issue ico-green ico-sm"></span>{{ item.open_issues }}
+                </span>
+                {% if item.release_label %}
+                <span class="repolist-meta-stat repolist-meta-release" data-i18n-title="latest-release" title="最新发布">
+                    <span aria-hidden="true" class="ico ico-package ico-cyan ico-sm"></span>{{ item.release_label }}
+                </span>
+                {% endif %}
+                {% if item.default_branch %}
+                <span class="repolist-meta-stat" data-i18n-title="default-branch" title="默认分支">
+                    <span aria-hidden="true" class="ico ico-git-branch ico-dim ico-sm"></span>{{ item.default_branch }}
+                </span>
+                {% endif %}
+                {% if item.license and item.license != '—' %}
+                <span class="repolist-meta-stat" data-i18n-title="license" title="许可证">
+                    <span aria-hidden="true" class="ico ico-shield ico-purple ico-sm"></span>{{ item.license }}
+                </span>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <div class="repolist-item-actions">
+                <a class="repolist-action repolist-action-primary" href="/repo?repo={{ item.repo }}">
+                    <span aria-hidden="true" class="ico ico-graph ico-gap"></span><span data-i18n="repos-open-dashboard">查看看板</span>
+                </a>
+                <button type="button" class="repolist-action" onclick="openGithubConfirm('{{ item.repo }}')" data-i18n-title="repos-open-github" title="前往 GitHub">
+                    <span aria-hidden="true" class="ico ico-github ico-gap"></span><span data-i18n="repos-open-github">GitHub</span>
+                </button>
+            </div>
+        </article>
+        {% endfor %}
+    </section>
+
+    <!-- 搜索无结果 -->
+    <section class="card repolist-empty" id="repo-empty" hidden>
+        <span aria-hidden="true" class="ico ico-search ico-dim repolist-empty-ico"></span>
+        <p class="repolist-empty-title" data-i18n="repos-no-match">没有匹配的仓库</p>
+        <p class="repolist-empty-desc" data-i18n="repos-no-match-hint">试试更换关键词，或清空筛选条件。</p>
+        <button type="button" class="repolist-reset" id="repo-reset" data-i18n="repos-reset">重置筛选</button>
+    </section>
+
+    {% else %}
+    <section class="card repolist-empty animate-in">
+        <span aria-hidden="true" class="ico ico-repo ico-dim repolist-empty-ico"></span>
+        <p class="repolist-empty-title" data-i18n="no-repos-configured">未配置监控仓库</p>
+        <p class="repolist-empty-desc" data-i18n="repos-empty-hint">请在部署配置的 REPOS 环境变量中添加仓库后重启服务。</p>
+    </section>
+    {% endif %}
+
+</div></main>
+
+<!-- 侧边抽屉：汉堡菜单入口，与其他页面风格一致 -->
+<div id="side-drawer" class="drawer-overlay" style="display:none;" onclick="if(event.target===this)closeDrawer()">
+    <div class="drawer-panel">
+        <div class="drawer-header">
+            <span class="drawer-title" data-i18n="drawer-more-options">更多选项</span>
+            <button class="drawer-close" onclick="closeDrawer()" data-i18n-title="close" aria-label="关闭菜单"><span aria-hidden="true" class="ico ico-x-circle" style="width:16px;height:16px;"></span></button>
+        </div>
+        <div class="drawer-body">
+            <div class="drawer-group">
+                <div class="drawer-group-label"><span aria-hidden="true" class="ico ico-palette ico-dim ico-sm"></span><span data-i18n="drawer-group-personalize">个性化</span></div>
+                <div class="drawer-card">
+                    <div class="drawer-section">
+                        <div class="drawer-section-title" data-i18n="appearance">外观</div>
+                        <div class="drawer-theme-options">
+                            <button class="drawer-theme-btn" data-theme="dark" onclick="setTheme('dark')"><span aria-hidden="true" class="ico ico-moon ico-gap"></span><span data-i18n="dark">深色</span></button>
+                            <button class="drawer-theme-btn" data-theme="light" onclick="setTheme('light')"><span aria-hidden="true" class="ico ico-sun ico-gap"></span><span data-i18n="light">浅色</span></button>
+                            <button class="drawer-theme-btn" data-theme="system" onclick="setTheme('system')"><span aria-hidden="true" class="ico ico-gear ico-gap"></span><span data-i18n="system">跟随系统</span></button>
+                        </div>
+                    </div>
+                    <div class="drawer-section">
+                        <a class="btn-sm" href="/" style="display:flex;align-items:center;gap:6px;text-decoration:none;color:var(--text);padding:8px 12px;border-radius:8px;border:1px solid var(--border);"><span aria-hidden="true" class="ico ico-arrow-left ico-gap"></span><span data-i18n="back-to-home">返回首页</span></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- GitHub 外链确认弹窗 -->
+<div id="gh-confirm-overlay" class="gh-confirm-overlay" onclick="if(event.target===this)closeGithubConfirm()">
+    <div class="gh-confirm-card">
+        <div class="gh-confirm-header">
+            <span aria-hidden="true" class="ico ico-alert-triangle warn-ico"></span>
+            <span class="gh-confirm-title" data-i18n="gh-confirm-title">即将前往外部站点</span>
+        </div>
+        <div class="gh-confirm-body">
+            <div data-i18n="gh-confirm-desc">您即将前往仓库：</div>
+            <strong class="repo-name" id="gh-confirm-repo"></strong>
+            <code class="gh-url" id="gh-confirm-url"></code>
+            <div class="gh-warn">
+                <strong><span aria-hidden="true" class="ico ico-alert-triangle" style="width:14px;height:14px;vertical-align:middle;margin-right:4px;"></span><span data-i18n="gh-confirm-warn-title">中国大陆网络提醒</span></strong>
+                <span data-i18n="gh-confirm-warn-body">github.com 在中国大陆网络环境下可能无法正常加载。请根据需要选择是否继续前往。</span>
+            </div>
+        </div>
+        <div class="gh-confirm-actions">
+            <button type="button" class="gh-confirm-cancel" onclick="closeGithubConfirm()" data-i18n="cancel">取消</button>
+            <button type="button" class="gh-confirm-go" onclick="goGithub()" data-i18n="gh-confirm-go">继续前往</button>
+        </div>
+    </div>
+</div>
+
+<script src="/static/function.js?v={{ static_version }}"></script>
+<script>
+// ── 仓库列表：搜索 / 语言筛选 / 排序（纯前端，数据已随页面下发）──
+(function () {
+    var listEl = document.getElementById('repo-list');
+    if (!listEl) return;
+
+    var searchEl = document.getElementById('repo-search');
+    var clearEl = document.getElementById('repo-search-clear');
+    var langEl = document.getElementById('repo-lang');
+    var sortEl = document.getElementById('repo-sort');
+    var dirEl = document.getElementById('repo-sort-dir');
+    var countEl = document.getElementById('repo-count');
+    var emptyEl = document.getElementById('repo-empty');
+    var resetEl = document.getElementById('repo-reset');
+    var items = Array.prototype.slice.call(listEl.querySelectorAll('.repolist-item'));
+
+    // 注意：全局 t() 在语言包未就绪时会「返回 key 本身」，直接使用会把
+    // repos-count 这类键名渲染到界面上，因此必须显式排除等于 key 的回落值。
+    function tr(key, fallback) {
+        var v = (typeof t === 'function') ? t(key) : null;
+        return (v && v !== key) ? v : fallback;
+    }
+
+    function num(el, attr) {
+        var v = parseFloat(el.getAttribute(attr));
+        return isFinite(v) ? v : 0;
+    }
+
+    function matches(el, q, lang) {
+        if (lang && el.getAttribute('data-lang') !== lang) return false;
+        if (!q) return true;
+        return ['data-repo', 'data-name', 'data-owner', 'data-desc']
+            .some(function (a) { return (el.getAttribute(a) || '').indexOf(q) !== -1; });
+    }
+
+    function apply() {
+        var q = (searchEl && searchEl.value || '').trim().toLowerCase();
+        var lang = langEl ? langEl.value : '';
+        var key = sortEl ? sortEl.value : 'stars';
+        var desc = !dirEl || dirEl.getAttribute('data-dir') === 'desc';
+
+        if (clearEl) clearEl.hidden = !q;
+
+        var visible = items.filter(function (el) {
+            var ok = matches(el, q, lang);
+            el.hidden = !ok;
+            return ok;
+        });
+
+        // 排序：名称用 localeCompare，其余走数值；相同值回落配置顺序保持稳定
+        var sorted = visible.slice().sort(function (a, b) {
+            var d = 0;
+            if (key === 'name') {
+                d = (a.getAttribute('data-repo') || '')
+                    .localeCompare(b.getAttribute('data-repo') || '');
+            } else if (key === 'default') {
+                d = num(a, 'data-index') - num(b, 'data-index');
+            } else {
+                var attr = { stars: 'data-stars', forks: 'data-forks',
+                             issues: 'data-issues', release: 'data-release' }[key] || 'data-stars';
+                d = num(a, attr) - num(b, attr);
+            }
+            if (d === 0) d = num(a, 'data-index') - num(b, 'data-index');
+            return desc ? -d : d;
+        });
+        sorted.forEach(function (el) { listEl.appendChild(el); });
+
+        if (countEl) {
+            var total = countEl.getAttribute('data-total') || String(items.length);
+            countEl.textContent = (visible.length === items.length)
+                ? tr('repos-count', '共 ' + total + ' 个仓库').replace('{n}', total).replace('{total}', total)
+                : tr('repos-count-filtered', '匹配 ' + visible.length + ' / ' + total + ' 个仓库')
+                    .replace('{n}', visible.length).replace('{total}', total);
+        }
+        if (emptyEl) emptyEl.hidden = visible.length !== 0;
+    }
+
+    function syncDirLabel() {
+        if (!dirEl) return;
+        var desc = dirEl.getAttribute('data-dir') === 'desc';
+        var ico = dirEl.querySelector('.repolist-dir-ico');
+        var txt = dirEl.querySelector('.repolist-dir-text');
+        if (ico) {
+            ico.classList.toggle('ico-arrow-down', desc);
+            ico.classList.toggle('ico-arrow-up', !desc);
+        }
+        if (txt) txt.textContent = desc ? tr('repos-sort-desc', '降序') : tr('repos-sort-asc', '升序');
+    }
+
+    // 搜索防抖，避免大量仓库时逐字符重排
+    var timer = null;
+    function onInput() {
+        clearTimeout(timer);
+        timer = setTimeout(apply, 120);
+    }
+
+    if (searchEl) {
+        searchEl.addEventListener('input', onInput);
+        searchEl.addEventListener('search', apply);
+    }
+    if (clearEl) clearEl.addEventListener('click', function () {
+        if (searchEl) { searchEl.value = ''; searchEl.focus(); }
+        apply();
+    });
+    if (langEl) langEl.addEventListener('change', apply);
+    if (sortEl) sortEl.addEventListener('change', apply);
+    if (dirEl) dirEl.addEventListener('click', function () {
+        dirEl.setAttribute('data-dir',
+            dirEl.getAttribute('data-dir') === 'desc' ? 'asc' : 'desc');
+        syncDirLabel();
+        apply();
+    });
+    if (resetEl) resetEl.addEventListener('click', function () {
+        if (searchEl) searchEl.value = '';
+        if (langEl) langEl.value = '';
+        apply();
+        if (searchEl) searchEl.focus();
+    });
+
+    syncDirLabel();
+    apply();
+})();
+
+/* ── GitHub 外链确认弹窗 ── */
+var _ghConfirmRepo = null;
+var _ghConfirmSlug = null;
+
+function openGithubConfirm(slug) {
+    _ghConfirmRepo = slug;
+    _ghConfirmSlug = slug;
+    var overlay = document.getElementById('gh-confirm-overlay');
+    if (overlay) overlay.classList.add('show');
+    var repoEl = document.getElementById('gh-confirm-repo');
+    var urlEl = document.getElementById('gh-confirm-url');
+    if (repoEl) repoEl.textContent = _ghConfirmRepo;
+    if (urlEl) urlEl.textContent = 'https://github.com/' + slug;
+    document.body.style.overflow = 'hidden';
+}
+
+function closeGithubConfirm() {
+    var overlay = document.getElementById('gh-confirm-overlay');
+    if (overlay) overlay.classList.remove('show');
+    document.body.style.overflow = '';
+    _ghConfirmRepo = null;
+    _ghConfirmSlug = null;
+}
+
+function goGithub() {
+    if (!_ghConfirmSlug) return;
+    window.open('https://github.com/' + _ghConfirmSlug, '_blank', 'noopener,noreferrer');
+    closeGithubConfirm();
+}
+
+/* 键盘 ESC 关闭 */
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeGithubConfirm();
+});
+</script>
+</body>
+</html>

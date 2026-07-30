@@ -1,0 +1,60 @@
+/* 色调主题：樱花粉 (Sakura Pink)
+   dark 块与 light 块必须声明同一组变量名，避免亮色模式被 dark 值压制。 */
+
+:root[data-tone="sakura"] {
+  --bg: #180d13;
+  --bg2: #23131c;
+  --bg3: rgba(35, 19, 28, 0.96);
+  --text: #e2c8d4;
+  --text-dim: #a8858f;
+  --text-bright: #ffffff;
+  --border: #452430;
+  --border-light: rgba(232, 160, 191, 0.18);
+  --card-bg: #23131c;
+  --border-hover: #e8a0bf;
+  --accent: #d14d74;
+  --accent-hover: #b03a5a;
+  --accent-glow: rgba(209, 77, 116, 0.20);
+  --cyan: #e8a0bf;
+  --red: #e84393;
+  --red-bg: #2d0f1a;
+  --purple: #d988a6;
+  --blue: #a29bfe;
+  --blue-bg: #0d0a1a;
+  --green: #2ecc71;
+  --green-bg: #0f2015;
+  --yellow: #d9b02b;
+  --color-clones: #e8a0bf;
+  --color-unique-clones: #f0b8d0;
+  --color-views: #a29bfe;
+  --color-unique-views: #b8b2fe;
+}
+
+:root[data-theme="light"][data-tone="sakura"] {
+  --bg: #ffffff;
+  --bg2: #fdf1f5;
+  --bg3: rgba(255, 255, 255, 0.96);
+  --text: #3a1a26;
+  --text-dim: #7d5866;
+  --text-bright: #2b1019;
+  --border: #e8ccd7;
+  --border-light: rgba(196, 69, 105, 0.18);
+  --card-bg: #fdf1f5;
+  --border-hover: #c44569;
+  --accent: #b03a5a;
+  --accent-hover: #96304c;
+  --accent-glow: rgba(176, 58, 90, 0.1);
+  --cyan: #0e7490;
+  --red: #cf222e;
+  --red-bg: #ffebe9;
+  --purple: #8250df;
+  --blue: #0550ae;
+  --blue-bg: #ddf4ff;
+  --green: #1a7f37;
+  --green-bg: #dafbe1;
+  --yellow: #8a6100;
+  --color-clones: #b03a5a;
+  --color-unique-clones: #d9688a;
+  --color-views: #8250df;
+  --color-unique-views: #a87ae0;
+}

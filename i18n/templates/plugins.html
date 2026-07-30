@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% include '_theme_head.html' %}
+    <title data-i18n="page-title-plugins">插件管理 - GitAAP</title>
+    <link rel="stylesheet" href="/static/style.css?v={{ static_version }}">
+    <link rel="stylesheet" href="/static/themes/variables.css?v={{ static_version }}">
+    <link rel="stylesheet" href="/static/themes/animations.css?v={{ static_version }}">
+    <link rel="stylesheet" href="/static/themes/utilities.css?v={{ static_version }}">
+    <link rel="stylesheet" href="/static/themes/theme-light.css?v={{ static_version }}">
+    <link rel="stylesheet" href="/static/themes/icons.css?v={{ static_version }}">
+    <link rel="stylesheet" href="/static/plugins/core/manager.css?v={{ static_version }}">
+</head>
+<body>
+    {% include '_js_fallback.html' %}
+
+    <main><div class="container">
+        <div class="card controls plugins-header animate-in">
+            <a class="nav-button" href="/"><span aria-hidden="true" class="ico ico-arrow-left ico-gap"></span><span data-i18n="home">首页</span></a>
+            <span style="font-size:1.1rem; font-weight:600;" data-i18n="plugins-page-title">插件管理</span>
+            <span class="plugins-count" id="plugins-count" data-i18n="plugins-loading">加载中...</span>
+            <button id="theme-toggle" class="btn-sm" onclick="toggleTheme()" data-i18n-title="theme-toggle" title="切换主题" style="width:36px;height:36px;padding:0;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;flex-shrink:0;" data-i18n-aria-label="theme-toggle" aria-label="切换主题">
+                <span aria-hidden="true" class="ico ico-moon" style="width:18px;height:18px;"></span>
+            </button>
+            <button id="drawer-toggle" class="btn-sm" onclick="toggleDrawer()" data-i18n-title="drawer-more-options" title="菜单" style="width:36px;height:36px;padding:0;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;" data-i18n-aria-label="drawer-more-options" aria-label="更多选项">
+                <span class="ham-icon"><span class="ham-i"></span><span class="ham-i"></span><span class="ham-i"></span></span>
+            </button>
+        </div>
+
+        <!-- 状态信息文本框：加载中 → 自动消除(成功) / 显示报错(失败) -->
+        <div id="plugin-status-box" class="plugin-status-box animate-in" role="status">
+            <div class="plugin-status-icon" id="plugin-status-icon">
+                <span class="spinner-small"></span>
+            </div>
+            <div class="plugin-status-text" id="plugin-status-text" data-i18n="plugins-loading-list">正在加载插件列表...</div>
+            <button class="plugin-status-close" id="plugin-status-close" onclick="closePluginStatus()" style="display:none;" data-i18n-title="close" data-i18n-aria-label="close" aria-label="关闭">
+                <span aria-hidden="true" class="ico ico-x"></span>
+            </button>
+        </div>
+
+        <div class="card animate-in">
+            <div id="plugins-container" class="plugins-grid" style="min-height:200px;">
+                <div style="text-align:center;padding:40px;color:var(--text-dim);">
+                    <div class="spinner" style="width:24px;height:24px;border-width:3px;margin:0 auto;"></div>
+                    <p style="margin-top:12px;" data-i18n="plugins-loading-list">加载插件列表...</p>
+                </div>
+            </div>
+        </div>
+    </div></main>
+    <script src="/static/plugins/core/manager.js?v={{ static_version }}"></script>
+    <script src="/static/function.js?v={{ static_version }}"></script>
+
+    <!-- 侧边抽屉 -->
+    <div id="side-drawer" class="drawer-overlay" style="display:none;" onclick="if(event.target===this)closeDrawer()">
+        <div class="drawer-panel">
+            <div class="drawer-header">
+                <span class="drawer-title" data-i18n="menu">菜单</span>
+                <button class="drawer-close" onclick="closeDrawer()" data-i18n-title="close" aria-label="关闭菜单"><span aria-hidden="true" class="ico ico-x-circle" style="width:16px;height:16px;"></span></button>
+            </div>
+            <div class="drawer-body">
+                <div class="drawer-section">
+                    <div class="drawer-section-title" data-i18n="appearance">外观</div>
+                    <div class="drawer-theme-options">
+                        <button class="drawer-theme-btn" data-theme="dark" onclick="setTheme('dark')"><span aria-hidden="true" class="ico ico-moon ico-gap"></span><span data-i18n="dark">深色</span></button>
+                        <button class="drawer-theme-btn" data-theme="light" onclick="setTheme('light')"><span aria-hidden="true" class="ico ico-sun ico-gap"></span><span data-i18n="light">浅色</span></button>
+                        <button class="drawer-theme-btn" data-theme="system" onclick="setTheme('system')"><span aria-hidden="true" class="ico ico-gear ico-gap"></span><span data-i18n="system">跟随系统</span></button>
+                    </div>
+                </div>
+                <div class="drawer-section">
+                    <div class="drawer-section-title" onclick="toggleCollapse(this)" style="cursor:pointer;user-select:none;">
+                        <span aria-hidden="true" class="ico ico-tools ico-dim ico-gap"></span><span data-i18n="toolbox">工具箱</span>
+                        <span class="collapse-arrow" style="margin-left:auto;transition:transform 0.2s;"><span aria-hidden="true" class="ico ico-chevron-right" style="width:12px;height:12px;"></span></span>
+                    </div>
+                    <div class="collapse-content" style="display:none;">
+                        <div style="margin-bottom:12px;">
+                            <div style="font-size:0.78rem;color:var(--text-dim);margin-bottom:6px;" data-i18n="text-align">文本对齐</div>
+                            <div class="drawer-theme-options" id="text-align-options">
+                                <button class="drawer-theme-btn align-btn" data-align="left" onclick="setTextAlign('left')"><span data-i18n="align-left">左</span></button>
+                                <button class="drawer-theme-btn align-btn active" data-align="center" onclick="setTextAlign('center')"><span data-i18n="align-center">中</span></button>
+                                <button class="drawer-theme-btn align-btn" data-align="right" onclick="setTextAlign('right')"><span data-i18n="align-right">右</span></button>
+                            </div>
+                        </div>
+                        <div style="margin-bottom:12px;">
+                            <div style="font-size:0.78rem;color:var(--text-dim);margin-bottom:6px;" data-i18n="font-size">字体大小</div>
+                            <div class="drawer-theme-options" id="font-size-options">
+                                <button class="drawer-theme-btn font-size-btn" data-size="small" onclick="setFontSize('small')"><span data-i18n="font-small">小</span></button>
+                                <button class="drawer-theme-btn font-size-btn active" data-size="medium" onclick="setFontSize('medium')"><span data-i18n="font-medium">中</span></button>
+                                <button class="drawer-theme-btn font-size-btn" data-size="large" onclick="setFontSize('large')"><span data-i18n="font-large">大</span></button>
+                                <button class="drawer-theme-btn font-size-btn" data-size="xlarge" onclick="setFontSize('xlarge')"><span data-i18n="font-xlarge">特大</span></button>
+                            </div>
+                        </div>
+                        <div class="tone-market" id="tone-market">
+                            <div class="tone-market-header">
+                                <span class="tone-market-label"><span aria-hidden="true" class="ico ico-palette ico-gap"></span><span data-i18n="tone">色调</span></span>
+                                <button class="tone-market-toggle btn-sm" onclick="toggleToneMarket()" id="tone-market-toggle">
+                                    <span class="tone-market-arrow"><span aria-hidden="true" class="ico ico-chevron-down" style="width:12px;height:12px;"></span></span> <span data-i18n="browse-tones">浏览色调</span>
+                                </button>
+                            </div>
+                            <div class="tone-market-grid" id="tone-market-grid" style="display:none;"></div>
+                            <div class="tone-market-placeholder" id="tone-market-placeholder">
+                                <div id="current-tone-label" style="font-size:0.78rem;color:var(--text-dim);"></div>
+                            </div>
+                        </div>
+                        <button class="tone-market-toggle btn-sm" onclick="openToolbox()" style="margin-top:8px;width:100%;">
+                            <span aria-hidden="true" class="ico ico-zap ico-gap"></span> <span data-i18n="toolbox-open">打开工具箱</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="drawer-section">
+                    <div class="drawer-section-title" data-i18n="language">语言</div>
+                    <div class="drawer-lang-options">
+                        <button class="drawer-lang-btn" data-lang="zh" onclick="setLang('zh')" data-i18n="language-zh">中文</button>
+                        <button class="drawer-lang-btn" data-lang="zh-Hant" onclick="setLang('zh-Hant')" data-i18n="language-zh-hant"><span aria-hidden="true" class="ico ico-globe ico-gap"></span>繁體中文</button>
+                        <button class="drawer-lang-btn" data-lang="en" onclick="setLang('en')" data-i18n="language-en">English</button>
+                    </div>
+                </div>
+                <div class="drawer-section">
+                    <div class="drawer-section-title" data-i18n="api-status">API 状态</div>
+                    <div id="drawer-token-status" style="padding:8px 4px;font-size:0.85rem;color:var(--text-dim);">
+                        <span aria-hidden="true" class="ico ico-hourglass ico-dim ico-gap"></span><span data-i18n="loading">加载中...</span>
+                    </div>
+                    <a class="drawer-link" href="/token-stats-page" style="margin-top:4px;">
+                        <span aria-hidden="true" class="ico ico-graph ico-dim ico-gap"></span><span data-i18n="detail-stats">详细统计</span>
+                    </a>
+                    <label class="drawer-toggle-row" style="display:flex;align-items:center;gap:8px;margin-top:8px;padding:8px 4px;cursor:pointer;font-size:0.85rem;color:var(--text-dim);">
+                        <input type="checkbox" id="cache-hint-toggle" onchange="toggleCacheHint()" style="accent-color:var(--cyan);">
+                        <span data-i18n="cache-hint">缓存命中提示</span>
+                    </label>
+                </div>
+                {% include '_side_drawer_links.html' %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>

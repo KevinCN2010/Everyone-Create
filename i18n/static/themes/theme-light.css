@@ -1,0 +1,52 @@
+:root[data-theme="light"] {
+  --bg: #ffffff;
+  --bg2: #f6f8fa;
+  --bg3: rgba(255,255,255,0.96);
+  --text: #24292f;
+  --text-dim: #656d76;
+  --text-bright: #1f2328;
+  --border: #d0d7de;
+  --border-light: rgba(27, 31, 36, 0.15);
+  --accent: #1f7f7f;
+  --accent-hover: #166b6b;
+  --accent-glow: rgba(31, 127, 127, 0.1);
+  --green: #1a7f37;
+  --green-icon: #1a7f37;
+  --green-bg: #dafbe1;
+  --on-green: #ffffff;
+  --red: #cf222e;
+  --red-bg: #ffebe9;
+  --orange: #bf6a00;
+  --blue: #0550ae;
+  --blue-bg: #ddf4ff;
+  --cyan: #0969da;
+  --purple: #8250df;
+  --yellow: #9a6700;
+  --on-blue: #ffffff;
+  --btn-border: rgba(101, 109, 118, 0.25);
+  --on-accent: #ffffff;
+  --card-bg: var(--bg2);
+  --border-hover: var(--accent);
+  --shadow: 0 8px 24px rgba(0,0,0,0.08);
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
+
+  /* 背景色快捷值 — 亮色模式 */
+  --bg-dim: rgba(0,0,0,0.06);
+  --bg-dark: rgba(0,0,0,0.1);
+
+  /* 图表颜色 — 亮色模式适配 */
+  --color-clones: #8957e5;
+  --color-unique-clones: #d4a017;
+  --color-views: #d93a21;
+  --color-unique-views: #2d8a2d;
+}
+
+:root[data-theme="light"] .skeleton-line {
+  background: linear-gradient(90deg, rgba(27,31,36,0.05) 25%, rgba(27,31,36,0.12) 50%, rgba(27,31,36,0.05) 75%);
+  background-size: 200px 100%;
+}
+
+/* 亮色模式下主题切换按钮图标使用固定深色，避免 CSS mask 细线在半透明灰色下几乎不可见 */
+:root[data-theme="light"] #theme-toggle .ico {
+  color: #24292f;
+}

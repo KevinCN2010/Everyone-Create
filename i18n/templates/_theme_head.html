@@ -1,0 +1,15 @@
+<script>
+(function() {
+    function getCookie(name) {
+        var match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+        return match ? decodeURIComponent(match[2]) : null;
+    }
+    var theme = getCookie('site-theme');
+    if (theme !== 'light' && theme !== 'dark') {
+        var hour = new Date().getHours();
+        theme = (hour >= 7 && hour < 19) ? 'light' : 'dark';
+    }
+    document.documentElement.setAttribute('data-theme', theme);
+})();
+</script>
+<script src="/static/plugins/core/loader.js?v=1" defer></script>

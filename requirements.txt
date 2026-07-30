@@ -1,0 +1,13 @@
+# GitAAP — GitHub Repository Traffic & Info Dashboard
+#
+# 使用方法:
+#   pip install -r requirements.txt
+#   uvicorn i18n.main:app --host 0.0.0.0 --port 8000
+
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+sqlalchemy>=2.0.0
+jinja2>=3.1.0
+requests>=2.31.0
+httpx>=0.25.0
+apscheduler>=3.10.0

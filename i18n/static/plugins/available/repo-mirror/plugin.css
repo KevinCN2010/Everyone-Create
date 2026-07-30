@@ -1,0 +1,9 @@
+/* ═══════════════════════════════════════════════════
+   repo-mirror/plugin.css — 仓库镜像浏览插件样式
+   通过插件注册表 config.use_dashboard_ui 控制 UI 风格
+   ═══════════════════════════════════════════════════ */
+
+/* 镜像页控制栏微调 */
+body[data-page="repo-mirror"] .controls .nav-button {
+    font-size: 0.85rem;
+}

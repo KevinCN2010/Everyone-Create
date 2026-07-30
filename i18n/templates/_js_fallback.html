@@ -1,0 +1,9 @@
+<!-- 加载失败提示（JS 未启动时显示） -->
+<div id="js-fallback" style="position:fixed;top:16px;left:16px;z-index:99999;color:var(--text-dim,#8b98a6);font-size:14px;font-family:system-ui,sans-serif;background:var(--bg3,rgba(13,17,23,0.9));padding:12px 18px;border-radius:8px;border:1px solid rgba(255,140,66,0.3);max-width:400px;line-height:1.5;">
+    <div style="color:var(--orange,#ff8c42);font-weight:600;margin-bottom:4px;"><span aria-hidden="true" class="ico ico-alert ico-orange ico-gap"></span><span data-i18n="js-fallback-title">页面加载失败</span></div>
+    <div data-i18n="js-fallback-desc">JavaScript 未能正常启动，可能是网络问题或脚本错误。</div>
+    <div style="margin-top:6px;font-size:13px;" data-i18n="js-fallback-hint">试试刷新页面，或检查服务是否正常。</div>
+</div>
+<script>
+document.getElementById('js-fallback').style.display = 'none';
+</script>

@@ -1,0 +1,63 @@
+/* 色调主题：薰衣草 (Lavender Purple)
+   低饱和紫灰底色 + 薰衣草紫强调，典雅柔和的阅读体验。
+   dark 块与 light 块必须声明同一组变量名，避免亮色模式被 dark 值压制。 */
+
+:root[data-tone="lavender"] {
+  --bg: #100f14;
+  --bg2: #181720;
+  --bg3: rgba(24, 23, 32, 0.96);
+  --text: #ccc8db;
+  --text-dim: #8781a0;
+  --text-bright: #f0edff;
+  --border: #2b2738;
+  --border-light: rgba(170, 140, 230, 0.16);
+  --card-bg: #181720;
+  --border-hover: #aa8ce6;
+  --accent: #8b6cd4;
+  --accent-hover: #7355b8;
+  --accent-glow: rgba(139, 108, 212, 0.16);
+  --cyan: #8eb8e6;
+  --blue: #6a8fca;
+  --blue-bg: #0f1625;
+  --purple: #b08ce6;
+  --green: #6faa8a;
+  --green-bg: #102018;
+  --orange: #c8906a;
+  --red: #d0696f;
+  --red-bg: #241214;
+  --yellow: #c8a84e;
+  --color-clones: #b08ce6;
+  --color-unique-clones: #ccb0f0;
+  --color-views: #8b6cd4;
+  --color-unique-views: #aa94e0;
+}
+
+:root[data-theme="light"][data-tone="lavender"] {
+  --bg: #ffffff;
+  --bg2: #f4f0fa;
+  --bg3: rgba(255, 255, 255, 0.96);
+  --text: #28233a;
+  --text-dim: #655e7d;
+  --text-bright: #1a1726;
+  --border: #d4cde2;
+  --border-light: rgba(110, 80, 170, 0.16);
+  --card-bg: #f4f0fa;
+  --border-hover: #6e50aa;
+  --accent: #6a4db5;
+  --accent-hover: #563b99;
+  --accent-glow: rgba(106, 77, 181, 0.1);
+  --cyan: #0e7490;
+  --blue: #0550ae;
+  --blue-bg: #ddf4ff;
+  --purple: #8250df;
+  --green: #1a7f37;
+  --green-bg: #dafbe1;
+  --orange: #8a5e2a;
+  --red: #b23b34;
+  --red-bg: #fbeae9;
+  --yellow: #7d6420;
+  --color-clones: #6a4db5;
+  --color-unique-clones: #967ad4;
+  --color-views: #0550ae;
+  --color-unique-views: #3a7bc8;
+}

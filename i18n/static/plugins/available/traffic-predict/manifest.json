@@ -1,0 +1,31 @@
+{
+  "id": "traffic-predict",
+  "name": "traffic-predict",
+  "version": "1.0.0",
+  "title": "流量预测",
+  "description": "基于纯 Python 自实现神经网络的仓库流量预测，展示历史数据与未来趋势图表。",
+  "author": "GitAAP Team",
+  "team": "GitAAP",
+  "created_at": "2026-07-26T00:00:00Z",
+  "updated_at": "2026-07-26T00:00:00Z",
+  "size": "4.5KB",
+  "enabled": true,
+  "entry": "plugin.js",
+  "style": "plugin.css",
+  "assets": {
+    "css": ["plugin.css"],
+    "svg": [],
+    "js": ["plugin.js"]
+  },
+  "dependencies": [],
+  "tags": ["prediction", "traffic", "chart", "neural-network"],
+  "config": {
+    "default_metric": "clones",
+    "default_steps": 14,
+    "max_steps": 90,
+    "metrics": [
+      {"id": "clones", "label": "Clones", "label_zh": "克隆量"},
+      {"id": "views", "label": "Views", "label_zh": "访问量"}
+    ]
+  }
+}

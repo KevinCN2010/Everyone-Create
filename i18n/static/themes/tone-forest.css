@@ -1,0 +1,56 @@
+/* 色调主题：森林绿意 (Forest Green)
+   dark 块与 light 块必须声明同一组变量名，避免亮色模式被 dark 值压制。 */
+
+:root[data-tone="forest"] {
+  --bg: #0a1610;
+  --bg2: #0f2318;
+  --bg3: rgba(15, 35, 24, 0.96);
+  --text: #c8dcce;
+  --text-dim: #829d8b;
+  --text-bright: #ffffff;
+  --border: #1f3d2a;
+  --border-light: rgba(111, 207, 151, 0.18);
+  --card-bg: #0f2318;
+  --border-hover: #6fcf97;
+  --accent: #2d9a55;
+  --accent-hover: #23803f;
+  --accent-glow: rgba(45, 154, 85, 0.15);
+  --cyan: #6fcf97;
+  --green: #27ae60;
+  --green-bg: #0d2818;
+  --blue: #5dade2;
+  --blue-bg: #0a1a2e;
+  --purple: #8e6fbf;
+  --yellow: #d9b02b;
+  --color-clones: #6fcf97;
+  --color-unique-clones: #8de0ae;
+  --color-views: #5dade2;
+  --color-unique-views: #7ec8e3;
+}
+
+:root[data-theme="light"][data-tone="forest"] {
+  --bg: #ffffff;
+  --bg2: #f0f8f2;
+  --bg3: rgba(255, 255, 255, 0.96);
+  --text: #16321f;
+  --text-dim: #5c7a64;
+  --text-bright: #0f2417;
+  --border: #c6e0ce;
+  --border-light: rgba(45, 138, 78, 0.18);
+  --card-bg: #f0f8f2;
+  --border-hover: #2d8a4e;
+  --accent: #24803f;
+  --accent-hover: #1c6a33;
+  --accent-glow: rgba(36, 128, 63, 0.1);
+  --cyan: #0e7490;
+  --green: #1a7f37;
+  --green-bg: #dafbe1;
+  --blue: #0550ae;
+  --blue-bg: #ddf4ff;
+  --purple: #8250df;
+  --yellow: #8a6100;
+  --color-clones: #24803f;
+  --color-unique-clones: #4aaf6e;
+  --color-views: #0550ae;
+  --color-unique-views: #3a7bc8;
+}

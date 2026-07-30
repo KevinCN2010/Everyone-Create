@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% include '_theme_head.html' %}
+    <title data-i18n="admin-login-title">管理员登录 - GitAAP</title>
+    <link rel="stylesheet" href="/static/style.css?v={{ static_version }}">
+    <link rel="stylesheet" href="/static/themes/variables.css?v={{ static_version }}">
+    <link rel="stylesheet" href="/static/themes/animations.css?v={{ static_version }}">
+    <link rel="stylesheet" href="/static/themes/utilities.css?v={{ static_version }}">
+    <link rel="stylesheet" href="/static/themes/theme-light.css?v={{ static_version }}">
+    <link rel="stylesheet" href="/static/themes/icons.css?v={{ static_version }}">
+</head>
+<body>
+{% include '_js_fallback.html' %}
+
+<main><div class="container login-shell">
+    <div class="card login-card animate-in">
+        <!-- 图标与标题 -->
+        <div class="login-head">
+            <span class="login-badge"><span aria-hidden="true" class="ico ico-shield"></span></span>
+            <h2 class="login-title" data-i18n="admin-login-heading">管理员登录</h2>
+            <p class="login-desc" data-i18n="admin-login-desc">请输入管理员密码以访问控制面板</p>
+        </div>
+
+        <!-- 错误提示 -->
+        <div id="login-error" class="login-error" role="alert" aria-live="polite">
+            <span aria-hidden="true" class="ico ico-alert-circle"></span><span id="login-error-text"></span>
+        </div>
+
+        <!-- 登录表单 -->
+        <form id="login-form" onsubmit="return doLogin(event)">
+            <div class="login-field">
+                <label class="login-label" for="password-input" data-i18n="admin-password-label">管理员密码</label>
+                <div class="login-input-wrap">
+                    <input id="password-input" class="login-input" type="password" autocomplete="current-password"
+                           spellcheck="false" autocapitalize="off" required
+                           onkeyup="checkCapsLock(event)" onkeydown="checkCapsLock(event)">
+                    <button type="button" class="login-reveal" id="reveal-btn" onclick="togglePasswordVisible()"
+                            data-i18n-title="admin-show-password" title="显示密码"
+                            data-i18n-aria-label="admin-show-password" aria-label="显示密码">
+                        <span aria-hidden="true" class="ico ico-eye" id="reveal-icon"></span>
+                    </button>
+                </div>
+                <div class="login-caps" id="caps-hint">
+                    <span aria-hidden="true" class="ico ico-alert-triangle"></span><span data-i18n="admin-caps-on">大写锁定已开启</span>
+                </div>
+            </div>
+            <button type="submit" id="login-btn" class="login-submit">
+                <span aria-hidden="true" class="ico ico-shield ico-gap" style="width:16px;height:16px;"></span><span data-i18n="admin-login-btn">登录</span>
+            </button>
+        </form>
+
+        <div class="login-foot">
+            <a class="login-back" href="/">
+                <span aria-hidden="true" class="ico ico-arrow-left ico-gap" style="width:14px;height:14px;"></span><span data-i18n="back-to-home">返回首页</span>
+            </a>
+            <p class="login-note" data-i18n="admin-login-note">连续 5 次密码错误将临时封禁该 IP 15 分钟。</p>
+        </div>
+    </div>
+</div></main>
+
+<!-- ═══ 侧边抽屉 ═══ -->
+<div id="side-drawer" class="drawer-overlay" style="display:none;" onclick="if(event.target===this)closeDrawer()">
+    <div class="drawer-panel">
+        <div class="drawer-header">
+            <span class="drawer-title" data-i18n="menu">菜单</span>
+            <button class="drawer-close" onclick="closeDrawer()" data-i18n-title="close" aria-label="关闭菜单"><span aria-hidden="true" class="ico ico-x-circle" style="width:16px;height:16px;"></span></button>
+        </div>
+        <div class="drawer-body">
+            <!-- 外观 -->
+            <div class="drawer-section">
+                <div class="drawer-section-title" data-i18n="appearance">外观</div>
+                <div class="drawer-theme-options">
+                    <button class="drawer-theme-btn" data-theme="dark" onclick="setTheme('dark')">
+                        <span aria-hidden="true" class="ico ico-moon ico-gap"></span><span data-i18n="dark">深色</span>
+                    </button>
+                    <button class="drawer-theme-btn" data-theme="light" onclick="setTheme('light')">
+                        <span aria-hidden="true" class="ico ico-sun ico-gap"></span><span data-i18n="light">浅色</span>
+                    </button>
+                    <button class="drawer-theme-btn" data-theme="system" onclick="setTheme('system')">
+                        <span aria-hidden="true" class="ico ico-gear ico-gap"></span><span data-i18n="system">跟随系统</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 个性选择 -->
+            <div class="drawer-section">
+                <div class="drawer-section-title" onclick="toggleCollapse(this)" style="cursor:pointer;user-select:none;">
+                    <span aria-hidden="true" class="ico ico-tools ico-dim ico-gap"></span><span data-i18n="toolbox">工具箱</span>
+                    <span class="collapse-arrow" style="margin-left:auto;transition:transform 0.2s;"><span aria-hidden="true" class="ico ico-chevron-right" style="width:12px;height:12px;"></span></span>
+                </div>
+                <div class="collapse-content" style="display:none;">
+                    <!-- 文本对齐 -->
+                    <div style="margin-bottom:12px;">
+                        <div style="font-size:0.78rem;color:var(--text-dim);margin-bottom:6px;" data-i18n="text-align">文本对齐</div>
+                        <div class="drawer-theme-options" id="text-align-options">
+                            <button class="drawer-theme-btn align-btn" data-align="left" onclick="setTextAlign('left')"><span data-i18n="align-left">左</span></button>
+                            <button class="drawer-theme-btn align-btn active" data-align="center" onclick="setTextAlign('center')"><span data-i18n="align-center">中</span></button>
+                            <button class="drawer-theme-btn align-btn" data-align="right" onclick="setTextAlign('right')"><span data-i18n="align-right">右</span></button>
+                        </div>
+                    </div>
+                    <!-- 字体大小 -->
+                    <div style="margin-bottom:12px;">
+                        <div style="font-size:0.78rem;color:var(--text-dim);margin-bottom:6px;" data-i18n="font-size">字体大小</div>
+                        <div class="drawer-theme-options" id="font-size-options">
+                            <button class="drawer-theme-btn font-size-btn" data-size="small" onclick="setFontSize('small')"><span data-i18n="font-small">小</span></button>
+                            <button class="drawer-theme-btn font-size-btn active" data-size="medium" onclick="setFontSize('medium')"><span data-i18n="font-medium">中</span></button>
+                            <button class="drawer-theme-btn font-size-btn" data-size="large" onclick="setFontSize('large')"><span data-i18n="font-large">大</span></button>
+                            <button class="drawer-theme-btn font-size-btn" data-size="xlarge" onclick="setFontSize('xlarge')"><span data-i18n="font-xlarge">特大</span></button>
+                        </div>
+                    </div>
+                    <!-- 色调 -->
+                    <div class="tone-market" id="tone-market">
+                        <div class="tone-market-header">
+                            <span class="tone-market-label"><span aria-hidden="true" class="ico ico-palette ico-gap"></span><span data-i18n="tone">色调</span></span>
+                            <button class="tone-market-toggle btn-sm" onclick="toggleToneMarket()" id="tone-market-toggle">
+                                <span class="tone-market-arrow"><span aria-hidden="true" class="ico ico-chevron-down" style="width:12px;height:12px;"></span></span> <span data-i18n="browse-tones">浏览色调</span>
+                            </button>
+                        </div>
+                        <div class="tone-market-grid" id="tone-market-grid" style="display:none;"></div>
+                        <div class="tone-market-placeholder" id="tone-market-placeholder">
+                            <div id="current-tone-label" style="font-size:0.78rem;color:var(--text-dim);"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 语言 -->
+            <div class="drawer-section">
+                <div class="drawer-section-title" data-i18n="language">语言</div>
+                <div class="drawer-lang-options">
+                    <button class="drawer-lang-btn" data-lang="zh" onclick="setLang('zh')" data-i18n="language-zh">中文</button>
+                    <button class="drawer-lang-btn" data-lang="zh-Hant" onclick="setLang('zh-Hant')" data-i18n="language-zh-hant"><span aria-hidden="true" class="ico ico-globe ico-gap"></span>繁體中文</button>
+                    <button class="drawer-lang-btn" data-lang="en" onclick="setLang('en')" data-i18n="language-en">English</button>
+                </div>
+            </div>
+
+            <!-- API 状态 -->
+            <div class="drawer-section">
+                <div class="drawer-section-title" data-i18n="api-status">API 状态</div>
+                <div id="drawer-token-status" style="padding:8px 4px;font-size:0.85rem;color:var(--text-dim);">
+                    <span aria-hidden="true" class="ico ico-hourglass ico-dim ico-gap"></span><span data-i18n="loading">加载中...</span>
+                </div>
+                <a class="drawer-link" href="/token-stats-page" style="margin-top:4px;">
+                    <span aria-hidden="true" class="ico ico-graph ico-dim ico-gap"></span><span data-i18n="detail-stats">详细统计</span>
+                </a>
+                <label class="drawer-toggle-row" style="display:flex;align-items:center;gap:8px;margin-top:8px;padding:8px 4px;cursor:pointer;font-size:0.85rem;color:var(--text-dim);">
+                    <input type="checkbox" id="cache-hint-toggle" onchange="toggleCacheHint()" style="accent-color:var(--cyan);">
+                    <span data-i18n="cache-hint">缓存命中提示</span>
+                </label>
+            </div>
+
+            {% include '_side_drawer_links.html' %}
+        </div>
+    </div>
+</div>
+
+<script src="/static/function.js?v={{ static_version }}"></script>
+<script>
+// ── 密码可见性切换 ──
+function togglePasswordVisible() {
+    var input = document.getElementById('password-input');
+    var icon = document.getElementById('reveal-icon');
+    var btn = document.getElementById('reveal-btn');
+    if (!input || !icon || !btn) return;
+    var toText = input.type === 'password';
+    input.type = toText ? 'text' : 'password';
+    icon.className = 'ico ' + (toText ? 'ico-eye-off' : 'ico-eye');
+    var key = toText ? 'admin-hide-password' : 'admin-show-password';
+    var label = (typeof t === 'function' ? t(key) : null) || (toText ? '隐藏密码' : '显示密码');
+    btn.setAttribute('title', label);
+    btn.setAttribute('aria-label', label);
+    // 同步 data-i18n-* 属性，避免切换语言时被旧键覆盖
+    btn.setAttribute('data-i18n-title', key);
+    btn.setAttribute('data-i18n-aria-label', key);
+    input.focus();
+}
+
+// ── 大写锁定提示（密码输错的常见原因） ──
+function checkCapsLock(e) {
+    var hint = document.getElementById('caps-hint');
+    if (!hint || !e || typeof e.getModifierState !== 'function') return;
+    hint.classList.toggle('is-visible', e.getModifierState('CapsLock'));
+}
+
+function _showLoginError(msg) {
+    var errEl = document.getElementById('login-error');
+    var textEl = document.getElementById('login-error-text');
+    if (!errEl) return;
+    if (textEl) textEl.textContent = msg;
+    errEl.classList.add('is-visible');
+}
+
+function _hideLoginError() {
+    var errEl = document.getElementById('login-error');
+    if (errEl) errEl.classList.remove('is-visible');
+}
+
+// 管理员登录逻辑
+function doLogin(e) {
+    e.preventDefault();
+    var btn = document.getElementById('login-btn');
+    var input = document.getElementById('password-input');
+    var pw = input ? input.value : '';
+    if (!pw) {
+        _showLoginError(typeof t === 'function' ? t('admin-password-required') : '请输入密码');
+        if (input) input.focus();
+        return false;
+    }
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner" style="width:16px;height:16px;border-width:2px;border-color:#fff transparent;display:inline-block;vertical-align:middle;margin-right:6px;"></span>' + (typeof t === 'function' ? t('admin-login-verifying') : '验证中...');
+    _hideLoginError();
+    fetch('/admin/login', {
+        method:'POST',
+        headers: (typeof csrfTokensReady === 'function' && !csrfTokensReady()) ? {'Content-Type':'application/json'} : (typeof csrfHeaders === 'function' ? csrfHeaders({'Content-Type':'application/json'}) : {'Content-Type':'application/json'}),
+        body:JSON.stringify({password:pw})
+    }).then(function(r){
+        if (!r.ok) return r.json().then(function(d){ throw new Error(d.detail || (typeof t === 'function' ? t('admin-login-failed') : '密码错误')); });
+        window.location.href = '/admin/manage';
+    }).catch(function(e){
+        _showLoginError(e.message);
+        btn.innerHTML = '<span aria-hidden="true" class="ico ico-shield ico-gap" style="width:16px;height:16px;"></span>' + (typeof t === 'function' ? t('admin-login-btn') : '登录');
+        btn.disabled = false;
+        if (input) { input.value = ''; input.focus(); }
+    });
+    return false;
+}
+</script>
+</body>
+</html>

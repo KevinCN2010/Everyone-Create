@@ -1,0 +1,30 @@
+{
+  "id": "legal-compliance",
+  "name": "legal-compliance",
+  "version": "1.0.0",
+  "title": "Legal & Compliance",
+  "description": "免责声明弹窗、Cookie 隐私政策同意、人机验证集成",
+  "author": "GitAAP Team",
+  "team": "GitAAP",
+  "created_at": "2026-07-23T00:00:00Z",
+  "updated_at": "2026-07-23T00:00:00Z",
+  "size": "9.2KB",
+  "enabled": true,
+  "entry": "legal-plugin.js",
+  "style": "legal-plugin.css",
+  "assets": {
+    "css": ["legal-plugin.css"],
+    "svg": [],
+    "js": ["legal-plugin.js"]
+  },
+  "dependencies": [],
+  "tags": ["legal", "cookie", "captcha", "compliance"],
+  "config": {
+    "disclaimer_required": true,
+    "cookie_consent_required": true,
+    "captcha_enabled": true,
+    "captcha_provider": "turnstile",
+    "captcha_site_key": "",
+    "cookie_expiry_days": 365
+  }
+}

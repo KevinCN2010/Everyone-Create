@@ -1,0 +1,4 @@
+# IP 归属查询 API — 依赖清单（复用项目已有 fastapi + uvicorn）
+redis>=5.0
+maxminddb>=3.0
+

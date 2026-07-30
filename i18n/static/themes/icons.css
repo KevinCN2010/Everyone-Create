@@ -1,0 +1,259 @@
+/* ═══════════════════════════════════════════════════
+   本地 SVG 图标（替代 emoji）
+   ═══════════════════════════════════════════════════ */
+
+.ico {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px; height: 18px;
+  vertical-align: text-bottom;
+  flex-shrink: 0;
+  line-height: 1;
+  color: var(--text);
+  transition: color 0.15s ease, opacity 0.15s ease;
+}
+
+.ico:not(svg) {
+  background-color: currentColor;
+  -webkit-mask-image: var(--ico-mask);
+  mask-image: var(--ico-mask);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+}
+
+.ico-sm { width: 14px; height: 14px; }
+.ico-lg { width: 22px; height: 22px; }
+.ico-xl { width: 28px; height: 28px; }
+
+/* 颜色变体 — 直接使用 CSS 变量，告别 filter 调色 */
+.ico-green { color: var(--green-icon, var(--green, #3fb950)); }
+.ico-red { color: var(--red, #f85149); }
+.ico-orange { color: var(--orange, #ff8c42); }
+.ico-blue { color: var(--blue, #1f6feb); }
+.ico-cyan { color: var(--cyan, #79ffe1); }
+.ico-white { color: #fff; }
+.ico-dim { color: var(--text-dim); }
+.ico-purple { color: var(--purple, #bc8cff); }
+.ico-pink { color: var(--pink, #ff6b9d); }
+.ico-yellow { color: var(--yellow, #e3b341); }
+
+/* 图标间距辅助 */
+.ico-gap { margin-right: 4px; }
+.ico-gap-md { margin-right: 8px; }
+.ico-left { margin-left: 4px; }
+.ico-label { display: inline-flex; align-items: center; gap: 4px; }
+
+/* ====================================================
+   图标定义 — 每个图标一个类
+   ==================================================== */
+
+/* 导航 & 操作 */
+.ico-home { --ico-mask: url('/static/icons/home.svg'); }
+.ico-arrow-left { --ico-mask: url('/static/icons/arrow-left.svg'); }
+.ico-arrow-right { --ico-mask: url('/static/icons/arrow-right.svg'); }
+.ico-arrow-up { --ico-mask: url('/static/icons/arrow-up.svg'); }
+.ico-arrow-down { --ico-mask: url('/static/icons/arrow-down.svg'); }
+.ico-external, .ico-link-external { --ico-mask: url('/static/icons/link-external.svg'); }
+.ico-link { --ico-mask: url('/static/icons/link.svg'); }
+.ico-search { --ico-mask: url('/static/icons/search.svg'); }
+.ico-sync { --ico-mask: url('/static/icons/sync.svg'); }
+.ico-retry { --ico-mask: url('/static/icons/sync.svg'); }
+.ico-download { --ico-mask: url('/static/icons/download.svg'); }
+
+/* 主题 */
+.ico-moon { --ico-mask: url('/static/icons/moon.svg'); }
+.ico-sun { --ico-mask: url('/static/icons/sun.svg'); }
+.ico-globe { --ico-mask: url('/static/icons/globe.svg'); }
+
+/* GitHub 相关 */
+.ico-repo { --ico-mask: url('/static/icons/repo.svg'); }
+.ico-star { --ico-mask: url('/static/icons/star.svg'); }
+.ico-issue { --ico-mask: url('/static/icons/issue-opened.svg'); }
+.ico-pr { --ico-mask: url('/static/icons/git-pull-request.svg'); }
+.ico-tag { --ico-mask: url('/static/icons/tag.svg'); }
+.ico-commit { --ico-mask: url('/static/icons/git-commit.svg'); }
+.ico-git-branch { --ico-mask: url('/static/icons/git-branch.svg'); }
+
+/* 文件 & 目录 */
+.ico-file { --ico-mask: url('/static/icons/file.svg'); }
+.ico-file-code { --ico-mask: url('/static/icons/file-code.svg'); }
+.ico-file-text { --ico-mask: url('/static/icons/file-text.svg'); }
+.ico-file-media { --ico-mask: url('/static/icons/file-media.svg'); }
+.ico-file-zip { --ico-mask: url('/static/icons/file-zip.svg'); }
+.ico-folder { --ico-mask: url('/static/icons/file-directory.svg'); }
+.ico-image { --ico-mask: url('/static/icons/image.svg'); }
+.ico-music { --ico-mask: url('/static/icons/music.svg'); }
+.ico-video { --ico-mask: url('/static/icons/video.svg'); }
+
+/* 内容 & 状态 */
+.ico-code { --ico-mask: url('/static/icons/code.svg'); }
+.ico-note { --ico-mask: url('/static/icons/note.svg'); }
+.ico-paste { --ico-mask: url('/static/icons/paste.svg'); }
+.ico-comment { --ico-mask: url('/static/icons/comment.svg'); }
+.ico-comment-discussion { --ico-mask: url('/static/icons/comment-discussion.svg'); }
+.ico-check { --ico-mask: url('/static/icons/check.svg'); }
+.ico-x { --ico-mask: url('/static/icons/x-circle.svg'); }
+.ico-x-circle { --ico-mask: url('/static/icons/x-circle.svg'); }
+.ico-alert { --ico-mask: url('/static/icons/alert.svg'); }
+.ico-plus { --ico-mask: url('/static/icons/plus.svg'); }
+.ico-dash { --ico-mask: url('/static/icons/dash.svg'); }
+.ico-dot { --ico-mask: url('/static/icons/dot-fill.svg'); }
+.ico-pause { --ico-mask: url('/static/icons/pause.svg'); }
+
+/* 人 & 交互 */
+.ico-person { --ico-mask: url('/static/icons/person.svg'); }
+.ico-eye { --ico-mask: url('/static/icons/eye.svg'); }
+.ico-eye-closed { --ico-mask: url('/static/icons/eye-closed.svg'); }
+.ico-heart { --ico-mask: url('/static/icons/heart.svg'); }
+
+/* 工具 & 杂项 */
+.ico-tools { --ico-mask: url('/static/icons/tools.svg'); }
+.ico-gear { --ico-mask: url('/static/icons/gear.svg'); }
+.ico-clock { --ico-mask: url('/static/icons/clock.svg'); }
+.ico-hourglass { --ico-mask: url('/static/icons/hourglass.svg'); }
+.ico-trash { --ico-mask: url('/static/icons/trash.svg'); }
+.ico-versions { --ico-mask: url('/static/icons/versions.svg'); }
+.ico-list-ordered { --ico-mask: url('/static/icons/list-ordered.svg'); }
+.ico-shield { --ico-mask: url('/static/icons/shield.svg'); }
+
+/* 发布 & 下载 */
+.ico-package { --ico-mask: url('/static/icons/package.svg'); }
+.ico-attachment { --ico-mask: url('/static/icons/attachment.svg'); }
+.ico-volume, .ico-speaker { --ico-mask: url('/static/icons/speaker.svg'); }
+
+/* 个性选择 */
+.ico-palette { --ico-mask: url('/static/icons/palette.svg'); }
+
+/* ═══════════════════════════════════════════════════
+   新增图标 (Feather Icons)
+   ═══════════════════════════════════════════════════ */
+
+/* 通知 & 提醒 */
+.ico-bell { --ico-mask: url('/static/icons/bell.svg'); }
+.ico-flag { --ico-mask: url('/static/icons/flag.svg'); }
+
+/* 文档 & 数据 */
+.ico-book { --ico-mask: url('/static/icons/book.svg'); }
+.ico-database { --ico-mask: url('/static/icons/database.svg'); }
+.ico-clipboard { --ico-mask: url('/static/icons/clipboard.svg'); }
+.ico-box { --ico-mask: url('/static/icons/box.svg'); }
+
+/* 日期 & 时间 */
+.ico-calendar { --ico-mask: url('/static/icons/calendar.svg'); }
+
+/* 导航 & 展开 */
+.ico-chevron-down { --ico-mask: url('/static/icons/chevron-down.svg'); }
+.ico-chevron-up { --ico-mask: url('/static/icons/chevron-up.svg'); }
+.ico-chevron-left { --ico-mask: url('/static/icons/chevron-left.svg'); }
+.ico-chevron-right { --ico-mask: url('/static/icons/chevron-right.svg'); }
+
+/* 云 & 部署 */
+.ico-cloud { --ico-mask: url('/static/icons/cloud.svg'); }
+
+/* 编辑 & 操作 */
+.ico-edit { --ico-mask: url('/static/icons/edit.svg'); }
+.ico-copy { --ico-mask: url('/static/icons/copy.svg'); }
+.ico-filter { --ico-mask: url('/static/icons/filter.svg'); }
+
+/* Git 扩展 */
+.ico-git-merge { --ico-mask: url('/static/icons/git-merge.svg'); }
+
+/* 信息 & 安全 */
+.ico-info { --ico-mask: url('/static/icons/info.svg'); }
+.ico-info-2 { --ico-mask: url('/static/icons/info-2.svg'); }
+.ico-key { --ico-mask: url('/static/icons/key.svg'); }
+.ico-lock { --ico-mask: url('/static/icons/lock.svg'); }
+.ico-unlock { --ico-mask: url('/static/icons/unlock.svg'); }
+
+/* 沟通 */
+.ico-mail { --ico-mask: url('/static/icons/mail.svg'); }
+.ico-users { --ico-mask: url('/static/icons/users.svg'); }
+
+/* 媒体 & 播放 */
+.ico-play { --ico-mask: url('/static/icons/play.svg'); }
+
+/* 终端 & 开发 */
+.ico-terminal { --ico-mask: url('/static/icons/terminal.svg'); }
+.ico-zap { --ico-mask: url('/static/icons/zap.svg'); }
+
+/* 评价 & 成就 */
+.ico-thumbs-up { --ico-mask: url('/static/icons/thumbs-up.svg'); }
+.ico-award { --ico-mask: url('/static/icons/award.svg'); }
+
+/* 统计 & 图表 */
+.ico-activity { --ico-mask: url('/static/icons/activity.svg'); }
+.ico-bar-chart { --ico-mask: url('/static/icons/bar-chart.svg'); }
+.ico-graph { --ico-mask: url('/static/icons/graph.svg'); }
+
+/* 其他 */
+.ico-layers { --ico-mask: url('/static/icons/layers.svg'); }
+.ico-life-buoy { --ico-mask: url('/static/icons/life-buoy.svg'); }
+.ico-refresh-cw { --ico-mask: url('/static/icons/refresh-cw.svg'); }
+
+/* ── 新增图标 v2 ── */
+.ico-settings { --ico-mask: url('/static/icons/settings.svg'); }
+.ico-menu { --ico-mask: url('/static/icons/menu.svg'); }
+.ico-grid { --ico-mask: url('/static/icons/grid.svg'); }
+.ico-list { --ico-mask: url('/static/icons/list.svg'); }
+.ico-maximize { --ico-mask: url('/static/icons/maximize.svg'); }
+.ico-minimize { --ico-mask: url('/static/icons/minimize.svg'); }
+.ico-rotate-ccw { --ico-mask: url('/static/icons/rotate-ccw.svg'); }
+.ico-camera { --ico-mask: url('/static/icons/camera.svg'); }
+.ico-mic { --ico-mask: url('/static/icons/mic.svg'); }
+.ico-slash { --ico-mask: url('/static/icons/slash.svg'); }
+.ico-cast { --ico-mask: url('/static/icons/cast.svg'); }
+.ico-server { --ico-mask: url('/static/icons/server.svg'); }
+.ico-cpu { --ico-mask: url('/static/icons/cpu.svg'); }
+.ico-hard-drive { --ico-mask: url('/static/icons/hard-drive.svg'); }
+.ico-inbox { --ico-mask: url('/static/icons/inbox.svg'); }
+.ico-sidebar { --ico-mask: url('/static/icons/sidebar.svg'); }
+.ico-target { --ico-mask: url('/static/icons/target.svg'); }
+.ico-compass { --ico-mask: url('/static/icons/compass.svg'); }
+.ico-map-pin { --ico-mask: url('/static/icons/map-pin.svg'); }
+.ico-wind { --ico-mask: url('/static/icons/wind.svg'); }
+.ico-droplet { --ico-mask: url('/static/icons/droplet.svg'); }
+.ico-sunrise { --ico-mask: url('/static/icons/sunrise.svg'); }
+.ico-sunset { --ico-mask: url('/static/icons/sunset.svg'); }
+.ico-coffee { --ico-mask: url('/static/icons/coffee.svg'); }
+.ico-cake { --ico-mask: url('/static/icons/cake.svg'); }
+.ico-gift { --ico-mask: url('/static/icons/gift.svg'); }
+.ico-github { --ico-mask: url('/static/icons/github.svg'); }
+.ico-twitter { --ico-mask: url('/static/icons/twitter.svg'); }
+
+/* ── 库存归档 v3 ──
+   以下 SVG 早已存在于 /static/icons 却未登记，无法通过 .ico 类使用。
+   按语义命名空间补充登记，避免重复造图；命名保持 ico-<语义> 单一前缀。 */
+
+/* 管理 & 权限 */
+.ico-admin { --ico-mask: url('/static/icons/admin.svg'); }
+
+/* 统计 & 分布 */
+.ico-distribution { --ico-mask: url('/static/icons/distribution.svg'); }
+
+/* 视觉 & 特效 */
+.ico-effect { --ico-mask: url('/static/icons/effect.svg'); }
+
+/* 文件类型扩展 */
+.ico-file-image { --ico-mask: url('/static/icons/file-image.svg'); }
+
+/* 开发 & 逻辑 */
+.ico-logic { --ico-mask: url('/static/icons/logic.svg'); }
+
+/* 空间 & 天体 */
+.ico-planet { --ico-mask: url('/static/icons/planet.svg'); }
+
+/* 监视 & 订阅 */
+.ico-watch { --ico-mask: url('/static/icons/watch.svg'); }
+
+/* 运维 & 告警 */
+.ico-refresh { --ico-mask: url('/static/icons/refresh.svg'); }
+.ico-alert-triangle { --ico-mask: url('/static/icons/alert-triangle.svg'); }
+.ico-alert-circle { --ico-mask: url('/static/icons/alert-circle.svg'); }
+
+/* 表单 & 可见性 */
+.ico-eye-off { --ico-mask: url('/static/icons/eye-off.svg'); }

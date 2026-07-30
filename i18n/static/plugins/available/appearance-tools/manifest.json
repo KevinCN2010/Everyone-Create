@@ -1,0 +1,19 @@
+{
+  "id": "appearance-tools",
+  "name": "appearance-tools",
+  "version": "1.0.0",
+  "title": "Appearance Tools",
+  "description": "Tone market, notifications, and appearance toolbox.",
+  "author": "GitAAP Team",
+  "team": "GitAAP",
+  "enabled": true,
+  "entry": "plugin.js",
+  "style": "plugin.css",
+  "assets": {
+    "css": ["plugin.css"],
+    "svg": [],
+    "js": ["plugin.js"]
+  },
+  "dependencies": [],
+  "tags": ["appearance", "tone", "toolbox"]
+}

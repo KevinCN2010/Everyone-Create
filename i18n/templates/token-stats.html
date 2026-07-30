@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% include '_theme_head.html' %}
+    <title data-i18n="stats-title">API 使用统计</title>
+    <link rel="stylesheet" href="/static/style.css?v={{ static_version }}">
+    <link rel="stylesheet" href="/static/themes/variables.css?v={{ static_version }}">
+    <link rel="stylesheet" href="/static/themes/animations.css?v={{ static_version }}">
+    <link rel="stylesheet" href="/static/themes/utilities.css?v={{ static_version }}">
+    <link rel="stylesheet" href="/static/themes/theme-light.css?v={{ static_version }}">
+    <link rel="stylesheet" href="/static/themes/icons.css?v={{ static_version }}">
+    <style>
+        /* 共享 API 额度看板 - 数据直取渲染样式 */
+        .quota-hero { text-align:center; padding:16px 12px 20px; border-bottom:1px solid var(--border); }
+        .quota-hero .q-rem { font-size:clamp(28px,5vw,48px); font-weight:780; letter-spacing:-.035em; margin:6px 0; }
+        .quota-hero .q-lbl { font-size:13px; color:var(--text-dim); margin-bottom:2px; }
+        .q-bar { height:12px; background:var(--bg); border:1px solid var(--border); border-radius:999px; margin:14px 0 8px; overflow:hidden; }
+        .q-bar .q-fill { height:100%; border-radius:inherit; background:linear-gradient(90deg,var(--green),var(--cyan)); transition:width .6s ease; }
+        .q-bar .q-fill.bad { background:linear-gradient(90deg,var(--orange),var(--red)); }
+        .q-row { display:flex; justify-content:space-between; font-size:12px; color:var(--text-dim); }
+        .q-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; padding:14px 12px; }
+        .q-grid .box { border:1px solid var(--border); border-radius:12px; padding:14px 12px; text-align:center; }
+        .q-grid .box .nm { font-size:clamp(16px,2.5vw,24px); font-weight:700; margin:6px 0 4px; font-variant-numeric:tabular-nums; }
+        .q-grid .box .nt { font-size:11px; color:var(--text-dim); word-break:break-all; }
+        .q-ft { padding:10px 14px; font-size:12px; color:var(--text-dim); border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+        .q-ft .dot { width:7px; height:7px; border-radius:50%; display:inline-block; margin-right:5px; }
+        .q-ft .dot.on { background:var(--green); box-shadow:0 0 8px var(--green); }
+        .q-ft .dot.off { background:var(--red); box-shadow:0 0 8px var(--red); }
+        .q-note { padding:10px 14px; font-size:12px; color:var(--text-dim); border-top:1px solid var(--border); line-height:1.6; }
+        .q-note b { color:var(--text); }
+        @media(max-width:500px){ .q-grid { grid-template-columns:1fr; } }
+
+        /* ── token-stats 页面专属布局 ── */
+        .ts-container { max-width:1100px; margin:0 auto; }
+        .ts-topbar { display:flex; align-items:center; gap:10px; }
+        .ts-topbar-title { font-size:1.1rem; font-weight:600; flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+        /* 图表区预留最小高度，避免加载完成后页面跳动 */
+        #chart-card .chart-bars-container { min-height:200px; }
+
+        /* 工具栏小屏优化 */
+        @media (max-width:640px) {
+            .stats-toolbar { flex-wrap:wrap; gap:8px; }
+            .stats-toolbar .auto-refresh-badge { order:0; }
+            .stats-toolbar .view-toggle-group { order:1; flex-basis:100%; justify-content:flex-start; }
+            .stats-toolbar > span:last-child { order:2; }
+            .ts-topbar { flex-wrap:wrap; }
+            .ts-topbar-title { flex-basis:100%; order:-1; }
+        }
+        @media (max-width:420px) {
+            .ts-topbar-title { font-size:1rem; }
+            #stats-overview.summary-grid { grid-template-columns:1fr 1fr; gap:8px; }
+        }
+    </style>
+</head>
+<body>
+    {% include '_js_fallback.html' %}
+
+    <main><div class="container ts-container">
+        <!-- 顶部控制栏 -->
+        <div class="card controls animate-in ts-topbar">
+            <a class="nav-button" href="/"><span aria-hidden="true" class="ico ico-arrow-left ico-gap"></span><span data-i18n="home">首页</span></a>
+            <span class="ts-topbar-title" data-i18n="stats-title">API 使用统计</span>
+            <button id="theme-toggle" class="btn-sm landing-icon-btn" onclick="toggleTheme()" data-i18n-title="theme-toggle" title="切换主题" data-i18n-aria-label="theme-toggle" aria-label="切换主题">
+                <span aria-hidden="true" class="ico ico-moon"></span>
+            </button>
+            <button id="drawer-toggle" class="btn-sm landing-icon-btn" onclick="toggleDrawer()" data-i18n-title="drawer-more-options" title="菜单" data-i18n-aria-label="drawer-more-options" aria-label="更多选项">
+                <span class="ham-icon"><span class="ham-i"></span><span class="ham-i"></span><span class="ham-i"></span></span>
+            </button>
+            <button id="quota-status-btn" class="btn-sm landing-icon-btn" onclick="openQuotaModal()" data-i18n-title="quota-status-title" title="共享 API 额度看板" data-i18n-aria-label="quota-status-title" aria-label="共享 API 额度看板">
+                <span aria-hidden="true" class="ico ico-cloud ico-cyan"></span>
+            </button>
+        </div>
+
+        <!-- 加载进度条（初始显示，加载完成后自动隐藏） -->
+        <div class="lazy-progress-bar card animate-in" id="lazy-progress">
+            <div class="lazy-progress-header">
+                <span class="lazy-progress-title"><span aria-hidden="true" class="ico ico-hourglass ico-gap"></span><span id="progress-label" data-i18n="stats-loading">数据加载中</span></span>
+                <span class="lazy-progress-pct" id="lazy-progress-pct">0%</span>
+            </div>
+            <div class="lazy-progress-track">
+                <div class="lazy-progress-fill" id="lazy-progress-fill" style="width:0%;"></div>
+            </div>
+            <div class="lazy-progress-steps" id="lazy-progress-steps">
+                <span class="lazy-step" data-step="0"><span class="lazy-step-dot"></span><span data-i18n="stats-overview">概览数据</span></span>
+                <span class="lazy-step" data-step="1"><span class="lazy-step-dot"></span><span data-i18n="stats-chart">负载图表</span></span>
+                <span class="lazy-step" data-step="2"><span class="lazy-step-dot"></span><span data-i18n="stats-table">详情表格</span></span>
+            </div>
+        </div>
+
+        <!-- 总体概览 -->
+        <div class="summary-grid" id="stats-overview">
+            <div class="card stat-card animate-in lazy-section" data-section="0">
+                <h3 data-i18n="stats-24h-requests">过去 24 小时请求</h3>
+                <p id="total-requests" style="color:var(--cyan,#79ffe1);" class="lazy-value">—</p>
+            </div>
+            <div class="card stat-card animate-in lazy-section" data-section="0">
+                <h3 data-i18n="stats-unique-ips">不同 IP 来源</h3>
+                <p id="total-ips" style="color:var(--cyan,#79ffe1);" class="lazy-value">—</p>
+            </div>
+            <div class="card stat-card animate-in lazy-section" data-section="0">
+                <h3><span data-i18n="stats-hourly-quota">每小时配额</span> <span class="info-badge" onclick="toggleTokenPopup('quota')" data-i18n-title="token-quota-title" title="查看各 Token 贡献明细"><span aria-hidden="true" class="ico ico-info-2" style="width:14px;height:14px;"></span></span></h3>
+                <p id="quota-limit" style="color:var(--cyan,#79ffe1);">5000/h</p>
+            </div>
+            <div class="card stat-card animate-in lazy-section" data-section="0" id="quota-card">
+                <h3><span data-i18n="stats-api-remaining">API 剩余配额</span> <span class="info-badge" onclick="toggleTokenPopup('remaining')" data-i18n-title="token-remaining-title" title="查看各 Token 使用详情"><span aria-hidden="true" class="ico ico-info-2" style="width:14px;height:14px;"></span></span></h3>
+                <p id="quota-remaining" style="color:var(--green,#3fb950);">—</p>
+                <div class="quota-bar-track">
+                    <div id="quota-fill" class="quota-bar-fill" style="width:0%;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 刷新状态栏 + 时间维度切换按钮 -->
+        <div class="stats-toolbar">
+            <div class="auto-refresh-badge">
+                <span class="dot"></span>
+                <span><span data-i18n="stats-auto-refresh">自动刷新</span> <span id="stats-countdown">30</span>s</span>
+            </div>
+            <div class="view-toggle-group" id="view-toggle-group">
+                <button class="view-toggle-btn" data-view="realtime" onclick="switchView('realtime')" data-i18n="stats-realtime">实时分钟</button>
+                <button class="view-toggle-btn active" data-view="24h" onclick="switchView('24h')" data-i18n="stats-24h">24小时</button>
+                <button class="view-toggle-btn" data-view="30d" onclick="switchView('30d')" data-i18n="stats-30d">30天</button>
+            </div>
+            <span style="font-size:0.8rem; color:var(--text-dim);"><span data-i18n="stats-last-update">最后更新:</span> <span id="stats-last-update">—</span></span>
+        </div>
+
+        <!-- 图表容器 -->
+        <div class="card animate-in lazy-section" data-section="1" id="chart-card">
+            <div class="chart-header">
+                <h3 id="chart-title"><span aria-hidden="true" class="ico ico-bar-chart ico-cyan ico-gap" style="width:18px;height:18px;"></span> <span data-i18n="stats-chart-24h">各时段负载</span></h3>
+                <span id="chart-subtitle" class="chart-subtitle" data-i18n="stats-subtitle-24h">近24小时逐小时数据</span>
+            </div>
+            <div style="margin-top:12px; position:relative;">
+                <!-- 加载过渡遮罩 -->
+                <div id="chart-transition" class="chart-transition" style="display:none;">
+                    <div class="chart-transition-inner">
+                        <div class="spinner"></div>
+                        <p id="chart-loading-text" style="margin-top:12px; color:var(--text-dim); font-size:0.9rem;" data-i18n="loading">加载中...</p>
+                        <div class="chart-progress-track">
+                            <div id="chart-progress-fill" class="chart-progress-fill" style="width:0%;"></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- 柱状图容器 -->
+                <div id="chart-bars-container" class="chart-bars-container">
+                    <div id="hourly-bars" class="hourly-grid">
+                        <div class="lazy-placeholder"><div class="spinner" style="width:24px;height:24px;border-width:3px;margin:0 auto;"></div><p style="margin-top:8px;color:var(--text-dim);font-size:0.85rem;" data-i18n="loading">等待加载...</p></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 详细列表 -->
+        <div class="card animate-in lazy-section" data-section="2" id="table-card">
+            <div class="chart-header">
+                <h3 id="table-title"><span aria-hidden="true" class="ico ico-clipboard ico-dim ico-gap" style="width:18px;height:18px;"></span> <span data-i18n="stats-table-24h">逐小时详情</span></h3>
+                <span id="table-subtitle" class="chart-subtitle" data-i18n="stats-subtitle-24h">近24小时明细</span>
+            </div>
+            <div style="margin-top:12px; overflow-x:auto;">
+                <table class="data-table" id="stats-table">
+                    <thead id="stats-thead">
+                        <tr><th data-i18n="stats-time">时段</th><th data-i18n="stats-requests">请求数</th><th data-i18n="stats-change">环比</th><th data-i18n="stats-ips">IP 数</th><th data-i18n="stats-load">负载</th></tr>
+                    </thead>
+                    <tbody id="stats-body">
+                        <tr><td colspan="5" style="text-align:center;color:var(--text-dim);">
+                            <div class="lazy-placeholder"><div class="spinner" style="width:20px;height:20px;border-width:2px;margin:0 auto;"></div><p style="margin-top:6px;font-size:0.85rem;" data-i18n="loading">等待加载...</p></div>
+                        </td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div></main>
+    <!-- Token 明细弹出层 -->
+    <div id="token-popup-overlay" class="popup-overlay" style="display:none;" onclick="closeTokenPopup()"></div>
+    <div id="token-popup" class="popup-card" style="display:none;">
+        <div class="popup-header">
+            <span id="token-popup-title" data-i18n="token-detail">Token 明细</span>
+            <span class="popup-close" onclick="closeTokenPopup()"><span aria-hidden="true" class="ico ico-x-circle" style="width:16px;height:16px;"></span></span>
+        </div>
+        <div id="token-popup-body" class="popup-body">
+            <p style="color:var(--text-dim);" data-i18n="loading">加载中...</p>
+        </div>
+    </div>
+
+    <!-- 共享 API 额度看板弹出层（数据直取渲染，iframe 被远程 CSP 阻止时降级） -->
+    <div id="quota-overlay" class="popup-overlay" style="display:none;" onclick="closeQuotaModal()"></div>
+    <div id="quota-modal" class="popup-card" style="display:none; width:min(640px,calc(100vw - 40px));">
+        <div class="popup-header">
+            <span><span aria-hidden="true" class="ico ico-cloud ico-cyan ico-gap"></span><span data-i18n="quota-status-title">共享 API 额度</span></span>
+            <span class="popup-close" onclick="closeQuotaModal()"><span aria-hidden="true" class="ico ico-x-circle" style="width:16px;height:16px;"></span></span>
+        </div>
+        <div class="popup-body" id="quota-body" style="max-height:60vh; overflow-y:auto;">
+            <div style="text-align:center; padding:40px 20px; color:var(--text-dim);">
+                <div class="spinner" style="margin:0 auto 16px;"></div>
+                <span data-i18n="loading">加载中...</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/function.js?v={{ static_version }}"></script>
+
+    <!-- 右侧滑出抽屉 -->
+    <div id="side-drawer" class="drawer-overlay" style="display:none;" onclick="if(event.target===this)closeDrawer()">
+        <div class="drawer-panel">
+            <div class="drawer-header">
+                <span class="drawer-title" data-i18n="menu">菜单</span>
+                <button class="drawer-close" onclick="closeDrawer()" data-i18n-title="close" aria-label="关闭菜单"><span aria-hidden="true" class="ico ico-x-circle" style="width:16px;height:16px;"></span></button>
+            </div>
+            <div class="drawer-body">
+                <!-- API 配额 -->
+                <div class="drawer-section">
+                    <div class="drawer-section-title" data-i18n="api-status">API 状态</div>
+                    <div style="padding:4px 0;">
+                        <span id="rate-limit-badge" class="rate-limit" data-i18n-title="stats-api-remaining" title="GitHub API 剩余配额" style="display:inline-flex;align-items:center;gap:4px;font-size:0.85rem;"><span aria-hidden="true" class="ico ico-hourglass ico-gap"></span>--</span>
+                    </div>
+                    <div id="drawer-token-status" style="padding:4px 0; font-size:0.82rem; color:var(--text-dim);">
+                        <span aria-hidden="true" class="ico ico-hourglass ico-dim ico-gap"></span><span data-i18n="loading">加载中...</span>
+                    </div>
+                    <label class="drawer-toggle-row" style="display:flex; align-items:center; gap:8px; margin-top:8px; padding:4px 0; cursor:pointer; font-size:0.85rem; color:var(--text-dim);">
+                        <input type="checkbox" id="cache-hint-toggle" onchange="toggleCacheHint()" style="accent-color:var(--cyan);">
+                        <span data-i18n="cache-hint">缓存命中提示</span>
+                    </label>
+
+                    <!-- 手动添加 Token -->
+                    <div style="margin-top:12px; padding-top:12px; border-top:1px solid var(--border);">
+                        <div style="font-size:0.82rem; font-weight:600; color:var(--text); margin-bottom:8px;"><span aria-hidden="true" class="ico ico-key ico-cyan ico-gap"></span><span data-i18n="add-token-title">添加 Token</span></div>
+                        <input id="manual-token-input" type="password" placeholder="ghp_xxx..." aria-label="GitHub Token" style="width:100%; padding:6px 10px; border-radius:6px; border:1px solid var(--border); background:var(--bg2); color:var(--text); font-size:0.82rem; outline:none; box-sizing:border-box; font-family:monospace; margin-bottom:6px;" data-i18n-placeholder="add-token-placeholder">
+                        <div style="display:flex; gap:6px;">
+                            <input id="manual-token-name" type="text" placeholder="名称（可选）" aria-label="Token 名称" style="flex:1; min-width:0; padding:6px 10px; border-radius:6px; border:1px solid var(--border); background:var(--bg2); color:var(--text); font-size:0.82rem; outline:none; box-sizing:border-box;" data-i18n-placeholder="add-token-name-placeholder">
+                            <button class="btn-sm" onclick="addManualToken()" style="white-space:nowrap; padding:6px 12px;"><span aria-hidden="true" class="ico ico-plus ico-gap" style="width:12px;height:12px;"></span><span data-i18n="add-token-btn">添加</span></button>
+                        </div>
+                        <div id="manual-token-status" style="margin-top:4px; font-size:0.75rem; color:var(--text-dim);"></div>
+                    </div>
+                </div>
+
+                <!-- 外观 -->
+                <div class="drawer-section">
+                    <div class="drawer-section-title" data-i18n="appearance">外观</div>
+                    <div class="drawer-theme-options">
+                        <button class="drawer-theme-btn" data-theme="dark" onclick="setTheme('dark')">
+                            <span aria-hidden="true" class="ico ico-moon ico-gap"></span><span data-i18n="dark">深色</span>
+                        </button>
+                        <button class="drawer-theme-btn" data-theme="light" onclick="setTheme('light')">
+                            <span aria-hidden="true" class="ico ico-sun ico-gap"></span><span data-i18n="light">浅色</span>
+                        </button>
+                        <button class="drawer-theme-btn" data-theme="system" onclick="setTheme('system')">
+                            <span aria-hidden="true" class="ico ico-gear ico-gap"></span><span data-i18n="system">跟随系统</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 个性选择：文本对齐 + 字体大小（可折叠，默认折叠） -->
+                <div class="drawer-section">
+                    <div class="drawer-section-title" onclick="toggleCollapse(this)" style="cursor:pointer; user-select:none;">
+                        <span aria-hidden="true" class="ico ico-tools ico-dim ico-gap"></span><span data-i18n="toolbox">工具箱</span>
+                        <span class="collapse-arrow" style="margin-left:auto; transition:transform 0.2s;"><span aria-hidden="true" class="ico ico-chevron-right" style="width:12px;height:12px;"></span></span>
+                    </div>
+                    <div class="collapse-content" style="display:none;">
+                        <!-- 文本对齐 -->
+                        <div style="margin-bottom:12px;">
+                            <div style="font-size:0.78rem; color:var(--text-dim); margin-bottom:6px;" data-i18n="text-align">文本对齐</div>
+                            <div class="drawer-theme-options" id="text-align-options">
+                                <button class="drawer-theme-btn align-btn" data-align="left" onclick="setTextAlign('left')"><span data-i18n="align-left">左</span></button>
+                                <button class="drawer-theme-btn align-btn active" data-align="center" onclick="setTextAlign('center')"><span data-i18n="align-center">中</span></button>
+                                <button class="drawer-theme-btn align-btn" data-align="right" onclick="setTextAlign('right')"><span data-i18n="align-right">右</span></button>
+                            </div>
+                        </div>
+                        <!-- 字体大小 -->
+                        <div>
+                            <div style="font-size:0.78rem; color:var(--text-dim); margin-bottom:6px;" data-i18n="font-size">字体大小</div>
+                            <div class="drawer-theme-options" id="font-size-options">
+                                <button class="drawer-theme-btn font-size-btn" data-size="small" onclick="setFontSize('small')"><span data-i18n="font-small">小</span></button>
+                                <button class="drawer-theme-btn font-size-btn active" data-size="medium" onclick="setFontSize('medium')"><span data-i18n="font-medium">中</span></button>
+                                <button class="drawer-theme-btn font-size-btn" data-size="large" onclick="setFontSize('large')"><span data-i18n="font-large">大</span></button>
+                                <button class="drawer-theme-btn font-size-btn" data-size="xlarge" onclick="setFontSize('xlarge')"><span data-i18n="font-xlarge">特大</span></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 语言 -->
+                <div class="drawer-section">
+                    <div class="drawer-section-title" data-i18n="language">语言</div>
+                    <div class="drawer-lang-options">
+                        <button class="drawer-lang-btn" data-lang="zh" onclick="setLang('zh')" data-i18n="language-zh">中文</button>
+                        <button class="drawer-lang-btn" data-lang="zh-Hant" onclick="setLang('zh-Hant')" data-i18n="language-zh-hant"><span aria-hidden="true" class="ico ico-globe ico-gap"></span>繁體中文</button>
+                        <button class="drawer-lang-btn" data-lang="en" onclick="setLang('en')" data-i18n="language-en">English</button>
+                    </div>
+                </div>
+
+                <!-- 链接 -->
+                <div class="drawer-section">
+                    <div class="drawer-section-title" data-i18n="links">链接</div>
+                    <a class="drawer-link" href="/">
+                        <span aria-hidden="true" class="ico ico-home ico-dim ico-gap"></span><span data-i18n="home">首页</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            var countdown = 30;
+            var el = document.getElementById('stats-countdown');
+            if (!el) return;
+            setInterval(function() {
+                countdown--;
+                if (countdown <= 0) countdown = 30;
+                el.textContent = countdown;
+            }, 1000);
+        })();
+
+        /* ── 共享 API 额度看板弹窗（数据直取渲染，绕过 iframe 被远程 CSP 阻止的问题）── */
+        function qFmt(n) {
+            n = Number(n || 0);
+            if (n >= 1e9) return (n/1e9).toFixed(2) + 'B';
+            if (n >= 1e6) return (n/1e6).toFixed(2) + 'M';
+            if (n >= 1e3) return (n/1e3).toFixed(1) + 'K';
+            return n.toLocaleString('zh-CN');
+        }
+        function qPct(used, limit) {
+            return limit ? Math.min(100, used / limit * 100) : 0;
+        }
+        function qTime(ts) {
+            if (!ts) return '—';
+            var d = new Date(ts * 1000);
+            return d.toLocaleString('zh-CN', {hour12: false});
+        }
+        function qCdn(ts) {
+            if (!ts) return '—';
+            var s = Math.max(0, Math.ceil(ts - Date.now()/1000));
+            var h = Math.floor(s / 3600);
+            var m = Math.floor(s % 3600 / 60);
+            var x = s % 60;
+            return (h ? String(h).padStart(2,'0')+':' : '') +
+                   String(m).padStart(2,'0') + ':' + String(x).padStart(2,'0');
+        }
+        function renderQuota(d) {
+            var p = qPct(d.used, d.limit);
+            var html = '<div class="quota-hero">' +
+                '<div class="q-lbl">' + (typeof t==='function'?t('quota-status-title'):'共享 API 额度') + '</div>' +
+                '<div class="q-rem">' + qFmt(d.remaining) + '</div>' +
+                '<div style="font-size:13px;color:var(--text-dim);">' + qFmt(d.limit) + ' 总限额</div>' +
+                '<div class="q-bar"><div class="q-fill' + (d.blocked?' bad':'') + '" style="width:' + p.toFixed(1) + '%"></div></div>' +
+                '<div class="q-row"><span>已使用 ' + qFmt(d.used) + '</span><span>' + p.toFixed(2) + '%</span></div>' +
+                '</div>';
+            var target = d.blocked ? d.recovery_at : d.next_release_at;
+            html += '<div class="q-grid">' +
+                '<div class="box"><div class="q-lbl">' + (d.blocked?'预计恢复可用':'下一批释放') + '</div><div class="nm">' + qCdn(target) + '</div><div class="nt">' + qTime(target) + '</div></div>' +
+                '<div class="box"><div class="q-lbl">无新增调用全部释放</div><div class="nm">' + qCdn(d.full_clear_at) + '</div><div class="nt">' + qTime(d.full_clear_at) + '</div></div>' +
+                '<div class="box"><div class="q-lbl">统计窗口</div><div class="nm">' + (d.window_seconds/3600).toFixed(0) + ' 小时</div><div class="nt">' + Number(d.usage_records).toLocaleString('zh-CN') + ' 条记录</div></div>' +
+                '</div>';
+            html += '<div class="q-ft"><span><span class="dot ' + (d.blocked?'off':'on') + '"></span>' + (d.blocked?'公共额度已用尽':'公共额度可用') + '</span><span id="q-updated">更新于 ' + new Date().toLocaleTimeString('zh-CN',{hour12:false}) + '</span></div>';
+            html += '<div class="q-note"><b>渠道豁免：</b>#4、#5、#6 OpenCode Zen 与 #7 Hai MiniMax 永久不限，不计入公共池。其他渠道共享滚动 3 小时额度。</div>';
+            document.getElementById('quota-body').innerHTML = html;
+        }
+        function openQuotaModal() {
+            var overlay = document.getElementById('quota-overlay');
+            var modal = document.getElementById('quota-modal');
+            if (!overlay || !modal) return;
+            overlay.style.display = 'block';
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            /* 走后端代理（绕过 CORS） */
+            fetch('/api/quota-status', {cache:'no-store'})
+                .then(function(r) {
+                    if (!r.ok) throw new Error(r.status);
+                    return r.json();
+                })
+                .then(function(d) {
+                    renderQuota(d);
+                    /* 每 5 秒自动刷新 */
+                    if (window._qTimer) clearInterval(window._qTimer);
+                    window._qTimer = setInterval(function() {
+                        fetch('/api/quota-status', {cache:'no-store'})
+                            .then(function(r2) { if (r2.ok) return r2.json(); })
+                            .then(function(d2) { if (d2) renderQuota(d2); })
+                            .catch(function(){});
+                    }, 5000);
+                })
+                .catch(function() {
+                    document.getElementById('quota-body').innerHTML =
+                        '<div style="text-align:center;padding:40px 20px;color:var(--text-dim);">' +
+                        '<span class="ico ico-alert-triangle ico-orange" style="width:32px;height:32px;display:block;margin:0 auto 12px;"></span>' +
+                        '数据暂时无法获取</div>';
+                });
+        }
+        function closeQuotaModal() {
+            var overlay = document.getElementById('quota-overlay');
+            var modal = document.getElementById('quota-modal');
+            if (overlay) overlay.style.display = 'none';
+            if (modal) modal.style.display = 'none';
+            document.body.style.overflow = '';
+            if (window._qTimer) { clearInterval(window._qTimer); window._qTimer = null; }
+        }
+        /* 键盘 ESC 关闭 */
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeQuotaModal();
+        });
+    </script>
+</body>
+</html>

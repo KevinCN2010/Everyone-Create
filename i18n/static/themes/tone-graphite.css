@@ -1,0 +1,63 @@
+/* 色调主题：石墨灰 (Graphite Grey)
+   中性无彩底色 + 克制的青灰强调，适合长时间阅读。
+   dark 块与 light 块必须声明同一组变量名，避免亮色模式被 dark 值压制。 */
+
+:root[data-tone="graphite"] {
+  --bg: #101214;
+  --bg2: #191c1f;
+  --bg3: rgba(25, 28, 31, 0.96);
+  --text: #ccd2d8;
+  --text-dim: #8a929a;
+  --text-bright: #ffffff;
+  --border: #2c3238;
+  --border-light: rgba(150, 160, 170, 0.18);
+  --card-bg: #191c1f;
+  --border-hover: #8a929a;
+  --accent: #5f7d8c;
+  --accent-hover: #4d6874;
+  --accent-glow: rgba(95, 125, 140, 0.16);
+  --cyan: #9fb3bd;
+  --blue: #7aa7c7;
+  --blue-bg: #131c22;
+  --purple: #9a8fb0;
+  --green: #6faa7d;
+  --green-bg: #14201a;
+  --orange: #c89060;
+  --red: #d0736b;
+  --red-bg: #241414;
+  --yellow: #c2a44e;
+  --color-clones: #9fb3bd;
+  --color-unique-clones: #c0ccd4;
+  --color-views: #7aa7c7;
+  --color-unique-views: #a2c2d8;
+}
+
+:root[data-theme="light"][data-tone="graphite"] {
+  --bg: #ffffff;
+  --bg2: #f2f4f6;
+  --bg3: rgba(255, 255, 255, 0.96);
+  --text: #23282d;
+  --text-dim: #626a72;
+  --text-bright: #171b1f;
+  --border: #d3d9de;
+  --border-light: rgba(35, 40, 45, 0.15);
+  --card-bg: #f2f4f6;
+  --border-hover: #5f7d8c;
+  --accent: #4d6874;
+  --accent-hover: #3c545e;
+  --accent-glow: rgba(77, 104, 116, 0.1);
+  --cyan: #3f6673;
+  --blue: #2c5f80;
+  --blue-bg: #e6eff5;
+  --purple: #6b5f80;
+  --green: #2f7a45;
+  --green-bg: #e3f2e7;
+  --orange: #8a5e2a;
+  --red: #b23b34;
+  --red-bg: #fbeae9;
+  --yellow: #7d6420;
+  --color-clones: #4d6874;
+  --color-unique-clones: #7593a1;
+  --color-views: #2c5f80;
+  --color-unique-views: #5a86a3;
+}

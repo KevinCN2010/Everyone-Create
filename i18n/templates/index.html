@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        {% include '_theme_head.html' %}
+        <title data-i18n="page-title-index">GitHub 镜像状态</title>
+        <link rel="stylesheet" href="/static/style.css?v={{ static_version }}">
+        <link rel="stylesheet" href="/static/themes/variables.css?v={{ static_version }}">
+        <link rel="stylesheet" href="/static/themes/animations.css?v={{ static_version }}">
+        <link rel="stylesheet" href="/static/themes/utilities.css?v={{ static_version }}">
+        <link rel="stylesheet" href="/static/themes/theme-light.css?v={{ static_version }}">
+        <link rel="stylesheet" href="/static/themes/icons.css?v={{ static_version }}">
+    </head>
+    <body>
+    {% include '_js_fallback.html' %}
+
+        <main><div class="container">
+            {% set live_repos = repo_summaries | rejectattr('error') | list %}
+
+            <!-- ── 开场页顶栏：品牌 + 操作按钮 ── -->
+            <header class="landing-topbar animate-in">
+                <span class="landing-brand">
+                    <span aria-hidden="true" class="ico ico-graph ico-cyan landing-brand-icon"></span>
+                    <span class="landing-brand-name">GitAAP</span>
+                </span>
+                <span class="landing-topbar-actions">
+                    <button id="theme-toggle" class="btn-sm landing-icon-btn" onclick="toggleTheme()" data-i18n-title="theme-toggle" title="切换主题" data-i18n-aria-label="theme-toggle" aria-label="切换主题">
+                        <span aria-hidden="true" class="ico ico-moon"></span>
+                    </button>
+                    <button id="drawer-toggle" class="btn-sm landing-icon-btn" onclick="toggleDrawer()" data-i18n-title="menu" title="菜单" data-i18n-aria-label="drawer-more-options" aria-label="更多选项">
+                        <span class="ham-icon"><span class="ham-i"></span><span class="ham-i"></span><span class="ham-i"></span></span>
+                    </button>
+                </span>
+            </header>
+
+            <!-- ── Hero：项目定位 ── -->
+            <section class="card landing-hero animate-in">
+                <h1 class="landing-title" data-i18n="landing-tagline">GitHub 仓库流量与信息看板</h1>
+                <p class="landing-desc" data-i18n="landing-desc">GitAAP 持续采集 GitHub 仓库的流量、发布与协作数据，把分散在多个页面的信息汇总成一处可读的看板。</p>
+                <div class="landing-actions">
+                    {% if repo_summaries %}
+                    <a class="landing-btn landing-btn-primary" href="/repos">
+                        <span aria-hidden="true" class="ico ico-repo ico-gap"></span><span data-i18n="landing-cta-repos">浏览仓库列表</span>
+                    </a>
+                    {% endif %}
+                    <a class="landing-btn landing-btn-ghost" href="/docs">
+                        <span aria-hidden="true" class="ico ico-book ico-gap"></span><span data-i18n="landing-cta-docs">开发者文档</span>
+                    </a>
+                </div>
+            </section>
+
+            <!-- ── 监控概况 ── -->
+            {% if live_repos %}
+            <section class="card landing-section animate-in">
+                <h2 class="landing-section-title" data-i18n="landing-overview-title">监控概况</h2>
+                <div class="landing-stats">
+                    <div class="landing-stat">
+                        <span class="landing-stat-value">{{ live_repos | length }}</span>
+                        <span class="landing-stat-label"><span aria-hidden="true" class="ico ico-repo ico-dim ico-sm ico-gap"></span><span data-i18n="landing-stat-repos">监控仓库</span></span>
+                    </div>
+                    <div class="landing-stat">
+                        <span class="landing-stat-value">{{ live_repos | sum(attribute='stars') }}</span>
+                        <span class="landing-stat-label"><span aria-hidden="true" class="ico ico-star ico-yellow ico-sm ico-gap"></span><span data-i18n="landing-stat-stars">累计星标</span></span>
+                    </div>
+                    <div class="landing-stat">
+                        <span class="landing-stat-value">{{ live_repos | sum(attribute='forks') }}</span>
+                        <span class="landing-stat-label"><span aria-hidden="true" class="ico ico-git-branch ico-blue ico-sm ico-gap"></span><span data-i18n="landing-stat-forks">累计复刻</span></span>
+                    </div>
+                </div>
+            </section>
+            {% endif %}
+
+            <!-- ── 核心功能 ── -->
+            <section class="card landing-section animate-in">
+                <h2 class="landing-section-title" data-i18n="landing-features-title">核心功能</h2>
+                <div class="landing-features">
+                    <article class="feature-card">
+                        <span aria-hidden="true" class="ico ico-graph ico-cyan feature-icon"></span>
+                        <h3 class="feature-title" data-i18n="feature-traffic-title">流量趋势</h3>
+                        <p class="feature-desc" data-i18n="feature-traffic-desc">按日采集访问量与克隆量并保留历史曲线，弥补 GitHub 仅保留 14 天数据的限制。</p>
+                    </article>
+                    <article class="feature-card">
+                        <span aria-hidden="true" class="ico ico-repo ico-blue feature-icon"></span>
+                        <h3 class="feature-title" data-i18n="feature-browse-title">仓库深度浏览</h3>
+                        <p class="feature-desc" data-i18n="feature-browse-desc">提交、Issue、Pull Request、发布与源码目录，无需跳转 GitHub 即可查阅详情。</p>
+                    </article>
+                    <article class="feature-card">
+                        <span aria-hidden="true" class="ico ico-key ico-yellow feature-icon"></span>
+                        <h3 class="feature-title" data-i18n="feature-token-title">多 Token 调度</h3>
+                        <p class="feature-desc" data-i18n="feature-token-desc">按剩余配额自动选择 Token，耗尽时自动切换，并提供实时用量统计。</p>
+                    </article>
+                    <article class="feature-card">
+                        <span aria-hidden="true" class="ico ico-activity ico-green feature-icon"></span>
+                        <h3 class="feature-title" data-i18n="feature-predict-title">趋势预测</h3>
+                        <p class="feature-desc" data-i18n="feature-predict-desc">基于历史流量数据训练模型，预测未来的访问与克隆走势。</p>
+                    </article>
+                    <article class="feature-card">
+                        <span aria-hidden="true" class="ico ico-box ico-purple feature-icon"></span>
+                        <h3 class="feature-title" data-i18n="feature-plugin-title">插件系统</h3>
+                        <p class="feature-desc" data-i18n="feature-plugin-desc">功能以插件形式按需启用，可按仓库限定作用域，互不干扰。</p>
+                    </article>
+                    <article class="feature-card">
+                        <span aria-hidden="true" class="ico ico-globe ico-pink feature-icon"></span>
+                        <h3 class="feature-title" data-i18n="feature-i18n-title">多语言与主题</h3>
+                        <p class="feature-desc" data-i18n="feature-i18n-desc">简体中文、繁體中文与英文三语切换，深浅色主题与多种配色可选。</p>
+                    </article>
+                </div>
+            </section>
+
+            <!-- ── 快速进入：紧凑入口，完整列表在抽屉内 ── -->
+            {% if live_repos %}
+            <section class="card landing-section animate-in">
+                <h2 class="landing-section-title" data-i18n="landing-repos-title">快速进入</h2>
+                <div class="landing-repo-chips">
+                    {% for summary in live_repos %}
+                    <a class="landing-repo-chip" href="/repo?repo={{ summary.repo }}" title="{{ summary.repo }}">
+                        <span class="landing-chip-name">{{ summary.repo }}</span>
+                        <span class="landing-chip-stat">
+                            <span aria-hidden="true" class="ico ico-star ico-yellow"></span>{{ summary.stars }}
+                        </span>
+                        {% if summary.archived %}
+                        <span class="badge landing-chip-badge" data-i18n="archived-short">归档</span>
+                        {% endif %}
+                    </a>
+                    {% endfor %}
+                </div>
+                <p class="landing-repos-hint">
+                    <a class="landing-repos-link" href="/repos" data-i18n="landing-repos-hint-link">查看完整仓库列表，支持搜索、语言筛选与多维度排序</a>
+                </p>
+            </section>
+            {% else %}
+            <section class="card landing-section landing-empty animate-in">
+                <p class="landing-empty-title" data-i18n="no-repos-configured">未配置监控仓库</p>
+                <p class="landing-empty-hint" data-i18n="set-repos-env">请设置 REPOS 环境变量</p>
+            </section>
+            {% endif %}
+        </div></main>
+        <script>
+            // 动画：IntersectionObserver 渐入
+            document.addEventListener('DOMContentLoaded', () => {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.1 });
+                document.querySelectorAll('.animate-in').forEach(el => observer.observe(el));
+            });
+        </script>
+
+        <!-- 右侧滑出抽屉（手机端） -->
+        <div id="side-drawer" class="drawer-overlay" style="display:none;" onclick="if(event.target===this)closeDrawer()">
+            <div class="drawer-panel">
+                <div class="drawer-header">
+                    <span class="drawer-title" data-i18n="menu">菜单</span>
+                    <button class="drawer-close" onclick="closeDrawer()" data-i18n-title="close" aria-label="关闭菜单"><span aria-hidden="true" class="ico ico-x-circle" style="width:16px;height:16px;"></span></button>
+                </div>
+                <div class="drawer-body">
+                    <!-- 分组一：仓库 -->
+                    <div class="drawer-group">
+                        <div class="drawer-group-label"><span aria-hidden="true" class="ico ico-repo ico-dim ico-sm"></span><span data-i18n="drawer-group-repo">仓库</span></div>
+                        <div class="drawer-card">
+                    <!-- 仓库统计 -->
+                    <div class="drawer-section">
+                        <div class="drawer-section-title" data-i18n="repo-overview">仓库概览</div>
+                        <!-- 搜索框 -->
+                        <div style="position:relative; margin-bottom:8px;">
+                            <input id="repo-search-input" type="text" data-i18n-placeholder="search-placeholder" placeholder="搜索作者或仓库..." oninput="filterDrawerRepos()"
+                                style="width:100%; padding:6px 10px 6px 28px; border-radius:6px; border:1px solid var(--border); background:var(--bg2); color:var(--text); font-size:0.82rem; outline:none; box-sizing:border-box;">
+                            <span aria-hidden="true" class="ico ico-search" style="position:absolute; left:6px; top:50%; transform:translateY(-50%); opacity:0.5; width:16px; height:16px;"></span>
+                        </div>
+                        <!-- 作者过滤标签 -->
+                        <div id="author-filter-chips" style="display:flex; gap:4px; flex-wrap:wrap; margin-bottom:8px;"></div>
+                        <!-- 仓库列表 -->
+                        <div class="drawer-stats-grid" id="drawer-repo-list">
+                            {% for summary in repo_summaries %}
+                            {% set parts = summary.repo.split('/') %}
+                            {% set author = parts[0] %}
+                            {% set repo_name = parts[1] if parts|length > 1 else summary.repo %}
+                            <div class="drawer-repo-item" data-author="{{ author }}" data-repo="{{ repo_name }}" style="padding:10px 0; border-bottom:1px solid var(--border);">
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                                    <a class="repo-link" href="/repo?repo={{ summary.repo }}" style="font-size:0.9rem; padding:0;">
+                                        <span style="color:var(--text-dim); font-weight:400;">{{ author }}</span><span style="color:var(--text-dim); margin:0 2px;">/</span><span style="color:var(--text); font-weight:500;">{{ repo_name }}</span>
+                                    </a>
+                                    {% if summary.archived %}<span class="badge" style="background:var(--orange);font-size:0.65rem;padding:1px 6px;" data-i18n="archived-short">归档</span>{% endif %}
+                                </div>
+                                <div style="display:flex; gap:8px; flex-wrap:wrap; font-size:0.78rem; color:var(--text-dim);">
+                                    <span><span aria-hidden="true" class="ico ico-star ico-yellow ico-sm"></span> {{ summary.stars }}</span>
+                                    <span><span aria-hidden="true" class="ico ico-git-branch ico-blue ico-sm"></span> {{ summary.forks }}</span>
+                                    <span><span aria-hidden="true" class="ico ico-issue ico-green ico-sm"></span> {{ summary.open_issues }}</span>
+                                    <span><span aria-hidden="true" class="ico ico-eye ico-purple ico-sm"></span> {{ summary.watchers }}</span>
+                                    <span><span aria-hidden="true" class="ico ico-git-branch ico-dim ico-sm"></span> {{ summary.default_branch }}</span>
+                                </div>
+                                {% if summary.latest_release %}
+                                <div style="margin-top:4px; font-size:0.75rem; color:var(--cyan);">
+                                    <span aria-hidden="true" class="ico ico-package ico-cyan ico-sm"></span> {{ summary.latest_release.name or summary.latest_release.tag }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                        </div>
+                    </div>
+
+                    <!-- 分组二：个性化（外观 + 工具箱 + 语言） -->
+                    <div class="drawer-group">
+                        <div class="drawer-group-label"><span aria-hidden="true" class="ico ico-palette ico-dim ico-sm"></span><span data-i18n="drawer-group-personalize">个性化</span></div>
+                        <div class="drawer-card">
+                    <!-- 外观 -->
+                    <div class="drawer-section">
+                        <div class="drawer-section-title" data-i18n="appearance">外观</div>
+                        <div class="drawer-theme-options">
+                            <button class="drawer-theme-btn" data-theme="dark" onclick="setTheme('dark')">
+                                <span aria-hidden="true" class="ico ico-moon ico-gap"></span><span data-i18n="dark">深色</span>
+                            </button>
+                            <button class="drawer-theme-btn" data-theme="light" onclick="setTheme('light')">
+                                <span aria-hidden="true" class="ico ico-sun ico-gap"></span><span data-i18n="light">浅色</span>
+                            </button>
+                            <button class="drawer-theme-btn" data-theme="system" onclick="setTheme('system')">
+                                <span aria-hidden="true" class="ico ico-gear ico-gap"></span><span data-i18n="system">跟随系统</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 个性选择：字体大小 + 文本对齐（可折叠，默认折叠） -->
+                    <div class="drawer-section">
+                        <div class="drawer-section-title" onclick="toggleCollapse(this)" style="cursor:pointer; user-select:none;">
+                            <span aria-hidden="true" class="ico ico-tools ico-dim ico-gap"></span><span data-i18n="toolbox">工具箱</span>
+                            <span class="collapse-arrow" style="margin-left:auto; transition:transform 0.2s;"><span aria-hidden="true" class="ico ico-chevron-right" style="width:12px;height:12px;"></span></span>
+                        </div>
+                        <div class="collapse-content" style="display:none;">
+                            <!-- 文本对齐 -->
+                            <div style="margin-bottom:12px;">
+                                <div style="font-size:0.78rem; color:var(--text-dim); margin-bottom:6px;" data-i18n="text-align">文本对齐</div>
+                                <div class="drawer-theme-options" id="text-align-options">
+                                    <button class="drawer-theme-btn align-btn" data-align="left" onclick="setTextAlign('left')"><span data-i18n="align-left">左</span></button>
+                                    <button class="drawer-theme-btn align-btn active" data-align="center" onclick="setTextAlign('center')"><span data-i18n="align-center">中</span></button>
+                                    <button class="drawer-theme-btn align-btn" data-align="right" onclick="setTextAlign('right')"><span data-i18n="align-right">右</span></button>
+                                </div>
+                            </div>
+                            <!-- 字体大小 -->
+                            <div>
+                                <div style="font-size:0.78rem; color:var(--text-dim); margin-bottom:6px;" data-i18n="font-size">字体大小</div>
+                                <div class="drawer-theme-options" id="font-size-options">
+                                    <button class="drawer-theme-btn font-size-btn" data-size="small" onclick="setFontSize('small')"><span data-i18n="font-small">小</span></button>
+                                    <button class="drawer-theme-btn font-size-btn active" data-size="medium" onclick="setFontSize('medium')"><span data-i18n="font-medium">中</span></button>
+                                    <button class="drawer-theme-btn font-size-btn" data-size="large" onclick="setFontSize('large')"><span data-i18n="font-large">大</span></button>
+                                    <button class="drawer-theme-btn font-size-btn" data-size="xlarge" onclick="setFontSize('xlarge')"><span data-i18n="font-xlarge">特大</span></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 语言 -->
+                    <div class="drawer-section">
+                        <div class="drawer-section-title" data-i18n="language">语言</div>
+                        <div class="drawer-lang-options">
+                            <button class="drawer-lang-btn" data-lang="zh" onclick="setLang('zh')" data-i18n="language-zh">中文</button>
+                            <button class="drawer-lang-btn" data-lang="zh-Hant" onclick="setLang('zh-Hant')" data-i18n="language-zh-hant"><span aria-hidden="true" class="ico ico-globe ico-gap"></span>繁體中文</button>
+                            <button class="drawer-lang-btn" data-lang="en" onclick="setLang('en')" data-i18n="language-en">English</button>
+                        </div>
+                    </div>
+                        </div>
+                    </div>
+
+                    <!-- 分组三：系统（API 状态 + 插件） -->
+                    <div class="drawer-group">
+                        <div class="drawer-group-label"><span aria-hidden="true" class="ico ico-server ico-dim ico-sm"></span><span data-i18n="drawer-group-system">系统</span></div>
+                        <div class="drawer-card">
+                    <!-- API 状态 -->
+                    <div class="drawer-section">
+                        <div class="drawer-section-title" data-i18n="api-status">API 状态</div>
+                        <div id="drawer-token-status" style="padding:8px 4px; font-size:0.85rem; color:var(--text-dim);">
+                            <span aria-hidden="true" class="ico ico-hourglass ico-dim ico-gap"></span><span data-i18n="loading">加载中...</span>
+                        </div>
+                        <a class="drawer-link" href="/token-stats-page" style="margin-top:4px;">
+                            <span aria-hidden="true" class="ico ico-graph ico-dim ico-gap"></span><span data-i18n="detail-stats">详细统计</span>
+                        </a>
+                        <!-- 缓存命中提示开关 -->
+                        <label class="drawer-toggle-row" style="display:flex; align-items:center; gap:8px; margin-top:8px; padding:8px 4px; cursor:pointer; font-size:0.85rem; color:var(--text-dim);">
+                            <input type="checkbox" id="cache-hint-toggle" onchange="toggleCacheHint()" style="accent-color:var(--cyan);">
+                            <span data-i18n="cache-hint">缓存命中提示</span>
+                        </label>
+                    </div>
+
+                    <!-- 开发者文档 -->
+                    <div class="drawer-section">
+                        <div class="drawer-section-title" style="cursor:pointer;">
+                            <span aria-hidden="true" class="ico ico-code ico-dim ico-gap" style="width:16px;height:16px;"></span>开发者
+                        </div>
+                        <a class="drawer-link" href="/docs" style="margin-top:4px;">
+                            <span aria-hidden="true" class="ico ico-book ico-dim ico-gap"></span>开发者文档
+                        </a>
+                    </div>
+
+                    <!-- 插件管理 -->
+                    <div class="drawer-section">
+                        <div class="drawer-section-title" style="cursor:pointer;">
+                            <span aria-hidden="true" class="ico ico-box ico-dim ico-gap" style="width:16px;height:16px;"></span>插件
+                        </div>
+                        <div id="drawer-plugin-status" style="padding:4px 0; font-size:0.82rem; color:var(--text-dim);">
+                            <span aria-hidden="true" class="ico ico-hourglass ico-dim ico-gap"></span><span data-i18n="plugins-loading">加载中...</span>
+                        </div>
+                        <a class="drawer-link" href="/plugins" style="margin-top:4px;">
+                            <span aria-hidden="true" class="ico ico-settings ico-dim ico-gap"></span>插件管理
+                        </a>
+                    </div>
+                        </div>
+                    </div>
+
+                    <!-- 分组四：安全与管理 -->
+                    <div class="drawer-group">
+                        <div class="drawer-group-label"><span aria-hidden="true" class="ico ico-shield ico-dim ico-sm"></span><span data-i18n="drawer-group-security">安全与管理</span></div>
+                        <div class="drawer-card">
+                    <!-- 管理员 -->
+                    <div class="drawer-section">
+                        <div class="drawer-section-title" style="cursor:pointer;">
+                            <span aria-hidden="true" class="ico ico-shield ico-dim ico-gap" style="width:16px;height:16px;"></span>管理
+                        </div>
+                        <a class="drawer-link" href="/admin" style="margin-top:4px;">
+                            <span aria-hidden="true" class="ico ico-person ico-dim ico-gap"></span>管理员登录
+                        </a>
+                    </div>
+
+                    <!-- 验证码验证 -->
+                    <div class="drawer-section" id="tac-section">
+                        <div class="drawer-section-title" style="cursor:pointer;">
+                            <span aria-hidden="true" class="ico ico-shield ico-dim ico-gap" style="width:16px;height:16px;"></span>人机验证
+                        </div>
+                        <div style="padding:4px 0; font-size:0.82rem; color:var(--text-dim);">
+                            <div id="captcha-box" style="min-height:60px;"></div>
+                            <div id="tac-status" style="margin-top:6px; font-size:0.78rem;"></div>
+                        </div>
+                    </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <script src="/static/function.js?v={{ static_version }}"></script>
+    <script>
+    // ── 后台预加载仓库详情数据，加速页面跳转 ──
+    (function() {
+        // 收集所有仓库名
+        var repos = [
+            {% for summary in repo_summaries %}
+            "{{ summary.repo }}"{% if not loop.last %},{% endif %}
+            {% endfor %}
+        ];
+        if (!repos.length) return;
+
+        // 页面空闲时按序预加载，每个仓库间隔 300ms 避免并发风暴
+        var startPrefetch = function() {
+            fetch('/rate-limit').catch(function(){});
+
+            var idx = 0;
+            var prefetchNext = function() {
+                if (idx >= repos.length) return;
+                var repo = repos[idx++];
+                var encoded = encodeURIComponent(repo);
+                fetch('/repo-info?repo=' + encoded).catch(function(){});
+                fetch('/releases?repo=' + encoded + '&limit=10&page=1').catch(function(){});
+                fetch('/repo-languages?repo=' + encoded).catch(function(){});
+                fetch('/file-content?repo=' + encoded + '&path=README.md').catch(function(){});
+                setTimeout(prefetchNext, 300);
+            };
+            setTimeout(prefetchNext, 500);
+        };
+
+        // 使用 requestIdleCallback（兼容回退到 setTimeout）
+        if (window.requestIdleCallback) {
+            requestIdleCallback(startPrefetch, { timeout: 3000 });
+        } else {
+            setTimeout(startPrefetch, 1500);
+        }
+    })();
+    </script>
+    </body>
+</html>
