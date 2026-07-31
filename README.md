@@ -12,6 +12,7 @@
 | <img src="assets/readme-svg/book.svg" width="16" height="16" alt=""> | [**GitAAP 简体中文**](docs/README.zh-CN.md) | 项目介绍、部署指南、开发文档 |
 | <img src="assets/readme-svg/flag-en.svg" width="16" height="16" alt=""> | [**GitAAP English**](docs/README.en.md) | Introduction, Deployment, Development |
 | <img src="assets/readme-svg/flag-zhtw.svg" width="16" height="16" alt=""> | [**GitAAP 繁體中文**](docs/README.zh-TW.md) | 專案介紹、部署指南、開發文檔 |
+| <img src="assets/readme-svg/book.svg" width="16" height="16" alt=""> | [**社区 FAQ**](https://github.com/KevinCN2010/Everyone-Create/blob/community-docs/docs/faqs/FAQ.MD) | 使用、安装、权限、资源下载等常见问题(存放于 `community-docs` 分支) |
 
 ---
 
@@ -22,7 +23,7 @@ Everyone Create 是一个开放的共创社区，汇聚社区成员的智慧，�
 ### 核心定位
 
 - **资源分发** — 部分原创资源在此公开发布
-- **文档协作** — 通过 [官网](https://www.eocc.top) 或提供文档 Git 流工作
+- **文档协作** — 通过 [官网](https://www.eocc.top) 提供文档 Git 流工作
 - **共创审校** — 开放部分文档区域供社区成员共同审校与修改
 
 ---
@@ -39,7 +40,7 @@ Everyone Create 是一个开放的共创社区，汇聚社区成员的智慧，�
 
 ---
 
-## 🤝 如何参与
+## 🤝 参与贡献
 
 ### 提交建议
 
@@ -58,6 +59,10 @@ Everyone Create 是一个开放的共创社区，汇聚社区成员的智慧，�
 
 > 当前暂不支持自动拉取，审核通过后我们会尽快合并。
 
+### 完善 FAQ
+
+FAQ 文档维护在 `community-docs` 分支的 [docs/faqs/FAQ.MD](https://github.com/KevinCN2010/Everyone-Create/blob/community-docs/docs/faqs/FAQ.MD)，欢迎直接提交修改。
+
 ### 贡献者
 
 我们珍惜每一位开发者的付出。所有对整个项目做出贡献的朋友均会在 [贡献名单](https://www.eocc.top/marker/) 永久留名。
@@ -66,23 +71,17 @@ Everyone Create 是一个开放的共创社区，汇聚社区成员的智慧，�
 
 ---
 
-## 📄 参与方式
-
-本项目目前开源的内容以 **Markdown 文档** 为主。
-
-你可以：
-- 直接提问
-- 帮忙解答问题
-- 完善 FAQ 内容
-
-不想提 PR 也完全可以——直接发 **Issue**（带上 `question` 标签）或在任意聊天群/频道 @对应管理员 即可。
-
----
-
 ## 📜 许可证
 
-MIT © Everyone Create
+本项目按板块采用双许可证：
 
-```
+| 板块 | 许可证 |
+|------|--------|
+| 文档与资源(README、docs/ 等) | [MIT](LICENSE) |
+| 代码(GitAAP 项目等) | [GPL-3.0](LICENSE-GPL-3.0) |
+
+**MIT(文档与资源)**
 可自由使用、修改、分发，但必须标注原作者及来源。
-```
+
+**GPL-3.0(代码)**
+详情见 [LICENSE-GPL-3.0](LICENSE-GPL-3.0) 全文。

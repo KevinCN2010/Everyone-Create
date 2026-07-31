@@ -112,4 +112,4 @@ ruff format .
 
 ## <img src="../assets/readme-svg/page.svg" width="18" height="18" alt=""> 許可證
 
-[Apache 2.0](LICENSE) © KevinCN2010
+[GPL-3.0](../../LICENSE-GPL-3.0) © KevinCN2010
