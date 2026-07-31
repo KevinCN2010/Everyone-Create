@@ -7,8 +7,8 @@
 ## 📁 目录结构
 
 ```
-gitaap/
-├── backend/                        # Python 后端模块
+modules/gitaap/                  # GitAAP 模块(仓库内多模块结构之一)
+├── backend/                     # Python 后端模块
 │   ├── app.py                      #   启动检查器（编译检测 + 错误隔离）
 │   ├── models/db.py                #   SQLAlchemy 数据库模型
 │   ├── services/token_manager.py   #   GitHub Token 管理器

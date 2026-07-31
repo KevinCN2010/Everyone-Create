@@ -8,10 +8,10 @@
 
 |  | 文档 | 说明 |
 |--|------|------|
-| <img src="assets/readme-svg/whale.svg" width="16" height="16" alt=""> | [**GitAAP 项目文档**](README.gitaap.md) | GitHub API 聚合代理 — 多 Token 调度 · 智能缓存 · 实时数据聚合 |
-| <img src="assets/readme-svg/book.svg" width="16" height="16" alt=""> | [**GitAAP 简体中文**](docs/README.zh-CN.md) | 项目介绍、部署指南、开发文档 |
-| <img src="assets/readme-svg/flag-en.svg" width="16" height="16" alt=""> | [**GitAAP English**](docs/README.en.md) | Introduction, Deployment, Development |
-| <img src="assets/readme-svg/flag-zhtw.svg" width="16" height="16" alt=""> | [**GitAAP 繁體中文**](docs/README.zh-TW.md) | 專案介紹、部署指南、開發文檔 |
+| <img src="assets/readme-svg/whale.svg" width="16" height="16" alt=""> | [**GitAAP 项目文档**](modules/gitaap/README.md) | GitHub API 聚合代理 — 多 Token 调度 · 智能缓存 · 实时数据聚合 |
+| <img src="assets/readme-svg/book.svg" width="16" height="16" alt=""> | [**GitAAP 简体中文**](modules/gitaap/docs/README.zh-CN.md) | 项目介绍、部署指南、开发文档 |
+| <img src="assets/readme-svg/flag-en.svg" width="16" height="16" alt=""> | [**GitAAP English**](modules/gitaap/docs/README.en.md) | Introduction, Deployment, Development |
+| <img src="assets/readme-svg/flag-zhtw.svg" width="16" height="16" alt=""> | [**GitAAP 繁體中文**](modules/gitaap/docs/README.zh-TW.md) | 專案介紹、部署指南、開發文檔 |
 | <img src="assets/readme-svg/book.svg" width="16" height="16" alt=""> | [**社区 FAQ**](https://github.com/KevinCN2010/Everyone-Create/blob/community-docs/docs/faqs/FAQ.MD) | 使用、安装、权限、资源下载等常见问题(存放于 `community-docs` 分支) |
 
 ---
