@@ -4,7 +4,7 @@
 
 ---
 
-## 🧭 内容导航
+## <img src="assets/readme-svg/globe.svg" width="18" height="18" alt=""> 内容导航
 
 |  | 文档 | 说明 |
 |--|------|------|
@@ -16,9 +16,9 @@
 
 ---
 
-## 📖 关于本项目
+## <img src="assets/readme-svg/book.svg" width="18" height="18" alt=""> 关于本项目
 
-Everyone Create 是一个开放的共创社区，汇聚社区成员的智慧，共同维护和分享优质资源与文档。这里不是某个单一平台的附属，而是一个独立、中立的协作空间。
+Everyone Create 是一个开放、中立的共创社区，汇聚社区成员的智慧，共同维护与分享优质资源、文档。这里不隶属于任何单一平台，而是独立的协作空间。
 
 ### 核心定位
 
@@ -28,7 +28,7 @@ Everyone Create 是一个开放的共创社区，汇聚社区成员的智慧，�
 
 ---
 
-## 🛠️ 技术栈
+## <img src="assets/readme-svg/tools.svg" width="18" height="18" alt=""> 技术栈
 
 | 层级 | 技术 |
 |------|------|
@@ -40,7 +40,7 @@ Everyone Create 是一个开放的共创社区，汇聚社区成员的智慧，�
 
 ---
 
-## 🤝 参与贡献
+## <img src="assets/readme-svg/rocket.svg" width="18" height="18" alt=""> 参与贡献
 
 ### 提交建议
 
@@ -57,7 +57,7 @@ Everyone Create 是一个开放的共创社区，汇聚社区成员的智慧，�
 3. 提交 Pull Request
 4. 管理员审核后合并
 
-> 当前暂不支持自动拉取，审核通过后我们会尽快合并。
+> 说明：当前暂不支持自动拉取，审核通过后我们会尽快合并。
 
 ### 完善 FAQ
 
@@ -65,13 +65,13 @@ FAQ 文档维护在 `community-docs` 分支的 [docs/faqs/FAQ.MD](https://github
 
 ### 贡献者
 
-我们珍惜每一位开发者的付出。所有对整个项目做出贡献的朋友均会在 [贡献名单](https://www.eocc.top/marker/) 永久留名。
+我们珍惜每一位开发者的付出，所有贡献者均会在 [贡献名单](https://www.eocc.top/marker/) 永久留名。
 
-不必是核心代码贡献者——你的一句指点、一个错别字修正、一处语句通顺建议，都会成为我们越做越好的动力。当贡献足够显著时，我们一定会注意到你！
+不必是核心代码贡献者——一句指点、一处错别字修正、一条语句通顺建议，都是我们越做越好的动力。
 
 ---
 
-## 📜 许可证
+## <img src="assets/readme-svg/page.svg" width="18" height="18" alt=""> 许可证
 
 本项目按板块采用双许可证：
 
