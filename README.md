@@ -77,11 +77,11 @@ FAQ 文档维护在 `community-docs` 分支的 [docs/faqs/FAQ.MD](https://github
 
 | 板块 | 许可证 |
 |------|--------|
-| 文档与资源(README、docs/ 等) | [MIT](LICENSE) |
-| 代码(GitAAP 项目等) | [GPL-3.0](LICENSE-GPL-3.0) |
+| 代码(GitAAP 项目等) | [MIT](LICENSE) |
+| 文档与资源(README、docs/ 等) | [GPL-3.0](LICENSE-GPL-3.0) |
 
-**MIT(文档与资源)**
+**MIT(代码)**
 可自由使用、修改、分发，但必须标注原作者及来源。
 
-**GPL-3.0(代码)**
+**GPL-3.0(文档与资源)**
 详情见 [LICENSE-GPL-3.0](LICENSE-GPL-3.0) 全文。
